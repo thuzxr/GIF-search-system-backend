@@ -34,9 +34,11 @@ unit-test:
 style-test:
   extends: .test
   script:
+    - export GOPATH=$HOME/go
+    - export GOBIN=$HOME/go/bin
     - go get golang.org/x/lint
     - go install golang.org/x/lint
-    - golint ./...
+    - $GOBIN/golint ./...
 
 deploy:
   stage: deploy
