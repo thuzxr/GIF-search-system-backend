@@ -36,6 +36,7 @@ go 1.13
 require (
 	github.com/aliyun/aliyun-oss-go-sdk v2.0.3+incompatible
 	github.com/gin-gonic/gin v1.4.0
+	github.com/go-sql-driver/mysql v1.4.1
 	github.com/json-iterator/go v1.1.6
 	golang.org/x/time v0.0.0-00010101000000-000000000000 // indirect
 )
