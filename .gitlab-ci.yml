@@ -21,11 +21,11 @@ build:
     - export GOPROXY=https://goproxy.cn
     - export GOPATH=$HOME/go
     - export GOBIN=$HOME/go/bin
+    - go mod download
 
 unit-test:
   extends: .test
   script:
-    - go mod download
     - go test -cover -race -v -coverprofile=coverage.out ./...
   after_script:
     - SUFFIX=$RANDOM
