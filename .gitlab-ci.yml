@@ -19,6 +19,8 @@ build:
   stage: test
   before_script:
     - export GOPROXY=https://goproxy.cn
+    - export GOPATH=$HOME/go
+    - export GOBIN=$HOME/go/bin
 
 unit-test:
   extends: .test
@@ -31,15 +33,17 @@ unit-test:
     - tar -xf "/tmp/sonar-$SUFFIX.tar.gz" -C /opt
     - /opt/sonar-scanner/bin/sonar-scanner
 
-style-test:
+style-test1:
   extends: .test
   script:
-    - export GOPATH=$HOME/go
-    - export GOBIN=$HOME/go/bin
-    - go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
     - go get golang.org/x/lint/golint
     - go install golang.org/x/lint/golint
     - golint ./...
+
+style-test2:
+  extends: .test
+  script:
+    - go get github.com/golangci/golangci-lint/cmd/golangci-lint
     - golangci-lint run ./...
 
 deploy:
