@@ -32,7 +32,7 @@ unit-test:
     - /opt/sonar-scanner/bin/sonar-scanner
 
 style-test:
-  extents: .test
+  extends: .test
   script:
     - go get github.com/golang/lint
     - go install github.com/golang/lint
