@@ -34,8 +34,8 @@ unit-test:
 style-test:
   extends: .test
   script:
-    - go get github.com/golang/lint
-    - go install github.com/golang/lint
+    - go get golang.org/x/lint
+    - go install golang.org/x/lint
     - golint ./...
 
 deploy:
