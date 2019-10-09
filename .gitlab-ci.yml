@@ -30,6 +30,14 @@ unit-test:
     - tar -xf "/tmp/sonar-$SUFFIX.tar.gz" -C /opt
     - /opt/sonar-scanner/bin/sonar-scanner
 
+style-test:
+  image: golang:1.13
+  stage: test
+  script:
+    - go get github.com/golang/lint
+    - go install github.com/golang/lint
+    - golint ./...
+
 deploy:
   stage: deploy
   script:
