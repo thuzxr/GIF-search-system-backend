@@ -36,9 +36,11 @@ style-test:
   script:
     - export GOPATH=$HOME/go
     - export GOBIN=$HOME/go/bin
+    - go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
     - go get golang.org/x/lint/golint
     - go install golang.org/x/lint/golint
-    - $GOBIN/golint ./...
+    - golint ./...
+    - golangci-lint run ./...
 
 deploy:
   stage: deploy
