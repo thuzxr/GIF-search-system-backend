@@ -21,6 +21,6 @@ FROM scratch
 # Copy executable from the first stage
 COPY --from=0 /opt/app/backend /backend
 
-EXPOSE 80
+EXPOSE 8000
 
 CMD ["/backend"]
