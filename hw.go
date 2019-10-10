@@ -2,9 +2,9 @@ package main
 
 import (
 	db "backend/database"
-	"backend/utils"
+	// "backend/utils"
 	"database/sql"
-
+	"fmt"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -27,6 +27,8 @@ func RouterSet(DB *sql.DB) *gin.Engine {
 		c.Header("Access-Control-Allow-Origin", "*")
 		c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 		c.Header("Access-Control-Allow-Headers", "Action, Module, X-PINGOTHER, Content-Type, Content-Disposition")
+		msg := c.DefaultQuery("msg", "000")
+		fmt.Println(msg)
 		c.JSON(200, gin.H{
 			"message": "hello world! --sent by GO",
 		})
@@ -51,15 +53,26 @@ func RouterSet(DB *sql.DB) *gin.Engine {
 		}
 
 	})
+	r.POST("/upload",func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		c.Header("Access-Control-Allow-Headers", "Action, Module, X-PINGOTHER, Content-Type, Content-Disposition")
+		file := c.DefaultQuery("file","defaultFile")
+		fmt.Println(file)
+		c.JSON(200, gin.H{
+			"status":"succeed",
+			"recept": file,
+		})
+	})
 	// r.Run(":8000")
 	return r
 }
 
 func main() {
-	gifs := utils.JsonParse(".")
+	// gifs := utils.JsonParse(".")
 	DB := db.Connect_db()
-	db.CreateTable(DB)
-	db.DB_init(gifs, DB)
+	// db.CreateTable(DB)
+	// db.DB_init(gifs, DB)
 
 	r := RouterSet(DB)
 	r.Run(":8000")
