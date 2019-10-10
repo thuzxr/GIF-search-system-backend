@@ -16,7 +16,7 @@ COPY . $HOME
 RUN GOOS=linux GOARCH=amd64 go build -a -ldflags "-linkmode external -extldflags '-static' -s -w"
 
 # Second stage for executable only image
-FROM registry.secoder.net/stardustcrusaders/gif-dio-backend:master
+FROM scratch
 
 # Copy executable from the first stage
 COPY --from=0 /opt/app/backend /backend
