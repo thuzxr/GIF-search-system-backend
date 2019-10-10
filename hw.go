@@ -62,7 +62,7 @@ func main() {
 	db.DB_init(gifs, DB)
 
 	r := RouterSet(DB)
-	r.Run(":8000")
+	r.Run(":80")
 
 	// gifs:=ocr.JsonParse(".")
 	// var gif []ocr.Gifs
