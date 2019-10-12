@@ -56,10 +56,10 @@ func RouterSet(DB *sql.DB) *gin.Engine {
 }
 
 func main() {
-	gifs := utils.JsonParse(".")
+	// gifs := utils.JsonParse(".")
 	DB := db.Connect_db()
-	db.CreateTable(DB)
-	db.DB_init(gifs, DB)
+	// db.CreateTable(DB)
+	// db.DB_init(gifs, DB)
 
 	r := RouterSet(DB)
 	r.Run(":80")
