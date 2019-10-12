@@ -2,7 +2,7 @@ package main
 
 import (
 	db "backend/database"
-	"backend/utils"
+	// "backend/utils"
 	"database/sql"
 
 	"github.com/gin-gonic/gin"
