@@ -53,7 +53,7 @@ func RouterSet(DB *sql.DB) *gin.Engine {
 		}
 
 	})
-	r.POST("/upload",func(c *gin.Context) {
+	r.GET("/upload",func(c *gin.Context) {
 		c.Header("Access-Control-Allow-Origin", "*")
 		c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 		c.Header("Access-Control-Allow-Headers", "Action, Module, X-PINGOTHER, Content-Type, Content-Disposition")
