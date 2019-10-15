@@ -2,7 +2,7 @@ package main
 
 import (
 	db "backend/database"
-	"backend/utils"
+	// "backend/utils"
 	"database/sql"
 
 	"github.com/gin-gonic/gin"
@@ -56,13 +56,13 @@ func RouterSet(DB *sql.DB) *gin.Engine {
 }
 
 func main() {
-	gifs := utils.JsonParse(".")
+	// gifs := utils.JsonParse(".")
 	DB := db.Connect_db()
-	db.CreateTable(DB)
-	db.DB_init(gifs, DB)
+	// db.CreateTable(DB)
+	// db.DB_init(gifs, DB)
 
 	r := RouterSet(DB)
-	r.Run(":8000")
+	r.Run(":80")
 
 	// gifs:=ocr.JsonParse(".")
 	// var gif []ocr.Gifs
