@@ -1,0 +1,119 @@
+package search
+
+import(
+	"database/sql"
+	_ "github.com/go-sql-driver/mysql"
+	"backend/utils"
+	"strings"
+	"fmt"
+	jsoniter "github.com/json-iterator/go"
+	// "backend/database"
+	"os"
+	"io/ioutil"
+)
+
+type IndexStruct struct {
+	Size int `json:"size"`
+	Gifs []utils.Gifs `json:"gifs"`
+}
+
+func IndexInit(DB *sql.DB){
+	rows, err := DB.Query("Select Name,Title,Keyword from GIF_INFO")
+	defer func() {
+		if rows!=nil{
+			rows.Close();
+		}
+	}()
+
+	if err!=nil{
+		panic(err);
+	}
+
+	gif := new(utils.Gifs)
+	var ans []utils.Gifs
+
+	for rows.Next() {
+		if serr := rows.Scan(&gif.Name,&gif.Title,&gif.Keyword); serr != nil {
+			fmt.Printf("scan failed, err:%v\n", serr)
+			return
+		}
+		ans = append(ans, *gif)
+	}
+
+	var indexStruct IndexStruct
+	indexStruct.Size=len(ans)
+	indexStruct.Gifs=ans
+	// fmt.Println(indexStruct)
+	b, merr:=jsoniter.Marshal(indexStruct)
+	if merr!=nil{
+		fmt.Println(merr)
+		panic(merr)
+	}
+	w1,_ := os.OpenFile("searchIndex.json",os.O_CREATE|os.O_TRUNC,0644)
+	_,_= w1.Write(b)
+	_=w1.Close()
+	fmt.Println("Index Generated")
+}
+
+func IndexParse() []utils.Gifs{
+	bytes, _ := ioutil.ReadFile("searchIndex.json")
+	var indexStruct IndexStruct
+	_=jsoniter.Unmarshal(bytes, &indexStruct)
+
+	return indexStruct.Gifs
+}
+
+func FastIndexInit(DB *sql.DB) {
+	rows, err := DB.Query("Select Name,Title,Keyword from GIF_INFO")
+	defer func() {
+		if rows!=nil{
+			rows.Close();
+		}
+	}()
+
+	if err!=nil{
+		panic(err);
+	}
+
+	var names []string
+	var titles []string
+	var keywords []string
+	var name,title,keyword string
+
+	for rows.Next() {
+		if serr := rows.Scan(&name,&title,&keyword); serr != nil {
+			fmt.Printf("scan failed, err:%v\n", serr)
+			return
+		}
+		names=append(names,name)
+		titles=append(titles,title)
+		keywords=append(keywords,keyword)
+	}
+
+	w1, _:=os.OpenFile("ind_name.ind",os.O_CREATE|os.O_TRUNC,0644)
+	_, _=w1.Write([]byte(strings.Join(names, "#")))
+	_=w1.Close()
+	// cache.FastWrite("ind_name.ind",[]byte(strings.Join(names, "#")))
+	w1, _=os.OpenFile("ind_title.ind",os.O_CREATE|os.O_TRUNC,0644)
+	_, _=w1.Write([]byte(strings.Join(titles, "#")))
+	_=w1.Close()
+	w1, _=os.OpenFile("ind_keyword.ind",os.O_CREATE|os.O_TRUNC,0644)
+	_, _=w1.Write([]byte(strings.Join(keywords, "#")))
+	_=w1.Close()
+	fmt.Println("FastIndex Inited")
+} 
+
+func NameIndex() []string{
+	b,_ :=ioutil.ReadFile("ind_name.ind")
+	return strings.Split(string(b),"#")
+}
+
+func TitleIndex() []string{
+	b,_ :=ioutil.ReadFile("ind_title.ind")
+	return strings.Split(string(b),"#")
+}
+
+func KeywordIndex() []string{
+	b,_ :=ioutil.ReadFile("ind_keyword.ind")
+	return strings.Split(string(b),"#")
+}

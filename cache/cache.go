@@ -1,7 +1,7 @@
-package main
+package cache
 
 import (
-	"fmt"
+	// "fmt"
 	"os"
 	"io/ioutil"
 	"strings"
@@ -53,18 +53,18 @@ func OfflineCacheQuery(keyword string) []string{
 	return res
 }
 
-func main(){
-	ind,_:=ioutil.ReadFile("cache")
-	lis:=strings.Fields(string(ind))
-	fmt.Println(lis)
-	// fmt.Println(base64.URLEncoding.EncodeToString([]byte("哈哈")))
-	var gif0 []utils.Gifs
-	gif0=append(gif0,make([]utils.Gifs,3)...)
-	gif0[0].Name="111"
-	gif0[1].Name="222"
-	gif0[2].Name="333"
-	OfflineCacheInit()
-	// OfflineCacheAppend("哈哈哈",gif0)
-	fmt.Println(OfflineCacheQuery("哈哈哈"))
-}
+// func main(){
+// 	ind,_:=ioutil.ReadFile("cache")
+// 	lis:=strings.Fields(string(ind))
+// 	fmt.Println(lis)
+// 	// fmt.Println(base64.URLEncoding.EncodeToString([]byte("哈哈")))
+// 	var gif0 []utils.Gifs
+// 	gif0=append(gif0,make([]utils.Gifs,3)...)
+// 	gif0[0].Name="111"
+// 	gif0[1].Name="222"
+// 	gif0[2].Name="333"
+// 	OfflineCacheInit()
+// 	// OfflineCacheAppend("哈哈哈",gif0)
+// 	fmt.Println(OfflineCacheQuery("哈哈哈"))
+// }
 

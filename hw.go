@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
+	"backend/search"
 )
 
 // func SearchDemo(searchKey string, gifs []utils.Gifs) string {
@@ -22,6 +23,9 @@ import (
 
 func RouterSet(DB *sql.DB) *gin.Engine {
 	r := gin.Default()
+	names:=search.NameIndex()
+	titles:=search.TitleIndex()
+	keywords:=search.KeywordIndex()
 	// gif := utils.JsonParse(".")
 	r.GET("/", func(c *gin.Context) {
 		c.Header("Access-Control-Allow-Origin", "*")
@@ -39,8 +43,9 @@ func RouterSet(DB *sql.DB) *gin.Engine {
 		c.Header("Access-Control-Allow-Headers", "Action, Module, X-PINGOTHER, Content-Type, Content-Disposition")
 		// searchKey := c.Query("key")
 		// res := SearchDemo(searchKey, gif)
-		keywords := c.DefaultQuery("key", "UNK")
-		match := db.Query(DB, keywords) //search(keywords,gifs,DB)
+		keyword := c.DefaultQuery("key", "UNK")
+		// match := db.Query(DB, keyword)
+		match := search.SimpleSearch(keyword, names, titles, keywords)
 		if len(match) == 0 {
 			c.JSON(200, gin.H{
 				"status": "failed",
@@ -81,4 +86,8 @@ func main() {
 	// var gif []ocr.Gifs
 	// fmt.Println(gif[0])
 	// fmt.Println(SearchDemo("吐出来",gif))
+
+	// search.IndexInit(DB)
+	// gifs:=search.IndexParse()
+	// fmt.Println(gifs)
 }
