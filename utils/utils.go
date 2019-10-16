@@ -2,7 +2,7 @@ package utils
 
 import (
 	"io/ioutil"
-	
+
 	jsoniter "github.com/json-iterator/go"
 )
 
@@ -22,6 +22,7 @@ const (
 	PORT     = "3306"
 	SERVER   = "49.233.71.202"
 	DATABASE = "GIF_INFO"
+	CACHE_DIR= "cache/"
 )
 
 //用于读取实例gif库的info.json，中期开发将替换为完整Gif库的链接，返回值是一个struct Gifs类
