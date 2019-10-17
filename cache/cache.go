@@ -11,6 +11,7 @@ import (
 	// jsoniter "github.com/json-iterator/go"
 )
 
+//封装的快速文件读写，目前无用途
 func FastWrite(filepath string,content []byte){
 	w1, _:=os.OpenFile("cache",os.O_CREATE|os.O_TRUNC,0644)
 	_, _=w1.Write(content)
@@ -22,7 +23,7 @@ func FastAppend(filepath string,content []byte){
 	_, _=w1.Write(content)
 	_=w1.Close()
 }
-
+//初始化Cache存储目录
 func OfflineCacheInit(){
 	_,err:=os.Stat(utils.CACHE_DIR+"cache_name")
 	if os.IsNotExist(err){
@@ -33,7 +34,7 @@ func OfflineCacheInit(){
 		_=os.Mkdir(utils.CACHE_DIR+"cache_title",os.ModePerm)
 	}
 }
-
+//向Cache添加keyword及其搜索结果
 func OfflineCacheAppend(keyword string,gif []utils.Gifs){
 	w1, _:=os.OpenFile(utils.CACHE_DIR+"cache_name/"+base64.URLEncoding.EncodeToString([]byte(keyword)),os.O_CREATE|os.O_TRUNC,0644)
 	// _, _=w1.Write([]byte(strconv.FormatInt(int64(len(gif)),10)+"#"))
@@ -48,7 +49,7 @@ func OfflineCacheAppend(keyword string,gif []utils.Gifs){
 	}
 	_=w1.Close()
 }
-
+//查询keyword对应的Cache
 func OfflineCacheQuery(keyword string) []string{
 	var res []string
 	fname:=utils.CACHE_DIR+"cache_name/"+base64.URLEncoding.EncodeToString([]byte(keyword))
@@ -62,7 +63,7 @@ func OfflineCacheQuery(keyword string) []string{
 	res=append(res,strings.Split(string(ind),"#")...)
 	return res
 }
-
+//读取目前已存储的Cache
 func OfflineCacheReload() map[string][]utils.Gifs{
 	// m_name:=make(map[string][]string)
 	// m_title:=make(map[string][]string)

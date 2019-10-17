@@ -16,7 +16,7 @@ type IndexStruct struct {
 	Size int `json:"size"`
 	Gifs []utils.Gifs `json:"gifs"`
 }
-
+//生成json格式的index，由于速度问题暂时未采用
 func IndexInit(DB *sql.DB){
 	rows, err := DB.Query("Select Name,Title,Keyword from GIF_INFO")
 	defer func() {
@@ -54,7 +54,7 @@ func IndexInit(DB *sql.DB){
 	_=w1.Close()
 	fmt.Println("Index Generated")
 }
-
+//返回json格式的index存储的Gif列表
 func IndexParse() []utils.Gifs{
 	bytes, _ := ioutil.ReadFile("searchIndex.json")
 	var indexStruct IndexStruct
@@ -62,7 +62,7 @@ func IndexParse() []utils.Gifs{
 
 	return indexStruct.Gifs
 }
-
+//生成.ind格式的Gif列表
 func FastIndexInit(DB *sql.DB) {
 	rows, err := DB.Query("Select Name,Title,Keyword from GIF_INFO")
 	defer func() {
@@ -103,6 +103,7 @@ func FastIndexInit(DB *sql.DB) {
 	fmt.Println("FastIndex Inited")
 } 
 
+//读取.ind格式的index,下同
 func NameIndex() []string{
 	b,_ :=ioutil.ReadFile("ind_name.ind")
 	return strings.Split(string(b),"#")

@@ -9,6 +9,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"backend/search"
 	"backend/cache"
+	"backend/word"
 )
 
 // func SearchDemo(searchKey string, gifs []utils.Gifs) string {
@@ -92,6 +93,8 @@ func main() {
 	r := RouterSet()
 	r.Run(":8000")
 	
+	
+
 	// names:=search.NameIndex()
 	// titles:=search.TitleIndex()
 	// keywords:=search.KeywordIndex()
