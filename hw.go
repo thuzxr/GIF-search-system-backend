@@ -9,7 +9,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"backend/search"
 	"backend/cache"
-	"backend/word"
+	// "backend/word"
 )
 
 // func SearchDemo(searchKey string, gifs []utils.Gifs) string {
@@ -93,8 +93,6 @@ func main() {
 	r := RouterSet()
 	r.Run(":8000")
 	
-	
-
 	// names:=search.NameIndex()
 	// titles:=search.TitleIndex()
 	// keywords:=search.KeywordIndex()
@@ -104,10 +102,7 @@ func main() {
 	// m:=cache.OfflineCacheReload()
 	// fmt.Println(m["吐出来"])
 
-	// gifs:=ocr.JsonParse(".")
-	// var gif []ocr.Gifs
-	// fmt.Println(gif[0])
-	// fmt.Println(SearchDemo("吐出来",gif))
+	// word.ConvertToPinyin("吐出来")
 
 	// search.IndexInit(DB)
 	// gifs:=search.IndexParse()
