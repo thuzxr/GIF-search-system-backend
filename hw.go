@@ -89,18 +89,7 @@ func main() {
 	// db.DB_init(gifs, DB)
 
 	r := RouterSet()
-	r.Run(":8000")
-	
-	// names:=search.NameIndex()
-	// titles:=search.TitleIndex()
-	// keywords:=search.KeywordIndex()
-
-	// cache.OfflineCacheInit()
-	// cache.OfflineCacheAppend("哈哈",search.SimpleSearch("哈哈",names,titles,keywords))
-	// m:=cache.OfflineCacheReload()
-	// fmt.Println(m["吐出来"])
-
-	// word.ConvertToPinyin("吐出来")
+	r.Run(":80")
 
 	// search.IndexInit(DB)
 	// gifs:=search.IndexParse()
