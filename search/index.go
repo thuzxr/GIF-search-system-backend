@@ -41,3 +41,13 @@ func KeywordIndex() []string{
 	b,_ :=ioutil.ReadFile("ind_keyword.ind")
 	return strings.Split(string(b),"#")
 }
+
+func FastIndexParse() ([]string, []string, []string){
+	b,_ :=ioutil.ReadFile("ind_name.ind")
+	names:=strings.Split(string(b),"#")
+	b,_ =ioutil.ReadFile("ind_title.ind")
+	titles:=strings.Split(string(b),"#")
+	b,_ =ioutil.ReadFile("ind_keyword.ind")
+	keywords:=strings.Split(string(b),"#")
+	return names,titles,keywords
+}

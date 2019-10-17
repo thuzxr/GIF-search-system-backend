@@ -25,9 +25,7 @@ import (
 
 func RouterSet() *gin.Engine {
 	r := gin.Default()
-	names:=search.NameIndex()
-	titles:=search.TitleIndex()
-	keywords:=search.KeywordIndex()
+	names,titles,keywords:=search.FastIndexParse()
 	m:=cache.OfflineCacheReload()
 	// gif := utils.JsonParse(".")
 	r.GET("/", func(c *gin.Context) {
@@ -55,7 +53,7 @@ func RouterSet() *gin.Engine {
 			fmt.Println("Hit Cache "+keyword)
 		}else{
 			match = search.SimpleSearch(keyword, names, titles, keywords)
-			cache.OfflineCacheAppend(keyword,match)
+			go cache.OfflineCacheAppend(keyword,match)
 		}
 		if len(match) == 0 {
 			c.JSON(200, gin.H{
