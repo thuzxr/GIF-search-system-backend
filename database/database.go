@@ -63,13 +63,14 @@ func InsertData(DB *sql.DB, gif utils.Gifs) {
 		// fmt.Print(gif)
 		return
 	}
+	fmt.Println(gif.Title,"Inserted key:",gif.Keyword)
 }
 
 func Query(DB *sql.DB, q string) []utils.Gifs {
 	gif := new(utils.Gifs)
 	var ans []utils.Gifs
-	// fmt.Print(q)
-	rows, qerr := DB.Query("select Keyword from GIF_INFO WHERE Keyword like '%" + q + "%'")
+	fmt.Print(q)
+	rows, qerr := DB.Query("select Name,Title,Keyword,Gif_url from GIF_INFO WHERE Keyword like '%" + q + "%'")
 
 	defer func() {
 		if rows != nil {
@@ -82,12 +83,13 @@ func Query(DB *sql.DB, q string) []utils.Gifs {
 		return ans
 	}
 	for rows.Next() {
-		if serr := rows.Scan(&gif.Keyword); serr != nil {
+		if serr := rows.Scan(&gif.Name,&gif.Title,&gif.Keyword,&gif.Gif_url); serr != nil {
 			fmt.Printf("scan failed, err:%v\n", serr)
 			return ans
 		}
 		gif.Oss_url = ossUpload.OssSignLink(*gif, 3600)
 		ans = append(ans, *gif)
+		fmt.Println(gif.Oss_url)
 	}
 	return ans
 }
