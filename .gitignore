@@ -2,3 +2,4 @@
 *.exe
 # 数据文件
 *.ind
+.DS_Store
