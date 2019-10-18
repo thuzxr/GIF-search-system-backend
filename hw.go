@@ -88,6 +88,7 @@ func main() {
 	// db.CreateTable(DB)
 	// db.DB_init(gifs, DB)
 
+	cache.OfflineCacheInit()
 	r := RouterSet()
 	r.Run(":80")
 

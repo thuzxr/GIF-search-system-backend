@@ -2,3 +2,8 @@
 *.exe
 # 数据文件
 *.ind
+.DS_Store
+searchIndex.json
+# 缓存文件
+cache/cache_name
+cache/cache_title
