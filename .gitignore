@@ -1,7 +1,6 @@
 # 可执行文件
 *.exe
 # 数据文件
-*.ind
 .DS_Store
 searchIndex.json
 # 缓存文件
