@@ -96,7 +96,7 @@ func main() {
 
 	cache.OfflineCacheInit()
 	r := RouterSet()
-	r.Run(":8000")
+	r.Run(":80")
 
 	// search.IndexInit(DB)
 	// gifs:=search.IndexParse()
