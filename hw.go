@@ -9,6 +9,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"backend/search"
 	"backend/cache"
+	"backend/ossUpload"
 	// "backend/word"
 )
 
@@ -55,6 +56,9 @@ func RouterSet() *gin.Engine {
 			match = search.SimpleSearch(keyword, names, titles, keywords)
 			go cache.OfflineCacheAppend(keyword,match)
 		}
+		for i:=0;i<len(match);i++{
+			match[i].Oss_url=ossUpload.OssSignLink(match[i],3600)
+		}
 		if len(match) == 0 {
 			c.JSON(200, gin.H{
 				"status": "failed",
@@ -88,9 +92,11 @@ func main() {
 	// db.CreateTable(DB)
 	// db.DB_init(gifs, DB)
 
+	// search.FastIndexInit()
+
 	cache.OfflineCacheInit()
 	r := RouterSet()
-	r.Run(":80")
+	r.Run(":8000")
 
 	// search.IndexInit(DB)
 	// gifs:=search.IndexParse()
