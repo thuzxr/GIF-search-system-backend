@@ -20,6 +20,9 @@ FROM scratch
 
 # Copy executable from the first stage
 COPY --from=0 /opt/app/backend /backend
+COPY --from=0 /opt/app/ind_keyword.ind
+COPY --from=0 /opt/app/ind_name.ind
+COPY --from=0 /opt/app/ind_title.ind
 
 EXPOSE 80
 
