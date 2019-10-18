@@ -39,5 +39,6 @@ require (
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/json-iterator/go v1.1.6
 	github.com/mozillazg/go-pinyin v0.15.0
+	github.com/stretchr/testify v1.3.0
 	golang.org/x/time v0.0.0-00010101000000-000000000000 // indirect
 )
