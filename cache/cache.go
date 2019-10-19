@@ -49,14 +49,14 @@ func OfflineCacheInit() {
 func OfflineCacheAppend(keyword string, gif []utils.Gifs) {
 	w1, _ := os.OpenFile(path.Join(cacheNamePath(), base64.URLEncoding.EncodeToString([]byte(keyword))),
 		os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
-	// _, _=w1.Write([]byte(strconv.FormatInt(int64(len(gif)),10)+"#"))
+
 	for i := 0; i < len(gif); i++ {
 		_, _ = w1.Write([]byte(gif[i].Name + "#"))
 	}
 	_ = w1.Close()
 	w1, _ = os.OpenFile(path.Join(cacheTitlePath(), base64.URLEncoding.EncodeToString([]byte(keyword))),
 		os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
-	// _, _=w1.Write([]byte(strconv.FormatInt(int64(len(gif)),10)+"#"))
+
 	for i := 0; i < len(gif); i++ {
 		_, _ = w1.Write([]byte(gif[i].Title + "#"))
 	}
@@ -80,12 +80,10 @@ func OfflineCacheQuery(keyword string) []string {
 
 //读取目前已存储的Cache
 func OfflineCacheReload() map[string][]utils.Gifs {
-	// m_name:=make(map[string][]string)
-	// m_title:=make(map[string][]string)
 	m := make(map[string][]utils.Gifs)
 	gif := new(utils.Gifs)
 	var gifs []utils.Gifs
-	// var res []string
+
 	dir, _ := ioutil.ReadDir(cacheNamePath())
 	for _, fi := range dir {
 		if !fi.IsDir() {
