@@ -2,7 +2,6 @@ package main
 
 import (
 	"backend/cache"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -31,13 +30,11 @@ func TestSearchRouter(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 	status := jsoniter.Get(w.Body.Bytes(), "status").ToString()
-	// fmt.Println(status)
 	assert.Equal(t, status, "failed")
 
 	req, _ = http.NewRequest(http.MethodGet, "/search?key=吐出来", nil)
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 	status = jsoniter.Get(w.Body.Bytes(), "status").ToString()
-	fmt.Println(status)
 	assert.Equal(t, status, "failed")
 }
