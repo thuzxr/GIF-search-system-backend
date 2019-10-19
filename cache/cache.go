@@ -11,13 +11,13 @@ import (
 
 //封装的快速文件读写，目前无用途
 func FastWrite(filepath string, content []byte) {
-	w1, _ := os.OpenFile(filepath, os.O_CREATE|os.O_TRUNC, 0644)
+	w1, _ := os.OpenFile(filepath, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
 	_, _ = w1.Write(content)
 	_ = w1.Close()
 }
 
 func FastAppend(filepath string, content []byte) {
-	w1, _ := os.OpenFile(filepath, os.O_APPEND, 0644)
+	w1, _ := os.OpenFile(filepath, os.O_APPEND|os.O_WRONLY, 0644)
 	_, _ = w1.Write(content)
 	_ = w1.Close()
 }
