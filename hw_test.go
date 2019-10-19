@@ -1,6 +1,7 @@
 package main
 
 import (
+	"backend/cache"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -21,6 +22,8 @@ func TestDefaultRouter(t *testing.T) {
 }
 
 func TestSearchRouter(t *testing.T) {
+	cache.OfflineCacheInit()
+	cache.OfflineCacheClear()
 	router := RouterSet()
 	w := httptest.NewRecorder()
 
