@@ -26,7 +26,7 @@ unit-test:
   extends: .test
   script:
     - go mod download
-    - go test -cover -race -v -coverprofile=coverage.out backend ./cache ./database ./index_init ./ocr ./ossUpload ./search ./utils ./word
+    - go test -cover -race -v -coverprofile=coverage.out backend ./cache  ./ocr  ./search  ./word
   after_script:
     - SUFFIX=$RANDOM
     - curl "http://10.0.0.11/sonar-scanner.tar.gz" -s -o "/tmp/sonar-$SUFFIX.tar.gz"
