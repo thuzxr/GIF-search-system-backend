@@ -16,3 +16,15 @@ func TestSearch(t *testing.T) {
 	match := SimpleSearch(keyword, names, titles, keywords)
 	assert.NotEqual(t, len(match), 0)
 }
+
+func TestIndex(t *testing.T) {
+	os.Chdir("..")
+	gifs := IndexParse()
+	assert.Equal(t, len(gifs), 0)
+	names := NameIndex()
+	assert.NotEqual(t, len(names), 0)
+	titles := TitleIndex()
+	assert.NotEqual(t, len(titles), 0)
+	keyword := KeywordIndex()
+	assert.NotEqual(t, len(keyword), 0)
+}
