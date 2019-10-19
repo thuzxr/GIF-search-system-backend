@@ -88,9 +88,7 @@ func OfflineCacheReload() map[string][]utils.Gifs {
 	// var res []string
 	dir, _ := ioutil.ReadDir(cacheNamePath())
 	for _, fi := range dir {
-		if fi.IsDir() {
-
-		} else {
+		if !fi.IsDir() {
 			gifs = make([]utils.Gifs, 0)
 			b, _ := base64.URLEncoding.DecodeString(fi.Name())
 			b0, _ := ioutil.ReadFile(path.Join(cacheNamePath(), fi.Name()))
@@ -112,9 +110,7 @@ func OfflineCacheClear() {
 	dir, _ := ioutil.ReadDir(cacheNamePath())
 	var TmpName string
 	for _, fi := range dir {
-		if fi.IsDir() {
-
-		} else {
+		if !fi.IsDir() {
 			TmpName = fi.Name()
 			os.Remove(path.Join(cacheNamePath(), TmpName))
 			os.Remove(path.Join(cacheTitlePath(), TmpName))
