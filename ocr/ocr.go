@@ -22,7 +22,6 @@ func Ocr(gif utils.Gifs) []string {
 	q.Add("url", gif.Gif_url)
 	q.Add("token", "toutiao_ocr")
 	req.URL.RawQuery = q.Encode()
-	// fmt.Println(req.URL.String())
 
 	var resp *http.Response
 	resp, err = http.DefaultClient.Do(req)
@@ -37,9 +36,8 @@ func Ocr(gif utils.Gifs) []string {
 		fmt.Print(err)
 		panic(err)
 	}
-	// fmt.Println(body)
-	var tags []string
 
+	var tags []string
 	json_data := jsoniter.Get(body, "data", "tags")
 	_data := []byte(json_data.ToString())
 
@@ -52,12 +50,3 @@ func Ocr(gif utils.Gifs) []string {
 
 	return tags
 }
-
-// func main() {
-// 	// q:=req.URL.Query()
-// 	// q.add("")
-// 	gifs:=jsonParse()
-// 	fmt.Println(gifs[0])
-// 	tags:=ocr(gifs[0])
-// 	fmt.Println(tags)
-// }

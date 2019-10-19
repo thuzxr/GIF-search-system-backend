@@ -37,4 +37,8 @@ func TestSearchRouter(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 	status = jsoniter.Get(w.Body.Bytes(), "status").ToString()
 	assert.Equal(t, status, "failed")
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+	status = jsoniter.Get(w.Body.Bytes(), "status").ToString()
+	assert.Equal(t, status, "failed")
 }

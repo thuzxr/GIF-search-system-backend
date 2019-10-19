@@ -11,7 +11,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func Connect_db() *sql.DB {
+func ConnectDB() *sql.DB {
 	dsn := fmt.Sprintf("%s:%s@%s(%s:%s)/%s", utils.USERNAME, utils.PASSWORD, utils.NETWORK, utils.SERVER, utils.PORT, utils.DATABASE)
 	DB, err := sql.Open("mysql", dsn)
 	if err != nil {
@@ -24,7 +24,7 @@ func Connect_db() *sql.DB {
 	return DB
 }
 
-func DB_init(gifs []utils.Gifs, DB *sql.DB) {
+func InitDB(gifs []utils.Gifs, DB *sql.DB) {
 	_, err := DB.Exec("DELETE FROM GIF_INFO")
 	if err != nil {
 		fmt.Println("delete data in table failed:", err)
@@ -63,7 +63,7 @@ func InsertData(DB *sql.DB, gif utils.Gifs) {
 		// fmt.Print(gif)
 		return
 	}
-	fmt.Println(gif.Title,"Inserted key:",gif.Keyword)
+	fmt.Println(gif.Title, "Inserted key:", gif.Keyword)
 }
 
 func Query(DB *sql.DB, q string) []utils.Gifs {
@@ -83,7 +83,7 @@ func Query(DB *sql.DB, q string) []utils.Gifs {
 		return ans
 	}
 	for rows.Next() {
-		if serr := rows.Scan(&gif.Name,&gif.Title,&gif.Keyword,&gif.Gif_url); serr != nil {
+		if serr := rows.Scan(&gif.Name, &gif.Title, &gif.Keyword, &gif.Gif_url); serr != nil {
 			fmt.Printf("scan failed, err:%v\n", serr)
 			return ans
 		}
