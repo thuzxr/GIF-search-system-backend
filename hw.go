@@ -10,6 +10,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
+<<<<<<< HEAD
+=======
+	"backend/search"
+	"backend/cache"
+	"backend/ossUpload"
+>>>>>>> develop
 	// "backend/word"
 )
 
@@ -26,10 +32,8 @@ import (
 
 func RouterSet() *gin.Engine {
 	r := gin.Default()
-	names := search.NameIndex()
-	titles := search.TitleIndex()
-	keywords := search.KeywordIndex()
-	m := cache.OfflineCacheReload()
+	names,titles,keywords:=search.FastIndexParse()
+	m:=cache.OfflineCacheReload()
 	// gif := utils.JsonParse(".")
 	r.GET("/", func(c *gin.Context) {
 		c.Header("Access-Control-Allow-Origin", "*")
@@ -56,7 +60,14 @@ func RouterSet() *gin.Engine {
 			fmt.Println("Hit Cache " + keyword)
 		} else {
 			match = search.SimpleSearch(keyword, names, titles, keywords)
+<<<<<<< HEAD
 			cache.OfflineCacheAppend(keyword, match)
+=======
+			go cache.OfflineCacheAppend(keyword,match)
+		}
+		for i:=0;i<len(match);i++{
+			match[i].Oss_url=ossUpload.OssSignLink(match[i],3600)
+>>>>>>> develop
 		}
 		if len(match) == 0 {
 			c.JSON(200, gin.H{
@@ -91,8 +102,11 @@ func main() {
 	// db.CreateTable(DB)
 	// db.DB_init(gifs, DB)
 
+	// search.FastIndexInit()
+
 	cache.OfflineCacheInit()
 	r := RouterSet()
+<<<<<<< HEAD
 	r.Run(":8000")
 
 	// names:=search.NameIndex()
@@ -104,6 +118,9 @@ func main() {
 	// fmt.Println(m["吐出来"])
 
 	// word.ConvertToPinyin("吐出来")
+=======
+	r.Run(":80")
+>>>>>>> develop
 
 	// search.IndexInit(DB)
 	// gifs:=search.IndexParse()

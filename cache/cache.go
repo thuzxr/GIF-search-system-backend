@@ -1,7 +1,7 @@
 package cache
 
 import (
-	// "fmt"
+	"fmt"
 	"os"
 	"io/ioutil"
 	"strings"
@@ -91,6 +91,33 @@ func OfflineCacheReload() map[string][]utils.Gifs{
 		}
 	}
 	return m;
+}
+
+func OfflineCacheClear(){
+	dir,_:=ioutil.ReadDir(utils.CACHE_DIR+"cache_name/")
+	var TmpName string
+	for _,fi:=range dir{
+		if fi.IsDir(){
+
+		}else{
+			TmpName=fi.Name()
+			os.Remove(utils.CACHE_DIR+"cache_name/"+TmpName)
+			os.Remove(utils.CACHE_DIR+"cahce_title/"+TmpName)
+		}
+	}
+}
+
+func OfflineCacheDelete(keyword string){
+	KeywordName:=base64.URLEncoding.EncodeToString([]byte(keyword));
+	_,err:=os.Stat(utils.CACHE_DIR+"cache_name/"+KeywordName)
+	if os.IsNotExist(err){
+		return
+	}
+	err=os.Remove(utils.CACHE_DIR+"cache_name/"+KeywordName)
+	if err!=nil{
+		fmt.Println(err)
+	}
+	os.Remove(utils.CACHE_DIR+"cache_title/"+KeywordName)
 }
 
 // func main(){

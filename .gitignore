@@ -1,9 +1,8 @@
 # 可执行文件
 *.exe
 # 数据文件
-*.ind
 .DS_Store
-
+searchIndex.json
 # 缓存文件
-**/cache_name/**
-**/cache_title/**
+cache/cache_name
+cache/cache_title
