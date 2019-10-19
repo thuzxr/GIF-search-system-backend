@@ -1,18 +1,40 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	jsoniter "github.com/json-iterator/go"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestIndexGetRouter(t *testing.T) {
+func TestDefaultRouter(t *testing.T) {
 	router := RouterSet()
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest(http.MethodGet, "/", nil)
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Equal(t, "{\"message\":\"hello world! --sent by GO\"}", w.Body.String())
+	message := jsoniter.Get(w.Body.Bytes(), "message").ToString()
+	assert.Equal(t, "hello world! --sent by GO", message)
+}
+
+func TestSearchRouter(t *testing.T) {
+	router := RouterSet()
+	w := httptest.NewRecorder()
+
+	req, _ := http.NewRequest(http.MethodGet, "/search", nil)
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+	status := jsoniter.Get(w.Body.Bytes(), "status").ToString()
+	// fmt.Println(status)
+	assert.Equal(t, status, "failed")
+
+	req, _ = http.NewRequest(http.MethodGet, "/search?key=吐出来", nil)
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+	status = jsoniter.Get(w.Body.Bytes(), "status").ToString()
+	fmt.Println(status)
+	assert.Equal(t, status, "failed")
 }

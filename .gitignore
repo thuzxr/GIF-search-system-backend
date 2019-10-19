@@ -3,3 +3,7 @@
 # 数据文件
 *.ind
 .DS_Store
+
+# 缓存文件
+**/cache_name/**
+**/cache_title/**
