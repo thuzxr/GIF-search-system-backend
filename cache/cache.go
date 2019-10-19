@@ -6,8 +6,19 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path"
 	"strings"
 )
+
+func cacheNamePath() string {
+	gwd, _ := os.Getwd()
+	return path.Join(gwd, utils.CACHE_DIR, "cache_name")
+}
+
+func cacheTitlePath() string {
+	gwd, _ := os.Getwd()
+	return path.Join(gwd, utils.CACHE_DIR, "cache_title")
+}
 
 //封装的快速文件读写，目前无用途
 func FastWrite(filepath string, content []byte) {
@@ -24,25 +35,27 @@ func FastAppend(filepath string, content []byte) {
 
 //初始化Cache存储目录
 func OfflineCacheInit() {
-	_, err := os.Stat(utils.CACHE_DIR + "cache_name")
+	_, err := os.Stat(cacheNamePath())
 	if os.IsNotExist(err) {
-		_ = os.Mkdir(utils.CACHE_DIR+"cache_name", os.ModePerm)
+		_ = os.Mkdir(cacheNamePath(), os.ModePerm)
 	}
-	_, err = os.Stat(utils.CACHE_DIR + "cache_title")
+	_, err = os.Stat(cacheTitlePath())
 	if os.IsNotExist(err) {
-		_ = os.Mkdir(utils.CACHE_DIR+"cache_title", os.ModePerm)
+		_ = os.Mkdir(cacheTitlePath(), os.ModePerm)
 	}
 }
 
 //向Cache添加keyword及其搜索结果
 func OfflineCacheAppend(keyword string, gif []utils.Gifs) {
-	w1, _ := os.OpenFile(utils.CACHE_DIR+"cache_name/"+base64.URLEncoding.EncodeToString([]byte(keyword)), os.O_CREATE|os.O_TRUNC, 0644)
+	w1, _ := os.OpenFile(path.Join(cacheNamePath(), base64.URLEncoding.EncodeToString([]byte(keyword))),
+		os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
 	// _, _=w1.Write([]byte(strconv.FormatInt(int64(len(gif)),10)+"#"))
 	for i := 0; i < len(gif); i++ {
 		_, _ = w1.Write([]byte(gif[i].Name + "#"))
 	}
 	_ = w1.Close()
-	w1, _ = os.OpenFile(utils.CACHE_DIR+"cache_title/"+base64.URLEncoding.EncodeToString([]byte(keyword)), os.O_CREATE|os.O_TRUNC, 0644)
+	w1, _ = os.OpenFile(path.Join(cacheTitlePath(), base64.URLEncoding.EncodeToString([]byte(keyword))),
+		os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
 	// _, _=w1.Write([]byte(strconv.FormatInt(int64(len(gif)),10)+"#"))
 	for i := 0; i < len(gif); i++ {
 		_, _ = w1.Write([]byte(gif[i].Title + "#"))
@@ -53,7 +66,7 @@ func OfflineCacheAppend(keyword string, gif []utils.Gifs) {
 //查询keyword对应的Cache
 func OfflineCacheQuery(keyword string) []string {
 	var res []string
-	fname := utils.CACHE_DIR + "cache_name/" + base64.URLEncoding.EncodeToString([]byte(keyword))
+	fname := path.Join(cacheNamePath(), base64.URLEncoding.EncodeToString([]byte(keyword)))
 	_, err := os.Stat(fname)
 	if os.IsNotExist(err) {
 		res = append(res, "Failed")
@@ -73,16 +86,16 @@ func OfflineCacheReload() map[string][]utils.Gifs {
 	gif := new(utils.Gifs)
 	var gifs []utils.Gifs
 	// var res []string
-	dir, _ := ioutil.ReadDir(utils.CACHE_DIR + "cache_name/")
+	dir, _ := ioutil.ReadDir(cacheNamePath())
 	for _, fi := range dir {
 		if fi.IsDir() {
 
 		} else {
 			gifs = make([]utils.Gifs, 0)
 			b, _ := base64.URLEncoding.DecodeString(fi.Name())
-			b0, _ := ioutil.ReadFile(utils.CACHE_DIR + "cache_name/" + fi.Name())
+			b0, _ := ioutil.ReadFile(path.Join(cacheNamePath(), fi.Name()))
 			lisName := strings.Split(string(b0), "#")
-			b0, _ = ioutil.ReadFile(utils.CACHE_DIR + "cache_title/" + fi.Name())
+			b0, _ = ioutil.ReadFile(path.Join(cacheTitlePath(), fi.Name()))
 			lisTitle := strings.Split(string(b0), "#")
 			for i := 0; i < len(lisName); i++ {
 				gif.Name = lisName[i]
@@ -96,28 +109,28 @@ func OfflineCacheReload() map[string][]utils.Gifs {
 }
 
 func OfflineCacheClear() {
-	dir, _ := ioutil.ReadDir(utils.CACHE_DIR + "cache_name/")
+	dir, _ := ioutil.ReadDir(cacheNamePath())
 	var TmpName string
 	for _, fi := range dir {
 		if fi.IsDir() {
 
 		} else {
 			TmpName = fi.Name()
-			os.Remove(utils.CACHE_DIR + "cache_name/" + TmpName)
-			os.Remove(utils.CACHE_DIR + "cahce_title/" + TmpName)
+			os.Remove(path.Join(cacheNamePath(), TmpName))
+			os.Remove(path.Join(cacheTitlePath(), TmpName))
 		}
 	}
 }
 
 func OfflineCacheDelete(keyword string) {
 	KeywordName := base64.URLEncoding.EncodeToString([]byte(keyword))
-	_, err := os.Stat(utils.CACHE_DIR + "cache_name/" + KeywordName)
+	_, err := os.Stat(path.Join(cacheNamePath(), KeywordName))
 	if os.IsNotExist(err) {
 		return
 	}
-	err = os.Remove(utils.CACHE_DIR + "cache_name/" + KeywordName)
+	err = os.Remove(path.Join(cacheNamePath(), KeywordName))
 	if err != nil {
 		fmt.Println(err)
 	}
-	os.Remove(utils.CACHE_DIR + "cache_title/" + KeywordName)
+	os.Remove(path.Join(cacheTitlePath(), KeywordName))
 }
