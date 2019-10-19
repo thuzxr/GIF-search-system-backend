@@ -3,13 +3,15 @@ package cache
 import (
 	"io/ioutil"
 	"os"
+	"path"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestFastWriteAndAppend(t *testing.T) {
-	filepath := "test_fast_func"
+	gwd, _ := os.Getwd()
+	filepath := path.Join(gwd, "test_fast_cache")
 	testStr := "test_fast"
 	FastWrite(filepath, []byte(testStr))
 
@@ -23,9 +25,9 @@ func TestFastWriteAndAppend(t *testing.T) {
 	os.Remove(filepath)
 }
 
-func TestOfflineCacheInit(t *testing.T) {
+func TestOfflineCache(t *testing.T) {
 	gwd, _ := os.Getwd()
-	os.Chdir(gwd + "..")
+	os.Chdir(path.Dir(gwd))
 	OfflineCacheInit()
 	assert.DirExists(t, "cache_name")
 	assert.DirExists(t, "cache_title")
