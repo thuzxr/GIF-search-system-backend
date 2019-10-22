@@ -1,15 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4a8f7c74-7bda-4d6f-ab12-37396215a791" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/../go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/../go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/../go.sum" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../hw.go" beforeDir="false" afterPath="$PROJECT_DIR$/../hw.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python_models/constant.py" beforeDir="false" afterPath="$PROJECT_DIR$/python_models/constant.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python_models/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/python_models/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python_models/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/python_models/utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.go" beforeDir="false" afterPath="$PROJECT_DIR$/test.go" afterDir="false" />
-    </list>
+    <list default="true" id="4a8f7c74-7bda-4d6f-ab12-37396215a791" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
