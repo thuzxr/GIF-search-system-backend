@@ -37,6 +37,8 @@ require (
 	github.com/aliyun/aliyun-oss-go-sdk v2.0.3+incompatible
 	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
 	github.com/gin-gonic/gin v1.4.0
+	github.com/go-ego/cedar v0.0.0-20191004180323-cb5a33716058 // indirect
+	github.com/go-ego/gse v0.0.0-20191013160900-3ff7ce12abd1
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/json-iterator/go v1.1.6
 	github.com/mozillazg/go-pinyin v0.15.0

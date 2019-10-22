@@ -8,6 +8,12 @@ github.com/gin-contrib/sse v0.0.0-20190301062529-5545eab6dad3 h1:t8FVkw33L+wilf2
 github.com/gin-contrib/sse v0.0.0-20190301062529-5545eab6dad3/go.mod h1:VJ0WA2NBN22VlZ2dKZQPAPnyWw5XTlK1KymzLKsr59s=
 github.com/gin-gonic/gin v1.4.0 h1:3tMoCCfM7ppqsR0ptz/wi1impNpT7/9wQtMZ8lr1mCQ=
 github.com/gin-gonic/gin v1.4.0/go.mod h1:OW2EZn3DO8Ln9oIKOvM++LBO+5UPHJJDH72/q/3rZdM=
+github.com/go-ego/cedar v0.0.0-20190908155901-c3ab6f474b14 h1:aasBLx6yM5u5/0Dmf1qygicxGPAR91q6DIQsNfKfXeI=
+github.com/go-ego/cedar v0.0.0-20190908155901-c3ab6f474b14/go.mod h1:TMuo5n9ZbmInm6IKEHqoCsW0EDYufNXKUQ/rqoZpPZE=
+github.com/go-ego/cedar v0.0.0-20191004180323-cb5a33716058 h1:29p5x/XeRGfJt6kGXLkF2ZR1oKXNu0fjDW8Gz9FdPJU=
+github.com/go-ego/cedar v0.0.0-20191004180323-cb5a33716058/go.mod h1:TMuo5n9ZbmInm6IKEHqoCsW0EDYufNXKUQ/rqoZpPZE=
+github.com/go-ego/gse v0.0.0-20191013160900-3ff7ce12abd1 h1:YQ99V2UaDk1eJzOAS2Uz1vHtcAgaaqAMQqar/qT122s=
+github.com/go-ego/gse v0.0.0-20191013160900-3ff7ce12abd1/go.mod h1:H6WnE8WJfp+Ls3YL2qX9+t1rgjAvKMASpeGqUmrsq6o=
 github.com/go-sql-driver/mysql v1.4.1 h1:g24URVg0OFbNUTx9qqY1IRZ9D9z3iPyi5zKhQZpNwpA=
 github.com/go-sql-driver/mysql v1.4.1/go.mod h1:zAC/RDZ24gD3HViQzih4MyKcchzm+sOG5ZlKdlhCg5w=
 github.com/golang/appengine v1.6.1-0.20190515044707-311d3c5cf937 h1:ffr8DO72T/FXTcICHd+M0DSkU9yISdS3BnNTg6axis4=
@@ -44,6 +50,7 @@ github.com/tensorflow/tensorflow v2.0.0+incompatible h1:Xf8wCz3sNw9aCkRZZs2zj7KT
 github.com/tensorflow/tensorflow v2.0.0+incompatible/go.mod h1:itOSERT4trABok4UOoG+X4BoKds9F3rIsySdn+Lvu90=
 github.com/ugorji/go v1.1.4 h1:j4s+tAvLfL3bZyefP2SEWmhBzmuIlH/eqNuPdFPgngw=
 github.com/ugorji/go v1.1.4/go.mod h1:uQMGLiO92mf5W77hV/PUCpI3pbzQx3CRekS0kk+RGrc=
+github.com/vcaesar/tt v0.0.0-20190311143935-d2abd51da7af/go.mod h1:xKkGp+ufbz/1DQmNxdbAMFqZJOVIJEX7dGvLZMhPIWg=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405 h1:yhCVgyC4o1eVCa2tZl7eS0r+SDo693bJlVdllGtEeKM=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/go-playground/assert.v1 v1.2.1 h1:xoYuJVE7KT85PYWrN730RguIQO0ePzVRfFMXadIrXTM=

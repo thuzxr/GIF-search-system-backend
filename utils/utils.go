@@ -13,6 +13,7 @@ type Gifs struct {
 	Gif_url   string
 	Cover_url string
 	Oss_url   string
+	Word_idx  [][]int32
 }
 
 const (
@@ -26,7 +27,7 @@ const (
 )
 
 //用于读取实例gif库的info.json，中期开发将替换为完整Gif库的链接，返回值是一个struct Gifs类
-func jsonParse(path0 string) []Gifs {
+func JsonParse(path0 string) []Gifs {
 	var gifs []Gifs
 
 	bytes, _ := ioutil.ReadFile(path0 + "/info.json")
@@ -42,6 +43,7 @@ func jsonParse(path0 string) []Gifs {
 		gifs[i].Gif_url = jsoniter.Get(_data, i, "gif_url").ToString()
 		gifs[i].Cover_url = jsoniter.Get(_data, i, "cover_url").ToString()
 		gifs[i].Oss_url = ""
+		gifs[i].Word_idx = nil
 	}
 	return gifs
 }
