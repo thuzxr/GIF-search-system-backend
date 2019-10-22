@@ -8,3 +8,5 @@ cache/cache_name
 cache/cache_title
 
 covearge.out
+#IDE
+tensorflow/.idea
