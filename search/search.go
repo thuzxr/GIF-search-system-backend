@@ -10,7 +10,7 @@ func SimpleSearch(keyword string, names []string, titles []string, keywords []st
 	var ans []utils.Gifs
 	gif := new(utils.Gifs)
 	for i := 0; i < len(names); i++ {
-		if strings.Contains(keywords[i], keyword) {
+		if strings.Contains(keywords[i], keyword) || strings.Contains(titles[i], keyword) {
 			gif.Name = names[i]
 			gif.Keyword = keywords[i]
 			gif.Title = titles[i]
