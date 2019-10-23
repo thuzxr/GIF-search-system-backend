@@ -1,4 +1,5 @@
 import tensorflow as tf
+
 def cosine(seq1, seq2):
     norm1 = tf.norm(seq1 + 1e-5, axis=1, keepdims=True)
     norm2 = tf.norm(seq2 + 1e-5, axis=1, keepdims=True)

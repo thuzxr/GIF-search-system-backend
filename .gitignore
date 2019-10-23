@@ -6,3 +6,7 @@ searchIndex.json
 # 缓存文件
 cache/cache_name
 cache/cache_title
+
+covearge.out
+#IDE
+tensorflow/.idea

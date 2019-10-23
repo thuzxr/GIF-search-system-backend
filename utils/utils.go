@@ -13,33 +13,29 @@ type Gifs struct {
 	Gif_url   string
 	Cover_url string
 	Oss_url   string
+	Word_idx  [][]int32
 }
 
 const (
-	USERNAME = "wangziqi"
-	PASSWORD = "QWEasd123_"
-	NETWORK  = "tcp"
-	PORT     = "3306"
-	SERVER   = "49.233.71.202"
-	DATABASE = "GIF_INFO"
-	CACHE_DIR= "cache/"
+	USERNAME  = "wangziqi"
+	PASSWORD  = "QWEasd123_"
+	NETWORK   = "tcp"
+	PORT      = "3306"
+	SERVER    = "49.233.71.202"
+	DATABASE  = "GIF_INFO"
+	CACHE_DIR = "cache/"
 )
 
 //用于读取实例gif库的info.json，中期开发将替换为完整Gif库的链接，返回值是一个struct Gifs类
 func JsonParse(path0 string) []Gifs {
-	// path0 :="C:\\Users\\Mr Handsome\\Downloads\\Material_alt\\gif-dio-tmp\\gif_package"
-
 	var gifs []Gifs
 
 	bytes, _ := ioutil.ReadFile(path0 + "/info.json")
+	jsonData := jsoniter.Get(bytes, "gifs")
+	_data := []byte(jsonData.ToString())
 
-	json_data := jsoniter.Get(bytes, "gifs")
-	_data := []byte(json_data.ToString())
-
-	size := json_data.Size()
-
+	size := jsonData.Size()
 	gifs = append(gifs, make([]Gifs, size)...)
-
 	for i := 0; i < size; i++ {
 		gifs[i].Name = jsoniter.Get(_data, i, "name").ToString()
 		gifs[i].Title = jsoniter.Get(_data, i, "title").ToString()
@@ -47,6 +43,7 @@ func JsonParse(path0 string) []Gifs {
 		gifs[i].Gif_url = jsoniter.Get(_data, i, "gif_url").ToString()
 		gifs[i].Cover_url = jsoniter.Get(_data, i, "cover_url").ToString()
 		gifs[i].Oss_url = ""
+		gifs[i].Word_idx = nil
 	}
 	return gifs
 }
