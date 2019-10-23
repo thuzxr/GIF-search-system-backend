@@ -4,6 +4,7 @@ import (
 	"backend/cache"
 	"backend/ossUpload"
 	"backend/search"
+	"backend/upload"
 	"backend/utils"
 	"fmt"
 
@@ -60,13 +61,12 @@ func RouterSet() *gin.Engine {
 		}
 	})
 	r.GET("/upload", func(c *gin.Context) {
-		setHeader(c)
-
-		file := c.DefaultQuery("file", "defaultFile")
-		fmt.Println(file)
+		keyword := c.DefaultQuery("keyword", "")
+		name := c.DefaultQuery("name", "")
+		title := c.DefaultQuery("title", "")
+		keywords, names, titles = upload.Upload(keyword, name, title, keywords, names, titles)
 		c.JSON(200, gin.H{
 			"status": "succeed",
-			"recept": file,
 		})
 	})
 	return r

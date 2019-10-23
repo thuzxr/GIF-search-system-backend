@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func get_vericode(c *gin.Context) {
+func get_vericode(c *gin.Context) string{
 	length := captcha.DefaultLen
 	captchaId := captcha.NewLen(length)
 	w := c.Writer
@@ -22,13 +22,5 @@ func get_vericode(c *gin.Context) {
 	w.Header().Set("Content-Type", "image/png")
 	captcha.WriteImage(&content, captchaId, captcha.StdWidth, captcha.StdHeight)
 	http.ServeContent(w, r, captchaId, time.Time{}, bytes.NewReader(content.Bytes()))
-}
-
-func check_vericode(c *gin.Context, captchaId string) {
-	value := c.Param("value")
-	if captcha.VerifyString(captchaId, value) {
-		c.JSON(http.StatusOK, "验证成功")
-	} else {
-		c.JSON(http.StatusOK, "验证失败")
-	}
+	return captchaId
 }
