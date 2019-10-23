@@ -17,8 +17,8 @@ class CBOW():
                                     initializer=tf.contrib.layers.xavier_initializer())
                     , tf.get_variable('wordmat', initializer=tf.constant(self.wordmat, dtype=tf.float32))], axis=0)
             with tf.variable_scope('placeholder'):
-                input1 = tf.placeholder(tf.int32,[None,20],'input1')
-                input2 = tf.placeholder(tf.int32,[None,20],'input2')
+                self.input1 = input1 = tf.placeholder(tf.int32,[None,20],'input1')
+                self.input2 = input2 = tf.placeholder(tf.int32,[None,20],'input2')
                 len1 = tf.reduce_sum(tf.cast(tf.cast(input1,tf.bool),tf.float32),axis=1,keep_dims=True)
                 len2 = tf.reduce_sum(tf.cast(tf.cast(input2, tf.bool),tf.float32), axis=1,keep_dims=True)
             with tf.variable_scope('Emb'):
