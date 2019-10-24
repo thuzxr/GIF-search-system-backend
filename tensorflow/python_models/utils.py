@@ -35,26 +35,40 @@ def get_word(tokens,word2idx,pad_len):
     words += [0]*(pad_len-len(words))
     return words
 
-def get_reduce_mean(path,word2idx,model,sess):
-    maps = {}
+def recommend(path,word2idx,model,sess):
+    maxtags = 0
     with open(path,'r') as f:
         gifs = json.load(f)['gifs']
-    for gif in gifs:
+
+    words = []
+    for i,gif in tqdm(enumerate(gifs)):
         keywords = gif['keyword'].split(' ')
-        words = []
+        maxtags = max(maxtags,len(keywords))
+    for i, gif in tqdm(enumerate(gifs)):
+        keywords = gif['keyword'].split(' ')
+        word = []
         for keyword in keywords:
-            words.append(get_word(list(jieba.cut(keyword)),word2idx,20))
-        words = np.array(words,np.int32)
-        emb = sess.run(model.emb1,feed_dict={model.input1:words})
-        maps[gif['name']]=emb.tolist()
-    with open('emb.json','w') as f:
-        json.dump(maps,f)
+            word.append(get_word(list(jieba.cut(keyword)),word2idx,20))
+        word += [[0]*20]*(maxtags-len(word))
+        word = np.array(word,np.int32)
+        words.append(word)
+
+    arrs = np.array(words)
+    for i,gif in tqdm(enumerate(gifs)):
+        mean_sim = list(sess.run(model.mean_sim,feed_dict={model.input1:words[i],model.input2:arrs}))
+        sims = [(j,sim) for j,sim in enumerate(mean_sim) if j!=i ]
+        sims = sorted(sims,key= lambda x:x[1],reverse=True)
+        gifs[i]['recommend'] = " ".join([str(s[0]) for s in sims][:10])
+
+
+    with open('info2.json','w') as f:
+        json.dump({'gifs':gifs},f)
 
 if __name__=="__main__":
     from python_models.models import CBOW
     loader = Loader()
     word2idx,wordmat = loader.load_emb()
     model = CBOW(wordmat=wordmat)
-    get_reduce_mean("/Users/saberrrrrrrr/go/src/backend/info.json",word2idx,model,model.sess)
+    recommend("/Users/saberrrrrrrr/go/src/backend/info.json",word2idx,model,model.sess)
 
 

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"backend/ossUpload"
 	"backend/utils"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -24,17 +23,17 @@ func ConnectDB() *sql.DB {
 	return DB
 }
 
-func InitDB(gifs []utils.Gifs, DB *sql.DB) {
-	_, err := DB.Exec("DELETE FROM GIF_INFO")
-	if err != nil {
-		fmt.Println("delete data in table failed:", err)
-		return
-	}
-	var idx int
-	for idx = 0; idx < len(gifs); idx++ {
-		InsertData(DB, gifs[idx])
-	}
-}
+// func InitDB(gifs []utils.Gifs, DB *sql.DB) {
+// 	_, err := DB.Exec("DELETE FROM GIF_INFO")
+// 	if err != nil {
+// 		fmt.Println("delete data in table failed:", err)
+// 		return
+// 	}
+// 	var idx int
+// 	for idx = 0; idx < len(gifs); idx++ {
+// 		InsertData(DB, gifs[idx])
+// 	}
+// }
 
 func CreateTable(DB *sql.DB) {
 	sql := `CREATE TABLE IF NOT EXISTS GIF_INFO(
@@ -53,7 +52,41 @@ func CreateTable(DB *sql.DB) {
 
 	DB.Exec("alter table GIF_INFO convert to character set utf8mb4 collate utf8mb4_bin")
 
-	fmt.Println("create table successd")
+	fmt.Println("create table GIF_INFO successd")
+
+	sql = `CREATE TABLE IF NOT EXISTS USER_INFO(
+	USER VARCHAR(64) PRIMARY KEY NOT NULL,
+	PASSWORD TEXT NOT NULL,
+	TYPE TEXT
+	); `
+
+	if _, err := DB.Exec(sql); err != nil {
+		fmt.Println("create table failed:", err)
+		return
+	}
+
+	DB.Exec("alter table USER_INFO convert to character set utf8mb4 collate utf8mb4_bin")
+
+	fmt.Println("create table USER_INFO successd")
+
+}
+
+func InsertUser(user, password, admin string, DB *sql.DB) string {
+	sql := `select USER from USER_INFO where USER=` + user
+	rows, _ := DB.Query(sql)
+	defer func() {
+		if rows != nil {
+			rows.Close()
+		}
+	}()
+
+	if rows.Next() {
+		return "用户名已存在"
+	}
+
+	sql = `insert INTO USER_INFO(USER,PASSWORD) values(?,?)`
+	DB.Exec(sql, user, password)
+	return "插入成功"
 }
 
 func InsertData(DB *sql.DB, gif utils.Gifs) {
@@ -66,30 +99,30 @@ func InsertData(DB *sql.DB, gif utils.Gifs) {
 	fmt.Println(gif.Title, "Inserted key:", gif.Keyword)
 }
 
-func Query(DB *sql.DB, q string) []utils.Gifs {
-	gif := new(utils.Gifs)
-	var ans []utils.Gifs
-	fmt.Print(q)
-	rows, qerr := DB.Query("select Name,Title,Keyword,Gif_url from GIF_INFO WHERE Keyword like '%" + q + "%'")
+// func Query(DB *sql.DB, q string) []utils.Gifs {
+// 	gif := new(utils.Gifs)
+// 	var ans []utils.Gifs
+// 	fmt.Print(q)
+// 	rows, qerr := DB.Query("select Name,Title,Keyword,Gif_url from GIF_INFO WHERE Keyword like '%" + q + "%'")
 
-	defer func() {
-		if rows != nil {
-			rows.Close()
-		}
-	}()
+// 	defer func() {
+// 		if rows != nil {
+// 			rows.Close()
+// 		}
+// 	}()
 
-	if qerr != nil {
-		fmt.Printf("query failed, err:%v\n", qerr)
-		return ans
-	}
-	for rows.Next() {
-		if serr := rows.Scan(&gif.Name, &gif.Title, &gif.Keyword, &gif.Gif_url); serr != nil {
-			fmt.Printf("scan failed, err:%v\n", serr)
-			return ans
-		}
-		gif.Oss_url = ossUpload.OssSignLink(*gif, 3600)
-		ans = append(ans, *gif)
-		fmt.Println(gif.Oss_url)
-	}
-	return ans
-}
+// 	if qerr != nil {
+// 		fmt.Printf("query failed, err:%v\n", qerr)
+// 		return ans
+// 	}
+// 	for rows.Next() {
+// 		if serr := rows.Scan(&gif.Name, &gif.Title, &gif.Keyword, &gif.Gif_url); serr != nil {
+// 			fmt.Printf("scan failed, err:%v\n", serr)
+// 			return ans
+// 		}
+// 		gif.Oss_url = ossUpload.OssSignLink(*gif, 3600)
+// 		ans = append(ans, *gif)
+// 		fmt.Println(gif.Oss_url)
+// 	}
+// 	return ans
+// }

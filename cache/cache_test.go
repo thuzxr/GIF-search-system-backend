@@ -35,7 +35,7 @@ func TestFastWriteAndAppend(t *testing.T) {
 }
 
 func mockGif(name string) utils.Gifs {
-	return utils.Gifs{name, "title", "keyword", "gifurl", "covurl", "ossurl", nil}
+	return utils.Gifs{name, "title", "keyword", "gifurl", "covurl", "ossurl", nil,nil}
 }
 
 func TestOfflineCache(t *testing.T) {

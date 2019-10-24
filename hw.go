@@ -3,7 +3,9 @@ package main
 import (
 	"backend/cache"
 	"backend/ossUpload"
+	"backend/recommend"
 	"backend/search"
+	"backend/upload"
 	"backend/utils"
 	"fmt"
 
@@ -21,6 +23,14 @@ func setHeader(c *gin.Context) {
 func RouterSet() *gin.Engine {
 	r := gin.Default()
 	names, titles, keywords := search.FastIndexParse()
+	gifs := utils.JsonParse("info.json")
+	fmt.Println(gifs[0])
+	var maps map[string]utils.Gifs
+	maps = make(map[string]utils.Gifs)
+	for _, gif := range gifs {
+		maps[gif.Name] = gif
+	}
+
 	m := cache.OfflineCacheReload()
 	// gif := utils.JsonParse(".")
 	r.GET("/", func(c *gin.Context) {
@@ -60,15 +70,27 @@ func RouterSet() *gin.Engine {
 		}
 	})
 	r.GET("/upload", func(c *gin.Context) {
-		setHeader(c)
-
-		file := c.DefaultQuery("file", "defaultFile")
-		fmt.Println(file)
+		keyword := c.DefaultQuery("keyword", "")
+		name := c.DefaultQuery("name", "")
+		title := c.DefaultQuery("title", "")
+		keywords, names, titles = upload.Upload(keyword, name, title, keywords, names, titles)
 		c.JSON(200, gin.H{
 			"status": "succeed",
-			"recept": file,
 		})
 	})
+
+	r.GET("/recommend", func(c *gin.Context) {
+		name := c.DefaultQuery("name", "")
+		recommend_gifs := recommend.Recommend(maps[name], gifs)
+		for i := 0; i < len(recommend_gifs); i++ {
+			recommend_gifs[i].Oss_url = ossUpload.OssSignLink(recommend_gifs[i], 3600)
+		}
+		c.JSON(200, gin.H{
+			"status": "succeed",
+			"result": recommend_gifs,
+		})
+	})
+
 	return r
 }
 
