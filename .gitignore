@@ -1,7 +1,7 @@
 # 可执行文件
 *.exe
 # 数据文件
-.DS_Store
+**/.DS_Store
 searchIndex.json
 # 缓存文件
 cache/cache_name

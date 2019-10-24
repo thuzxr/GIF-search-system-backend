@@ -3,8 +3,9 @@ package main
 import (
 	"backend/cache"
 	"backend/ossUpload"
-	// "backend/search"
-	// cbow "backend/tensorflow"
+	"backend/recommend"
+	"backend/search"
+	"backend/upload"
 	"backend/utils"
 	"fmt"
 	// "time"
@@ -24,15 +25,22 @@ func RouterSet() *gin.Engine {
 	cache.OfflineCacheInit()
 	cache.OfflineCacheClear()
 	r := gin.Default()
-	gifs := utils.JsonParse(".")
+	gifs := utils.JsonParse("info.json")
 	word2vec:=word.WordToVecInit()
-	name_reIdx:=word.Name_reIdx(gifs)
+	// name_reIdx:=word.Name_reIdx(gifs)
 	// res:=word.WordToVec("静静地等红包",seg, m)
 	re_idx, gif2vec, vec_h:=word.RankSearchInit()
 	var seg gse.Segmenter
 	seg.LoadDict()
 
-	// names, titles, keywords := search.FastIndexParse()
+	names, titles, keywords := search.FastIndexParse()
+	fmt.Println(gifs[0])
+	var maps map[string]utils.Gifs
+	maps = make(map[string]utils.Gifs)
+	for _, gif := range gifs {
+		maps[gif.Name] = gif
+	}
+
 	m := cache.OfflineCacheReload()
 	// gif := utils.JsonParse(".")
 	r.GET("/", func(c *gin.Context) {
@@ -60,7 +68,7 @@ func RouterSet() *gin.Engine {
 			// fmt.Println(time.Since(time0))
 			match=make([]utils.Gifs,len(res))
 			for i:=range(res){
-				match[i]=*name_reIdx[res[i]]
+				match[i]=maps[res[i]]
 			}
 			// fmt.Println(time.Since(time0))
 			// match = search.SimpleSearch(keyword, names, titles, keywords)
@@ -82,32 +90,33 @@ func RouterSet() *gin.Engine {
 			})
 		}
 	})
-	r.GET("/upload", func(c *gin.Context) {
-		setHeader(c)
 
-		file := c.DefaultQuery("file", "defaultFile")
-		fmt.Println(file)
+	r.GET("/upload", func(c *gin.Context) {
+		keyword := c.DefaultQuery("keyword", "")
+		name := c.DefaultQuery("name", "")
+		title := c.DefaultQuery("title", "")
+		keywords, names, titles = upload.Upload(keyword, name, title, keywords, names, titles)
 		c.JSON(200, gin.H{
 			"status": "succeed",
-			"recept": file,
 		})
 	})
+
+	r.GET("/recommend", func(c *gin.Context) {
+		name := c.DefaultQuery("name", "")
+		recommend_gifs := recommend.Recommend(maps[name], gifs)
+		for i := 0; i < len(recommend_gifs); i++ {
+			recommend_gifs[i].Oss_url = ossUpload.OssSignLink(recommend_gifs[i], 3600)
+		}
+		c.JSON(200, gin.H{
+			"status": "succeed",
+			"result": recommend_gifs,
+		})
+	})
+
 	return r
 }
 
 func main() {
 	r := RouterSet()
-	r.Run(":8000")
-	// gifs := utils.JsonParse(".")
-	// model := cbow.Init("tensorflow/python_models/CBOW", "tensorflow/python_models/data/word2idx.json", gifs)
-	// fmt.Println("recomend")
-	// commend := cbow.Recommend(gifs[0], gifs, model)
-	// m:=word.VecParse()
-	// fmt.Println(m[gifs[0].Name])
-	// m:=word.FastVecParse()
-	// fmt.Println(word.HammingCode(m["ff0c1056353070f84f7dd126a335cf57"][0]))
-	// fmt.Println(gif2vec["13a29d7df01e08d84f5ed3690db02b72"])
-	// fmt.Println(res)
-	// fmt.Println(gifs[0])
-	// fmt.Println(commend)
+	r.Run(":8080")
 }

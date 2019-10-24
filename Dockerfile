@@ -23,6 +23,7 @@ COPY --from=0 /opt/app/backend /backend
 COPY --from=0 /opt/app/ind_keyword.ind /ind_keyword.ind
 COPY --from=0 /opt/app/ind_name.ind /ind_name.ind
 COPY --from=0 /opt/app/ind_title.ind /ind_title.ind
+COPY --from=0 /opt/app/info.json /info.json
 
 EXPOSE 80
 

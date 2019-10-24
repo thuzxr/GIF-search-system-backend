@@ -2,6 +2,8 @@ package utils
 
 import (
 	"io/ioutil"
+	"strconv"
+	"strings"
 
 	jsoniter "github.com/json-iterator/go"
 )
@@ -14,6 +16,7 @@ type Gifs struct {
 	Cover_url string
 	Oss_url   string
 	Word_idx  [][]int32
+	Recommend []int
 }
 
 const (
@@ -28,11 +31,20 @@ const (
 	HAMMING_DIV = 79
 )
 
+type readjson struct {
+	name      string
+	title     string
+	keyword   string
+	gif_url   string
+	cover_url string
+	recommend []int
+}
+
 //用于读取实例gif库的info.json，中期开发将替换为完整Gif库的链接，返回值是一个struct Gifs类
 func JsonParse(path0 string) []Gifs {
 	var gifs []Gifs
 
-	bytes, _ := ioutil.ReadFile(path0 + "/info.json")
+	bytes, _ := ioutil.ReadFile(path0)
 	jsonData := jsoniter.Get(bytes, "gifs")
 	_data := []byte(jsonData.ToString())
 
@@ -46,6 +58,11 @@ func JsonParse(path0 string) []Gifs {
 		gifs[i].Cover_url = jsoniter.Get(_data, i, "cover_url").ToString()
 		gifs[i].Oss_url = ""
 		gifs[i].Word_idx = nil
+		load_strings := strings.Split(jsoniter.Get(_data, i, "recommend").ToString(), " ")
+		for _, s := range load_strings {
+			load_num, _ := strconv.Atoi(s)
+			gifs[i].Recommend = append(gifs[i].Recommend, load_num)
+		}
 	}
 	return gifs
 }

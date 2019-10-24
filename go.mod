@@ -36,6 +36,7 @@ go 1.13
 require (
 	github.com/aliyun/aliyun-oss-go-sdk v2.0.3+incompatible
 	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
+	github.com/dchest/captcha v0.0.0-20170622155422-6a29415a8364
 	github.com/gin-gonic/gin v1.4.0
 	github.com/go-ego/cedar v0.0.0-20191004180323-cb5a33716058 // indirect
 	github.com/go-ego/gse v0.0.0-20191013160900-3ff7ce12abd1
@@ -45,6 +46,7 @@ require (
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/stretchr/testify v1.3.0
 	github.com/tensorflow/tensorflow v2.0.0+incompatible
+	golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2
 	golang.org/x/time v0.0.0-00010101000000-000000000000 // indirect
 	google.golang.org/appengine v0.0.0-00010101000000-000000000000 // indirect
 )
