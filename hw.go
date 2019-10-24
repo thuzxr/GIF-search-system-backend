@@ -26,13 +26,22 @@ func RouterSet() *gin.Engine {
 	cache.OfflineCacheClear()
 	r := gin.Default()
 	gifs := utils.JsonParse("info.json")
-	word2vec:=word.WordToVecInit()
-	// name_reIdx:=word.Name_reIdx(gifs)
-	// res:=word.WordToVec("静静地等红包",seg, m)
-	re_idx, gif2vec, vec_h:=word.RankSearchInit()
+	AdSearch_Enabled:=word.DataCheck()
+	
+	var gif2vec map[string][][]uint8
+	var word2vec map[string][]uint8
+	var re_idx []string
+	var vec_h [][]uint64
 	var seg gse.Segmenter
-	seg.LoadDict()
 
+	if AdSearch_Enabled{
+		fmt.Println("Advanced Searching Enabled")
+		word2vec=word.WordToVecInit()
+		re_idx, gif2vec, vec_h=word.RankSearchInit()
+		seg.LoadDict()
+	}else{
+		fmt.Println("Index not found, Advanced Searching Disabled")
+	}
 	names, titles, keywords := search.FastIndexParse()
 	fmt.Println(gifs[0])
 	var maps map[string]utils.Gifs
@@ -64,16 +73,16 @@ func RouterSet() *gin.Engine {
 			match = res
 			fmt.Println("Hit Cache " + keyword)
 		} else {
-			res:=word.RankSearch(keyword, word2vec, gif2vec, vec_h, re_idx, seg)
-			// fmt.Println(time.Since(time0))
-			match=make([]utils.Gifs,len(res))
-			for i:=range(res){
-				match[i]=maps[res[i]]
+			if(AdSearch_Enabled){
+				res:=word.RankSearch(keyword, word2vec, gif2vec, vec_h, re_idx, seg)
+				match=make([]utils.Gifs,len(res))
+				for i:=range(res){
+					match[i]=maps[res[i]]
+				}
+			}else{
+				match = search.SimpleSearch(keyword, names, titles, keywords)
 			}
-			// fmt.Println(time.Since(time0))
-			// match = search.SimpleSearch(keyword, names, titles, keywords)
 			go cache.OfflineCacheAppend(keyword, match)
-			// fmt.Println(time.Since(time0))
 		}
 		for i := 0; i < len(match); i++ {
 			match[i].Oss_url = ossUpload.OssSignLink(match[i], 3600)
@@ -118,5 +127,5 @@ func RouterSet() *gin.Engine {
 
 func main() {
 	r := RouterSet()
-	r.Run(":80")
+	r.Run(":8080")
 }

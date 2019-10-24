@@ -32,6 +32,18 @@ func VecParse() map[string][][]float32{
 	return m
 }
 
+func DataCheck() bool{
+	_,err:=os.Stat("emb_short.json")
+	if os.IsNotExist(err){
+		return false
+	}
+	_,err=os.Stat("embVectors.json")
+	if os.IsNotExist(err){
+		return false
+	}
+	return true
+}
+
 func EmbZip(){
 	m:=VecParse()
 	m0:=make(map[string][][]uint8)
