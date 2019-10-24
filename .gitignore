@@ -10,3 +10,9 @@ cache/cache_title
 covearge.out
 #IDE
 tensorflow/.idea
+**/__pycache__/**
+tensorflow/CBOW/
+tensorflow/data/
+emb.json
+emb_short.json
+embVectors.json
