@@ -8,10 +8,11 @@ import (
 	"backend/upload"
 	"backend/utils"
 	"fmt"
-
+	// "time"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
-	// "backend/word"
+	"backend/word"
+	"github.com/go-ego/gse"
 )
 
 func setHeader(c *gin.Context) {
@@ -21,9 +22,27 @@ func setHeader(c *gin.Context) {
 }
 
 func RouterSet() *gin.Engine {
+	cache.OfflineCacheInit()
+	cache.OfflineCacheClear()
 	r := gin.Default()
-	names, titles, keywords := search.FastIndexParse()
 	gifs := utils.JsonParse("info.json")
+	AdSearch_Enabled:=word.DataCheck()
+	
+	var gif2vec map[string][][]uint8
+	var word2vec map[string][]uint8
+	var re_idx []string
+	var vec_h [][]uint64
+	var seg gse.Segmenter
+
+	if AdSearch_Enabled{
+		fmt.Println("Advanced Searching Enabled")
+		word2vec=word.WordToVecInit()
+		re_idx, gif2vec, vec_h=word.RankSearchInit()
+		seg.LoadDict()
+	}else{
+		fmt.Println("Index not found, Advanced Searching Disabled")
+	}
+	names, titles, keywords := search.FastIndexParse()
 	fmt.Println(gifs[0])
 	var maps map[string]utils.Gifs
 	maps = make(map[string]utils.Gifs)
@@ -45,19 +64,30 @@ func RouterSet() *gin.Engine {
 	r.GET("/search", func(c *gin.Context) {
 		setHeader(c)
 
+		// time0:=time.Now()
 		keyword := c.DefaultQuery("key", "UNK")
 		res, finded := m[keyword]
 		var match []utils.Gifs
+		// fmt.Println(time.Since(time0))
 		if finded {
 			match = res
 			fmt.Println("Hit Cache " + keyword)
 		} else {
-			match = search.SimpleSearch(keyword, names, titles, keywords)
+			if(AdSearch_Enabled){
+				res:=word.RankSearch(keyword, word2vec, gif2vec, vec_h, re_idx, seg)
+				match=make([]utils.Gifs,len(res))
+				for i:=range(res){
+					match[i]=maps[res[i]]
+				}
+			}else{
+				match = search.SimpleSearch(keyword, names, titles, keywords)
+			}
 			go cache.OfflineCacheAppend(keyword, match)
 		}
 		for i := 0; i < len(match); i++ {
 			match[i].Oss_url = ossUpload.OssSignLink(match[i], 3600)
 		}
+		// fmt.Println(time.Since(time0))
 		if len(match) == 0 {
 			c.JSON(200, gin.H{
 				"status": "failed",
@@ -96,7 +126,6 @@ func RouterSet() *gin.Engine {
 }
 
 func main() {
-	cache.OfflineCacheInit()
 	r := RouterSet()
-	r.Run(":8080")
+	r.Run(":80")
 }

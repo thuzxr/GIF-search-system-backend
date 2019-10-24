@@ -1,6 +1,7 @@
 import python_models.constant as constant
 import numpy as np
 from tqdm import tqdm
+import codecs
 import json
 import jieba
 
@@ -11,7 +12,7 @@ class Loader():
         path = self.emb_path
         emb = []
         word2idx = {}
-        with open(path,'r') as f:
+        with codecs.open(path,'r',"utf-8") as f:
             f.readline()
             print('Loading embedding')
             for line in f:

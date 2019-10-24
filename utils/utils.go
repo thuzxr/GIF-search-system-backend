@@ -27,6 +27,8 @@ const (
 	SERVER    = "49.233.71.202"
 	DATABASE  = "GIF_INFO"
 	CACHE_DIR = "cache/"
+	HAMMING_EDGE = 133
+	HAMMING_DIV = 79
 )
 
 type readjson struct {
