@@ -2,6 +2,9 @@ package main
 
 import (
 	"backend/cache"
+	"backend/database"
+	"backend/management/login"
+	"backend/management/register"
 	"backend/ossUpload"
 	"backend/recommend"
 	"backend/search"
@@ -24,6 +27,9 @@ func setHeader(c *gin.Context) {
 }
 
 func RouterSet() *gin.Engine {
+	DB := database.ConnectDB()
+	database.CreateTable(DB)
+
 	cache.OfflineCacheInit()
 	cache.OfflineCacheClear()
 	r := gin.Default()
@@ -128,10 +134,32 @@ func RouterSet() *gin.Engine {
 		})
 	})
 
+	r.GET("/login", func(c *gin.Context) {
+		setHeader(c)
+
+		user := c.DefaultQuery("user", "")
+		password := c.DefaultQuery("password", "")
+
+		status := login.Login(user, password, DB)
+		c.JSON(200, gin.H{
+			"status": status,
+		})
+	})
+
+	r.GET("/register", func(c *gin.Context) {
+		setHeader(c)
+
+		status := register.Register(c, DB)
+		c.JSON(200, gin.H{
+			"status": status,
+		})
+	})
+
 	return r
 }
 
 func main() {
+	cache.OfflineCacheInit()
 	r := RouterSet()
 	r.Run(":80")
 }

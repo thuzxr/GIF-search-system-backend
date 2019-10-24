@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func get_vericode(c *gin.Context) string{
+func get_vericode(c *gin.Context) string {
 	length := captcha.DefaultLen
 	captchaId := captcha.NewLen(length)
 	w := c.Writer
