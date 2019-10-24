@@ -69,6 +69,7 @@ func RouterSet() *gin.Engine {
 			})
 		}
 	})
+
 	r.GET("/upload", func(c *gin.Context) {
 		keyword := c.DefaultQuery("keyword", "")
 		name := c.DefaultQuery("name", "")
@@ -97,11 +98,5 @@ func RouterSet() *gin.Engine {
 func main() {
 	cache.OfflineCacheInit()
 	r := RouterSet()
-	r.Run(":80")
-	// gifs := utils.JsonParse("/Users/saberrrrrrrr/go/src/backend")
-	// model := cbow.Init("/Users/saberrrrrrrr/go/src/backend/tensorflow/python_models/CBOW", "/Users/saberrrrrrrr/go/src/backend/tensorflow/python_models/data/word2idx.json", gifs)
-	// fmt.Println("recomend")
-	// commend := cbow.Recommend(gifs[0], gifs, model)
-	// fmt.Println(gifs[0])
-	// fmt.Println(commend)
+	r.Run(":8080")
 }

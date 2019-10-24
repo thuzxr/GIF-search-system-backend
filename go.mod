@@ -46,6 +46,7 @@ require (
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/stretchr/testify v1.3.0
 	github.com/tensorflow/tensorflow v2.0.0+incompatible
+	golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2
 	golang.org/x/time v0.0.0-00010101000000-000000000000 // indirect
 	google.golang.org/appengine v0.0.0-00010101000000-000000000000 // indirect
 )
