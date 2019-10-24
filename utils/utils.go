@@ -24,6 +24,8 @@ const (
 	SERVER    = "49.233.71.202"
 	DATABASE  = "GIF_INFO"
 	CACHE_DIR = "cache/"
+	HAMMING_EDGE = 133
+	HAMMING_DIV = 79
 )
 
 //用于读取实例gif库的info.json，中期开发将替换为完整Gif库的链接，返回值是一个struct Gifs类
