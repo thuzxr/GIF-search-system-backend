@@ -72,7 +72,7 @@ func CreateTable(DB *sql.DB) {
 }
 
 func InsertUser(user, password, admin string, DB *sql.DB) string {
-	sql := `select USER from USER_INFO where USER=` + user
+	sql := `select USER from USER_INFO where USER='` + user + `'`
 	rows, _ := DB.Query(sql)
 	defer func() {
 		if rows != nil {
@@ -84,9 +84,26 @@ func InsertUser(user, password, admin string, DB *sql.DB) string {
 		return "用户名已存在"
 	}
 
-	sql = `insert INTO USER_INFO(USER,PASSWORD) values(?,?)`
-	DB.Exec(sql, user, password)
+	sql = `insert INTO USER_INFO(USER,PASSWORD) values('` + user + `','` + password + `')`
+	_, err := DB.Exec(sql)
+	if err != nil {
+		print(err)
+	}
 	return "插入成功"
+}
+
+func QueryUser(user, password string, DB *sql.DB) string {
+	rows, _ := DB.Query("select USER from USER_INFO WHERE USER='" + user + "' AND PASSWORD='" + password + "'")
+	defer func() {
+		if rows != nil {
+			rows.Close()
+		}
+	}()
+	if rows.Next() {
+		return "登陆成功！"
+	} else {
+		return "用户名或密码错误"
+	}
 }
 
 func InsertData(DB *sql.DB, gif utils.Gifs) {
