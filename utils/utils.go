@@ -30,7 +30,7 @@ const (
 	HAMMING_EDGE = 133
 	HAMMING_DIV = 79
 	COOKIE_EXPIRE = 3600
-	COOKIE_DOMAIN = "gif-dio.app.secoder.net"
+	COOKIE_DOMAIN = "gif-dio-stardustcrusaders.app.secoder.net"
 )
 
 type readjson struct {
