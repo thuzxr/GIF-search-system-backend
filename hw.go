@@ -55,10 +55,10 @@ func RouterSet() *gin.Engine {
 	} else {
 		fmt.Println("Index not found, Advanced Searching Disabled")
 	}
-	//names, titles, keywords := search.FastIndexParse()
-	names:=make([]string,0)
-	titles:=make([]string,0)
-	keywords:=make([]string,0)
+	names, titles, keywords := search.FastIndexParse()
+	// names:=make([]string,0)
+	// titles:=make([]string,0)
+	// keywords:=make([]string,0)
 
 	fmt.Println(gifs[0])
 	var maps map[string]utils.Gifs
