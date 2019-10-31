@@ -161,13 +161,13 @@ func RouterSet() *gin.Engine {
 		password := c.DefaultQuery("password", "")
 
 		status := login.Login(user, password, DB)
-		if(status=="登陆成功！"){
-			// c.SetCookie("user_name", user, 3600, "/", utils.COOKIE_DOMAIN,  false, false)
-			cookie.CookieSet(user, goc)
-		}else{
-			// c.SetCookie("user_name", "", 3600, "/", utils.COOKIE_DOMAIN, false, false)
-			;
-		}
+		// if(status=="登陆成功！"){
+		// 	// c.SetCookie("user_name", user, 3600, "/", utils.COOKIE_DOMAIN,  false, false)
+		// 	// cookie.CookieSet(user, goc)
+		// }else{
+		// 	// c.SetCookie("user_name", "", 3600, "/", utils.COOKIE_DOMAIN, false, false)
+		// 	;
+		// }
 		c.JSON(200, gin.H{
 			"status": status,
 		})
