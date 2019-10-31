@@ -30,7 +30,9 @@ const (
 	HAMMING_EDGE = 133
 	HAMMING_DIV = 79
 	COOKIE_EXPIRE = 3600
-	COOKIE_DOMAIN = "gif-dio-go-stardustcrusaders.app.secoder.net"
+	// COOKIE_DOMAIN = "183.173.138.8"
+	COOKIE_DOMAIN = "183.173.56.115"
+	//COOKIE_DOMAIN = "gif-dio-go-stardustcrusaders.app.secoder.net"
 )
 
 type readjson struct {

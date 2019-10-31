@@ -27,7 +27,8 @@ func setHeader(c *gin.Context) {
 	// c.Header("Access-Control-Allow-Credentials","true")
 	c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 	c.Header("Access-Control-Allow-Headers", "Action, Module, X-PINGOTHER, Content-Type, Content-Disposition")
-	c.Header("Access-Control-Expose-Headers", "Date, Set-Cookie")
+	c.Header("Access-Control-Expose-Headers", "Date, set-cookie")
+	c.Header("Set-Cookie", "HttpOnly;Secure;SameSite=Strict")
 }
 
 func RouterSet() *gin.Engine {
@@ -161,10 +162,11 @@ func RouterSet() *gin.Engine {
 
 		status := login.Login(user, password, DB)
 		if(status=="登陆成功！"){
-			c.SetCookie("user_name", user, 3600, "/", utils.COOKIE_DOMAIN,  false, false)
+			// c.SetCookie("user_name", user, 3600, "/", utils.COOKIE_DOMAIN,  false, false)
 			cookie.CookieSet(user, goc)
 		}else{
-			c.SetCookie("user_name", "", 3600, "/", utils.COOKIE_DOMAIN, false, false)
+			// c.SetCookie("user_name", "", 3600, "/", utils.COOKIE_DOMAIN, false, false)
+			;
 		}
 		c.JSON(200, gin.H{
 			"status": status,
