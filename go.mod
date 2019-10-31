@@ -43,6 +43,7 @@ require (
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/json-iterator/go v1.1.6
 	github.com/mozillazg/go-pinyin v0.15.0
+	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/stretchr/testify v1.3.0
 	github.com/tensorflow/tensorflow v2.0.0+incompatible

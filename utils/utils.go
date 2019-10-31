@@ -29,6 +29,8 @@ const (
 	CACHE_DIR = "cache/"
 	HAMMING_EDGE = 133
 	HAMMING_DIV = 79
+	COOKIE_EXPIRE = 3600
+	COOKIE_DOMAIN = "183.173.56.115"
 )
 
 type readjson struct {

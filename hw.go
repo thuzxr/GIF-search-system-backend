@@ -10,6 +10,7 @@ import (
 	"backend/search"
 	"backend/upload"
 	"backend/utils"
+	"backend/cookie"
 	"fmt"
 
 	// "time"
@@ -22,21 +23,23 @@ import (
 
 func setHeader(c *gin.Context) {
 	c.Header("Access-Control-Allow-Origin", "*")
+	// c.Header("Access-Control-Allow-Origin", c.GetHeader("Origin"));
+	// c.Header("Access-Control-Allow-Credentials","true")
 	c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 	c.Header("Access-Control-Allow-Headers", "Action, Module, X-PINGOTHER, Content-Type, Content-Disposition")
+	c.Header("Access-Control-Expose-Headers", "Date, Set-Cookie")
 }
 
 func RouterSet() *gin.Engine {
 	DB := database.ConnectDB()
 	database.CreateTable(DB)
 
-	workingDomain:="49.233.71.202"
-
 	cache.OfflineCacheInit()
 	cache.OfflineCacheClear()
 	r := gin.Default()
 	gifs := utils.JsonParse("info.json")
-	AdSearch_Enabled := word.DataCheck()
+	// AdSearch_Enabled := word.DataCheck()
+	AdSearch_Enabled := false
 
 	var gif2vec map[string][][]uint8
 	var word2vec map[string][]uint8
@@ -66,6 +69,9 @@ func RouterSet() *gin.Engine {
 
 	m := cache.OfflineCacheReload()
 	// gif := utils.JsonParse(".")
+
+	goc := cookie.CookieCacheInit()
+
 	r.GET("/", func(c *gin.Context) {
 		setHeader(c)
 
@@ -117,6 +123,12 @@ func RouterSet() *gin.Engine {
 
 	r.GET("/upload", func(c *gin.Context) {
 		setHeader(c)
+		
+		// if(!cookie.CookieCheck(c.Request, goc)){
+		// 	c.JSON(200, gin.H{
+				
+		// 	})
+		// }
 
 		keyword := c.DefaultQuery("keyword", "")
 		name := c.DefaultQuery("name", "")
@@ -149,11 +161,10 @@ func RouterSet() *gin.Engine {
 
 		status := login.Login(user, password, DB)
 		if(status=="登陆成功！"){
-			c.SetCookie("user_name", user, 3600, workingDomain, "/", false, true);
-			c.SetCookie("user_status", "online", 3600, workingDomain, "/", false, true);
+			c.SetCookie("user_name", user, 3600, "/", utils.COOKIE_DOMAIN,  false, false)
+			cookie.CookieSet(user, goc)
 		}else{
-			c.SetCookie("user_name", "", 3600, workingDomain, "/", false, true)
-			c.SetCookie("user_status", "offline", 3600, workingDomain, "/", false, true);
+			c.SetCookie("user_name", "", 3600, "/", utils.COOKIE_DOMAIN, false, false)
 		}
 		c.JSON(200, gin.H{
 			"status": status,
@@ -172,7 +183,7 @@ func RouterSet() *gin.Engine {
 	r.GET("/write_cookie", func(c *gin.Context) {
 		setHeader(c)
 
-		c.SetCookie("user_cookie", "cookie0", 3600, "/", "183.173.138.8", false, true)
+		c.SetCookie("user_cookie", "cookie0", 3600, "/", utils.COOKIE_DOMAIN, false, true)
 		c.JSON(200, gin.H{
 			"status": "succeed",
 		})
@@ -181,9 +192,9 @@ func RouterSet() *gin.Engine {
 	r.GET("/read_cookie", func(c *gin.Context) {
 		setHeader(c)
 
-		s, _:=c.Cookie("user_cookie")
+		b:=cookie.CookieCheck(c.Request, goc)
 		c.JSON(200, gin.H{
-			"res": s,
+			"res": b,
 		})
 	})
 
