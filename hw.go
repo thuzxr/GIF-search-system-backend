@@ -50,7 +50,9 @@ func RouterSet() *gin.Engine {
 	} else {
 		fmt.Println("Index not found, Advanced Searching Disabled")
 	}
+
 	names, titles, keywords := search.FastIndexParse()
+
 	fmt.Println(gifs[0])
 	var maps map[string]utils.Gifs
 	maps = make(map[string]utils.Gifs)
@@ -141,6 +143,9 @@ func RouterSet() *gin.Engine {
 		password := c.DefaultQuery("password", "")
 
 		status := login.Login(user, password, DB)
+		if(status=="登陆成功！") {
+			c.SetCookie("user_name", user, 3600, "/", "183.173.138.8", false, true)
+		}
 		c.JSON(200, gin.H{
 			"status": status,
 		})
@@ -155,11 +160,29 @@ func RouterSet() *gin.Engine {
 		})
 	})
 
+	r.GET("/write_cookie", func(c *gin.Context) {
+		setHeader(c)
+
+		c.SetCookie("user_cookie", "cookie0", 3600, "/", "183.173.138.8", false, true)
+		c.JSON(200, gin.H{
+			"status": "succeed",
+		})
+	})
+
+	r.GET("/read_cookie", func(c *gin.Context) {
+		setHeader(c)
+
+		s, _:=c.Cookie("user_cookie")
+		c.JSON(200, gin.H{
+			"res": s,
+		})
+	})
+
 	return r
 }
 
 func main() {
 	cache.OfflineCacheInit()
 	r := RouterSet()
-	r.Run(":80")
+	r.Run(":8000")
 }
