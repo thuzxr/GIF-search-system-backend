@@ -148,17 +148,12 @@ func RouterSet() *gin.Engine {
 		password := c.DefaultQuery("password", "")
 
 		status := login.Login(user, password, DB)
-<<<<<<< HEAD
-		if(status=="登陆成功！") {
-			c.SetCookie("user_name", user, 3600, "/", "183.173.138.8", false, true)
-=======
 		if(status=="登陆成功！"){
 			c.SetCookie("user_name", user, 3600, workingDomain, "/", false, true);
 			c.SetCookie("user_status", "online", 3600, workingDomain, "/", false, true);
 		}else{
 			c.SetCookie("user_name", "", 3600, workingDomain, "/", false, true)
 			c.SetCookie("user_status", "offline", 3600, workingDomain, "/", false, true);
->>>>>>> c3a29d374145d75989cb6c8f8e56b84aea2197b2
 		}
 		c.JSON(200, gin.H{
 			"status": status,
@@ -198,9 +193,5 @@ func RouterSet() *gin.Engine {
 func main() {
 	cache.OfflineCacheInit()
 	r := RouterSet()
-<<<<<<< HEAD
-	r.Run(":8000")
-=======
 	r.Run(":8080")
->>>>>>> c3a29d374145d75989cb6c8f8e56b84aea2197b2
 }
