@@ -30,6 +30,8 @@ func RouterSet() *gin.Engine {
 	DB := database.ConnectDB()
 	database.CreateTable(DB)
 
+	workingDomain:="49.233.71.202"
+
 	cache.OfflineCacheInit()
 	cache.OfflineCacheClear()
 	r := gin.Default()
@@ -50,7 +52,10 @@ func RouterSet() *gin.Engine {
 	} else {
 		fmt.Println("Index not found, Advanced Searching Disabled")
 	}
-	names, titles, keywords := search.FastIndexParse()
+	//names, titles, keywords := search.FastIndexParse()
+	names:=make([]string,0)
+	titles:=make([]string,0)
+	keywords:=make([]string,0)
 	fmt.Println(gifs[0])
 	var maps map[string]utils.Gifs
 	maps = make(map[string]utils.Gifs)
@@ -87,6 +92,7 @@ func RouterSet() *gin.Engine {
 				for i := range res {
 					match[i] = maps[res[i]]
 				}
+				match = append(match, search.SimpleSearch(keyword, names, titles, keywords)...)
 			} else {
 				match = search.SimpleSearch(keyword, names, titles, keywords)
 			}
@@ -141,6 +147,13 @@ func RouterSet() *gin.Engine {
 		password := c.DefaultQuery("password", "")
 
 		status := login.Login(user, password, DB)
+		if(status=="登陆成功！"){
+			c.SetCookie("user_name", user, 3600, workingDomain, "/", false, true);
+			c.SetCookie("user_status", "online", 3600, workingDomain, "/", false, true);
+		}else{
+			c.SetCookie("user_name", "", 3600, workingDomain, "/", false, true)
+			c.SetCookie("user_status", "offline", 3600, workingDomain, "/", false, true);
+		}
 		c.JSON(200, gin.H{
 			"status": status,
 		})
@@ -161,5 +174,5 @@ func RouterSet() *gin.Engine {
 func main() {
 	cache.OfflineCacheInit()
 	r := RouterSet()
-	r.Run(":80")
+	r.Run(":8080")
 }
