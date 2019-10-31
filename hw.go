@@ -27,7 +27,7 @@ func setHeader(c *gin.Context) {
 	// c.Header("Access-Control-Allow-Credentials","true")
 	c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 	c.Header("Access-Control-Allow-Headers", "Action, Module, X-PINGOTHER, Content-Type, Content-Disposition")
-	c.Header("Access-Control-Expose-Headers", "Date, Set-Cookie")
+	c.Header("Access-Control-Expose-Headers", "Date, set-cookie")
 }
 
 func RouterSet() *gin.Engine {
