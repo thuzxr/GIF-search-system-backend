@@ -32,8 +32,8 @@ const (
 	COOKIE_EXPIRE = 3600
 	// COOKIE_DOMAIN = "183.173.138.8"
 	COOKIE_SALT = "The_World"
-	COOKIE_DOMAIN = "183.173.58.166"
-	//COOKIE_DOMAIN = "gif-dio-go-stardustcrusaders.app.secoder.net"
+	// COOKIE_DOMAIN = "183.173.58.166"
+	COOKIE_DOMAIN = "gif-dio-stardustcrusaders.app.secoder.net"
 )
 
 type readjson struct {
