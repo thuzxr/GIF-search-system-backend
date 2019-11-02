@@ -161,16 +161,23 @@ func RouterSet() *gin.Engine {
 		password := c.DefaultQuery("password", "")
 
 		status := login.Login(user, password, DB)
-		if(status=="登陆成功！"){
-			c.SetCookie("user_name", string(cookie.ShaConvert(user)), 3600, "/", utils.COOKIE_DOMAIN,  false, false)
-			cookie.CookieSet(user, goc)
+		res:=cookie.CookieDecode(c.Request, goc)
+		if(res!=""){
+			c.JSON(200, gin.H{
+				"status": "已有用户在线",
+				"user_name": res,
+			})
 		}else{
-			c.SetCookie("user_name", "", 3600, "/", utils.COOKIE_DOMAIN, false, false)
-
+			if(status=="登陆成功！"){
+				c.SetCookie("user_name", string(cookie.ShaConvert(user)), 3600, "/", utils.COOKIE_DOMAIN,  false, false)
+				cookie.CookieSet(user, goc)
+			}else{
+				c.SetCookie("user_name", "", 3600, "/", utils.COOKIE_DOMAIN, false, false)
+			}
+			c.JSON(200, gin.H{
+				"status": status,
+			})
 		}
-		c.JSON(200, gin.H{
-			"status": status,
-		})
 	})
 
 	r.GET("/register", func(c *gin.Context) {
@@ -205,11 +212,12 @@ func RouterSet() *gin.Engine {
 func main() {
 	cache.OfflineCacheInit()
 	r := RouterSet()
-	r.Run(":80")
-	// cookie.ShaConvert("user0")
+	r.Run(":8080")
+	// fmt.Println(cookie.ShaConvert("user0"))
 	
 	// goc := cookie.CookieCacheInit()
 	// cookie.CookieSet("user0", goc)
+	// fmt.Println(cookie.CookieTest(string(cookie.ShaConvert("user0")), goc))
 	// res, _:=goc.Get("user0")
 	// fmt.Println(res)
 }
