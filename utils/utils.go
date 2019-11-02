@@ -31,7 +31,8 @@ const (
 	HAMMING_DIV = 79
 	COOKIE_EXPIRE = 3600
 	// COOKIE_DOMAIN = "183.173.138.8"
-	COOKIE_DOMAIN = "183.173.56.115"
+	COOKIE_SALT = "The_World"
+	COOKIE_DOMAIN = "183.173.58.166"
 	//COOKIE_DOMAIN = "gif-dio-go-stardustcrusaders.app.secoder.net"
 )
 

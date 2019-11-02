@@ -27,8 +27,8 @@ func setHeader(c *gin.Context) {
 	// c.Header("Access-Control-Allow-Credentials","true")
 	c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 	c.Header("Access-Control-Allow-Headers", "Action, Module, X-PINGOTHER, Content-Type, Content-Disposition")
-	c.Header("Access-Control-Expose-Headers", "Date, set-cookie")
-	c.Header("Set-Cookie", "HttpOnly;Secure;SameSite=Strict")
+	// c.Header("Access-Control-Expose-Headers", "Date, set-cookie")
+	// c.Header("Set-Cookie", "HttpOnly;Secure;SameSite=Strict")
 }
 
 func RouterSet() *gin.Engine {
@@ -125,11 +125,11 @@ func RouterSet() *gin.Engine {
 	r.GET("/upload", func(c *gin.Context) {
 		setHeader(c)
 		
-		// if(!cookie.CookieCheck(c.Request, goc)){
-		// 	c.JSON(200, gin.H{
-				
-		// 	})
-		// }
+		if(!cookie.CookieCheck(c.Request, goc)){
+			c.JSON(200, gin.H{
+				"status": "succeed",		
+			})
+		}
 
 		keyword := c.DefaultQuery("keyword", "")
 		name := c.DefaultQuery("name", "")
@@ -161,13 +161,13 @@ func RouterSet() *gin.Engine {
 		password := c.DefaultQuery("password", "")
 
 		status := login.Login(user, password, DB)
-		// if(status=="登陆成功！"){
-		// 	// c.SetCookie("user_name", user, 3600, "/", utils.COOKIE_DOMAIN,  false, false)
-		// 	// cookie.CookieSet(user, goc)
-		// }else{
-		// 	// c.SetCookie("user_name", "", 3600, "/", utils.COOKIE_DOMAIN, false, false)
-		// 	;
-		// }
+		if(status=="登陆成功！"){
+			c.SetCookie("user_name", string(cookie.ShaConvert(user)), 3600, "/", utils.COOKIE_DOMAIN,  false, false)
+			cookie.CookieSet(user, goc)
+		}else{
+			c.SetCookie("user_name", "", 3600, "/", utils.COOKIE_DOMAIN, false, false)
+
+		}
 		c.JSON(200, gin.H{
 			"status": status,
 		})
@@ -193,7 +193,6 @@ func RouterSet() *gin.Engine {
 
 	r.GET("/read_cookie", func(c *gin.Context) {
 		setHeader(c)
-
 		b:=cookie.CookieCheck(c.Request, goc)
 		c.JSON(200, gin.H{
 			"res": b,
@@ -206,5 +205,11 @@ func RouterSet() *gin.Engine {
 func main() {
 	cache.OfflineCacheInit()
 	r := RouterSet()
-	r.Run(":80")
+	r.Run(":8080")
+	// cookie.ShaConvert("user0")
+	
+	// goc := cookie.CookieCacheInit()
+	// cookie.CookieSet("user0", goc)
+	// res, _:=goc.Get("user0")
+	// fmt.Println(res)
 }
