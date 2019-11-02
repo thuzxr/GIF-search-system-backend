@@ -16,6 +16,8 @@ github.com/go-ego/cedar v0.0.0-20191004180323-cb5a33716058 h1:29p5x/XeRGfJt6kGXL
 github.com/go-ego/cedar v0.0.0-20191004180323-cb5a33716058/go.mod h1:TMuo5n9ZbmInm6IKEHqoCsW0EDYufNXKUQ/rqoZpPZE=
 github.com/go-ego/gse v0.0.0-20191013160900-3ff7ce12abd1 h1:YQ99V2UaDk1eJzOAS2Uz1vHtcAgaaqAMQqar/qT122s=
 github.com/go-ego/gse v0.0.0-20191013160900-3ff7ce12abd1/go.mod h1:H6WnE8WJfp+Ls3YL2qX9+t1rgjAvKMASpeGqUmrsq6o=
+github.com/go-ego/gse v0.0.0-20191023154054-6406076ccec8 h1:AwKNgJggm2n3yxkpeJpcxg5PrFBuPcbeWHigEHDXEpE=
+github.com/go-ego/gse v0.0.0-20191023154054-6406076ccec8/go.mod h1:H6WnE8WJfp+Ls3YL2qX9+t1rgjAvKMASpeGqUmrsq6o=
 github.com/go-sql-driver/mysql v1.4.1 h1:g24URVg0OFbNUTx9qqY1IRZ9D9z3iPyi5zKhQZpNwpA=
 github.com/go-sql-driver/mysql v1.4.1/go.mod h1:zAC/RDZ24gD3HViQzih4MyKcchzm+sOG5ZlKdlhCg5w=
 github.com/golang/appengine v1.6.1-0.20190515044707-311d3c5cf937 h1:ffr8DO72T/FXTcICHd+M0DSkU9yISdS3BnNTg6axis4=
@@ -42,6 +44,8 @@ github.com/modern-go/reflect2 v1.0.1 h1:9f412s+6RmYXLWZSEzVVgPGK7C2PphHj5RJrvfx9
 github.com/modern-go/reflect2 v1.0.1/go.mod h1:bx2lNnkwVCuqBIxFjflWJWanXIb3RllmbCylyMrvgv0=
 github.com/mozillazg/go-pinyin v0.15.0 h1:sSwlnsogK/WMzcf0HnjgxyAI4GU6LFqwXnhr77q1Z80=
 github.com/mozillazg/go-pinyin v0.15.0/go.mod h1:bO+dztNW6O2lSJdYLha7LO3bujXzjjU3UvKb2IGANfg=
+github.com/patrickmn/go-cache v2.1.0+incompatible h1:HRMgzkcYKYpi3C8ajMPV8OFXaaRUnok+kx1WdO15EQc=
+github.com/patrickmn/go-cache v2.1.0+incompatible/go.mod h1:3Qf8kWWT7OJRJbdiICTKqZju1ZixQ/KpMGzzAfe6+WQ=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/satori/go.uuid v1.2.0 h1:0uYX9dsZ2yD7q2RtLRtPSdGDWzjeM3TbMJP9utgA0ww=

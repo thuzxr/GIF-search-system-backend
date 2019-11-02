@@ -10,6 +10,7 @@ import (
 	"backend/search"
 	"backend/upload"
 	"backend/utils"
+	"backend/cookie"
 	"fmt"
 
 	// "time"
@@ -22,8 +23,12 @@ import (
 
 func setHeader(c *gin.Context) {
 	c.Header("Access-Control-Allow-Origin", "*")
+	// c.Header("Access-Control-Allow-Origin", c.GetHeader("Origin"));
+	// c.Header("Access-Control-Allow-Credentials","true")
 	c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 	c.Header("Access-Control-Allow-Headers", "Action, Module, X-PINGOTHER, Content-Type, Content-Disposition")
+	// c.Header("Access-Control-Expose-Headers", "Date, set-cookie")
+	// c.Header("Set-Cookie", "HttpOnly;Secure;SameSite=Strict")
 }
 
 func RouterSet() *gin.Engine {
@@ -34,7 +39,8 @@ func RouterSet() *gin.Engine {
 	cache.OfflineCacheClear()
 	r := gin.Default()
 	gifs := utils.JsonParse("info.json")
-	AdSearch_Enabled := word.DataCheck()
+	// AdSearch_Enabled := word.DataCheck()
+	AdSearch_Enabled := false
 
 	var gif2vec map[string][][]uint8
 	var word2vec map[string][]uint8
@@ -51,6 +57,10 @@ func RouterSet() *gin.Engine {
 		fmt.Println("Index not found, Advanced Searching Disabled")
 	}
 	names, titles, keywords := search.FastIndexParse()
+	// names:=make([]string,0)
+	// titles:=make([]string,0)
+	// keywords:=make([]string,0)
+
 	fmt.Println(gifs[0])
 	var maps map[string]utils.Gifs
 	maps = make(map[string]utils.Gifs)
@@ -60,6 +70,9 @@ func RouterSet() *gin.Engine {
 
 	m := cache.OfflineCacheReload()
 	// gif := utils.JsonParse(".")
+
+	goc := cookie.CookieCacheInit()
+
 	r.GET("/", func(c *gin.Context) {
 		setHeader(c)
 
@@ -87,6 +100,7 @@ func RouterSet() *gin.Engine {
 				for i := range res {
 					match[i] = maps[res[i]]
 				}
+				match = append(match, search.SimpleSearch(keyword, names, titles, keywords)...)
 			} else {
 				match = search.SimpleSearch(keyword, names, titles, keywords)
 			}
@@ -110,6 +124,12 @@ func RouterSet() *gin.Engine {
 
 	r.GET("/upload", func(c *gin.Context) {
 		setHeader(c)
+		
+		if(!cookie.CookieCheck(c.Request, goc)){
+			c.JSON(200, gin.H{
+				"status": "succeed",		
+			})
+		}
 
 		keyword := c.DefaultQuery("keyword", "")
 		name := c.DefaultQuery("name", "")
@@ -141,6 +161,13 @@ func RouterSet() *gin.Engine {
 		password := c.DefaultQuery("password", "")
 
 		status := login.Login(user, password, DB)
+		if(status=="登陆成功！"){
+			c.SetCookie("user_name", string(cookie.ShaConvert(user)), 3600, "/", utils.COOKIE_DOMAIN,  false, false)
+			cookie.CookieSet(user, goc)
+		}else{
+			c.SetCookie("user_name", "", 3600, "/", utils.COOKIE_DOMAIN, false, false)
+
+		}
 		c.JSON(200, gin.H{
 			"status": status,
 		})
@@ -155,6 +182,23 @@ func RouterSet() *gin.Engine {
 		})
 	})
 
+	r.GET("/write_cookie", func(c *gin.Context) {
+		setHeader(c)
+
+		c.SetCookie("user_cookie", "cookie0", 3600, "/", utils.COOKIE_DOMAIN, false, true)
+		c.JSON(200, gin.H{
+			"status": "succeed",
+		})
+	})
+
+	r.GET("/read_cookie", func(c *gin.Context) {
+		setHeader(c)
+		b:=cookie.CookieCheck(c.Request, goc)
+		c.JSON(200, gin.H{
+			"res": b,
+		})
+	})
+
 	return r
 }
 
@@ -162,4 +206,10 @@ func main() {
 	cache.OfflineCacheInit()
 	r := RouterSet()
 	r.Run(":80")
+	// cookie.ShaConvert("user0")
+	
+	// goc := cookie.CookieCacheInit()
+	// cookie.CookieSet("user0", goc)
+	// res, _:=goc.Get("user0")
+	// fmt.Println(res)
 }

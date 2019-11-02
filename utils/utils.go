@@ -29,6 +29,11 @@ const (
 	CACHE_DIR = "cache/"
 	HAMMING_EDGE = 133
 	HAMMING_DIV = 79
+	COOKIE_EXPIRE = 3600
+	// COOKIE_DOMAIN = "183.173.138.8"
+	COOKIE_SALT = "The_World"
+	// COOKIE_DOMAIN = "183.173.58.166"
+	COOKIE_DOMAIN = "gif-dio-stardustcrusaders.app.secoder.net"
 )
 
 type readjson struct {
