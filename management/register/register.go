@@ -3,6 +3,7 @@ package register
 import (
 	"database/sql"
 
+	"github.com/dchest/captcha"
 	"github.com/gin-gonic/gin"
 
 	"backend/database"
@@ -14,9 +15,10 @@ import (
 func Register(c *gin.Context, db *sql.DB) string {
 	username := c.DefaultQuery("user", "")
 	password := c.DefaultQuery("password", "")
-	// veri_input := c.DefaultQuery("vericode", "")
-	// if !captcha.VerifyString(captchaId, veri_input) {
-	// return "验证码错误"
-	// }
+	veri_input := c.DefaultQuery("vericode", "")
+	captchaId := c.DefaultQuery("captchaId", "")
+	if !captcha.VerifyString(captchaId, veri_input) {
+		return "验证码错误"
+	}
 	return database.InsertUser(username, password, "", db)
 }
