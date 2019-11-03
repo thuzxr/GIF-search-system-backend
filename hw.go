@@ -2,15 +2,16 @@ package main
 
 import (
 	"backend/cache"
+	"backend/cookie"
 	"backend/database"
 	"backend/management/login"
 	"backend/management/register"
+	"backend/management/vericode"
 	"backend/ossUpload"
 	"backend/recommend"
 	"backend/search"
 	"backend/upload"
 	"backend/utils"
-	"backend/cookie"
 	"fmt"
 
 	// "time"
@@ -24,7 +25,7 @@ import (
 func setHeader(c *gin.Context) {
 	c.Header("Access-Control-Allow-Origin", "*")
 	// c.Header("Access-Control-Allow-Origin", c.GetHeader("Origin"));
-	// c.Header("Access-Control-Allow-Credentials","true")
+	c.Header("Access-Control-Allow-Credentials", "true")
 	c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 	c.Header("Access-Control-Allow-Headers", "Action, Module, X-PINGOTHER, Content-Type, Content-Disposition")
 	// c.Header("Access-Control-Expose-Headers", "Date, set-cookie")
@@ -124,10 +125,10 @@ func RouterSet() *gin.Engine {
 
 	r.GET("/upload", func(c *gin.Context) {
 		setHeader(c)
-		
-		if(!cookie.CookieCheck(c.Request, goc)){
+
+		if !cookie.CookieCheck(c.Request, goc) {
 			c.JSON(200, gin.H{
-				"status": "succeed",		
+				"status": "succeed",
 			})
 		}
 
@@ -161,17 +162,17 @@ func RouterSet() *gin.Engine {
 		password := c.DefaultQuery("password", "")
 
 		status := login.Login(user, password, DB)
-		res:=cookie.CookieDecode(c.Request, goc)
-		if(res!=""){
+		res := cookie.CookieDecode(c.Request, goc)
+		if res != "" {
 			c.JSON(200, gin.H{
-				"status": "已有用户在线",
+				"status":    "已有用户在线",
 				"user_name": res,
 			})
-		}else{
-			if(status=="登陆成功！"){
-				c.SetCookie("user_name", string(cookie.ShaConvert(user)), 3600, "/", utils.COOKIE_DOMAIN,  false, false)
+		} else {
+			if status == "登陆成功！" {
+				c.SetCookie("user_name", string(cookie.ShaConvert(user)), 3600, "/", utils.COOKIE_DOMAIN, false, false)
 				cookie.CookieSet(user, goc)
-			}else{
+			} else {
 				c.SetCookie("user_name", "", 3600, "/", utils.COOKIE_DOMAIN, false, false)
 			}
 			c.JSON(200, gin.H{
@@ -189,6 +190,16 @@ func RouterSet() *gin.Engine {
 		})
 	})
 
+	r.GET("/refresh_veri.html", func(c *gin.Context) {
+		setHeader(c)
+		vericode.Get_vericode(c)
+	})
+
+	r.GET("/get_veri/:captchId", func(c *gin.Context) {
+		setHeader(c)
+		vericode.Gen_vericode(c)
+	})
+
 	r.GET("/write_cookie", func(c *gin.Context) {
 		setHeader(c)
 
@@ -200,7 +211,7 @@ func RouterSet() *gin.Engine {
 
 	r.GET("/read_cookie", func(c *gin.Context) {
 		setHeader(c)
-		b:=cookie.CookieCheck(c.Request, goc)
+		b := cookie.CookieCheck(c.Request, goc)
 		c.JSON(200, gin.H{
 			"res": b,
 		})
@@ -212,9 +223,9 @@ func RouterSet() *gin.Engine {
 func main() {
 	cache.OfflineCacheInit()
 	r := RouterSet()
-	r.Run(":8080")
+	r.Run(":80")
 	// fmt.Println(cookie.ShaConvert("user0"))
-	
+
 	// goc := cookie.CookieCacheInit()
 	// cookie.CookieSet("user0", goc)
 	// fmt.Println(cookie.CookieTest(string(cookie.ShaConvert("user0")), goc))
