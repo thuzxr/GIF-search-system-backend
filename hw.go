@@ -223,7 +223,7 @@ func RouterSet() *gin.Engine {
 func main() {
 	cache.OfflineCacheInit()
 	r := RouterSet()
-	r.Run(":8000")
+	r.Run(":80")
 	// fmt.Println(cookie.ShaConvert("user0"))
 
 	// goc := cookie.CookieCacheInit()
