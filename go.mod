@@ -37,6 +37,7 @@ require (
 	github.com/aliyun/aliyun-oss-go-sdk v2.0.3+incompatible
 	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
 	github.com/dchest/captcha v0.0.0-20170622155422-6a29415a8364
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.4.0
 	github.com/go-ego/cedar v0.0.0-20191004180323-cb5a33716058 // indirect
 	github.com/go-ego/gse v0.0.0-20191023154054-6406076ccec8

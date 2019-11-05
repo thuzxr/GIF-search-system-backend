@@ -10,15 +10,18 @@ import (
 	"backend/search"
 	"backend/upload"
 	"backend/utils"
-	"backend/cookie"
+	// "backend/cookie"
 	"fmt"
 
-	// "time"
+	"time"
 	"backend/word"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-ego/gse"
 	_ "github.com/go-sql-driver/mysql"
+	
+    jwt "github.com/dgrijalva/jwt-go"
+    // "github.com/dgrijalva/jwt-go/request"
 )
 
 func setHeader(c *gin.Context) {
@@ -29,6 +32,121 @@ func setHeader(c *gin.Context) {
 	c.Header("Access-Control-Allow-Headers", "Action, Module, X-PINGOTHER, Content-Type, Content-Disposition")
 	// c.Header("Access-Control-Expose-Headers", "Date, set-cookie")
 	// c.Header("Set-Cookie", "HttpOnly;Secure;SameSite=Strict")
+}
+
+type MyClaims struct {
+	User_name string `json:"user_name"`
+	Access int `json:"access"`
+	jwt.StandardClaims
+}
+
+func UserAuth() gin.HandlerFunc{
+	return func(c *gin.Context){
+		cookie, _:=c.Request.Cookie("token")
+		if(cookie!=nil){
+			_, status:=ClaimsParse(cookie.Value)
+			if(status>=1){
+				c.Next();
+			}else{
+				c.Abort();
+				c.JSON(401, gin.H{
+					"status": "Unauthorized",
+				})
+			}
+		}else{
+			c.Abort();
+			c.JSON(401, gin.H{
+				"status": "Unauthorized",
+			})
+		}
+	}
+}
+
+func UserAntiAuth() gin.HandlerFunc{
+	return func(c *gin.Context){
+		cookie, _:=c.Request.Cookie("token")
+		if(cookie!=nil){
+			_, status:=ClaimsParse(cookie.Value)
+			if(status>=1){
+				c.Abort()
+				c.JSON(412, gin.H{
+					"status": "Has User Online",
+				})
+			}else{
+				c.Next()
+			}
+		}else{
+			c.Next()
+		}
+	}
+}
+
+func ClaimsParse(tokenString string) (*MyClaims, int){
+	var claims *MyClaims
+	var status int
+	var ok bool
+	token, err:= jwt.ParseWithClaims(tokenString, &MyClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(utils.COOKIE_SALT), nil
+	})
+	fmt.Println("token:",token)
+	if err == nil {
+		claims, ok = token.Claims.(*MyClaims)
+		if ok && token.Valid {
+			if(claims.Access == 2) {
+				status=2
+			}else{
+				status=1
+			}
+		} else {
+			fmt.Println("claim not exist", token.Valid)
+			status=-1
+		}
+	} else {
+		fmt.Println("err in claim Parse:", err)
+		status=0
+	}
+	return claims, status
+}
+
+func TokenSet(c *gin.Context, user string, access int){
+	claims:=MyClaims{
+		user,
+		access,
+		jwt.StandardClaims{
+			ExpiresAt: int64(time.Now().Unix() + 3600),
+			Issuer: "Gif-Dio",
+		},
+	}
+	fmt.Println(claims)
+	token:=jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err:=token.SignedString([]byte(utils.COOKIE_SALT))
+	if err!=nil{
+		fmt.Println("err in tokenSet:", err)
+		return
+	}else{
+		c.SetCookie("token", tokenString, 3600, "/", utils.COOKIE_DOMAIN, false, false)
+		fmt.Println(tokenString)
+	}
+}
+
+func TokenTest(user string, access int){
+	claims:=MyClaims{
+		user,
+		access,
+		jwt.StandardClaims{
+			ExpiresAt:int64(time.Now().Unix() + 3600) ,
+			Issuer: "Gif-Dio",
+		},
+	}
+	token:=jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err:=token.SignedString([]byte(utils.COOKIE_SALT))
+	if err!=nil{
+		fmt.Println("err in tokenSet:", err)
+		return
+	}else{
+		// c.SetCookie("token", tokenString, 3600, "/", utils.COOKIE_DOMAIN, false, false)
+		fmt.Println(tokenString)
+	}
 }
 
 func RouterSet() *gin.Engine {
@@ -71,7 +189,9 @@ func RouterSet() *gin.Engine {
 	m := cache.OfflineCacheReload()
 	// gif := utils.JsonParse(".")
 
-	goc := cookie.CookieCacheInit()
+	// goc := cookie.CookieCacheInit()
+
+	//Routers without Auth
 
 	r.GET("/", func(c *gin.Context) {
 		setHeader(c)
@@ -121,15 +241,74 @@ func RouterSet() *gin.Engine {
 			})
 		}
 	})
+	r.GET("/login", UserAntiAuth(),	func(c *gin.Context) {
+		setHeader(c)
+
+		user := c.DefaultQuery("user", "")
+		password := c.DefaultQuery("password", "")
+
+		status := login.Login(user, password, DB)
+		if(status=="登陆成功！"){
+			// c.SetCookie("user_name", string(cookie.ShaConvert(user)), 3600, "/", utils.COOKIE_DOMAIN,  false, false)
+			// cookie.CookieSet(user, goc)
+			TokenSet(c, user, 1)
+			c.JSON(200, gin.H{
+				"status": status,
+			})
+		}else{
+			c.JSON(406, gin.H{
+				"status": status,
+			})
+			// c.SetCookie("user_name", "", 3600, "/", utils.COOKIE_DOMAIN, false, false)
+		}
+	})
+	r.GET("/register", func(c *gin.Context) {
+		setHeader(c)
+		status := register.Register(c, DB)
+		c.JSON(200, gin.H{
+			"status": status,
+		})
+	})
+	
+	r.GET("/user_status", func(c *gin.Context){
+		res,_:=c.Request.Cookie("token")
+		var status int
+		var claims *MyClaims
+		if res==nil{
+			status=0
+			claims=&MyClaims{}
+		}else{
+			tokenString:=res.Value
+			fmt.Println(tokenString)
+			claims, status=ClaimsParse(tokenString)
+		}
+		c.JSON(200, gin.H{
+			"status": status,
+			"claims": claims,
+		})
+	})
+
+	r.GET("/user_login", func(c *gin.Context){
+		user:="user0"
+		access:=1
+		TokenSet(c, user, access)
+		c.JSON(200, gin.H{
+			"status": "success",
+		})
+	})
+
+	//Routers with Auth
+
+	r.Use(UserAuth())
+
+	r.GET("/test", func(c *gin.Context){
+		c.JSON(200, gin.H{
+			"res":"test",
+		})
+	})
 
 	r.GET("/upload", func(c *gin.Context) {
 		setHeader(c)
-		
-		if(!cookie.CookieCheck(c.Request, goc)){
-			c.JSON(200, gin.H{
-				"status": "succeed",		
-			})
-		}
 
 		keyword := c.DefaultQuery("keyword", "")
 		name := c.DefaultQuery("name", "")
@@ -154,58 +333,6 @@ func RouterSet() *gin.Engine {
 		})
 	})
 
-	r.GET("/login", func(c *gin.Context) {
-		setHeader(c)
-
-		user := c.DefaultQuery("user", "")
-		password := c.DefaultQuery("password", "")
-
-		status := login.Login(user, password, DB)
-		res:=cookie.CookieDecode(c.Request, goc)
-		if(res!=""){
-			c.JSON(200, gin.H{
-				"status": "已有用户在线",
-				"user_name": res,
-			})
-		}else{
-			if(status=="登陆成功！"){
-				c.SetCookie("user_name", string(cookie.ShaConvert(user)), 3600, "/", utils.COOKIE_DOMAIN,  false, false)
-				cookie.CookieSet(user, goc)
-			}else{
-				c.SetCookie("user_name", "", 3600, "/", utils.COOKIE_DOMAIN, false, false)
-			}
-			c.JSON(200, gin.H{
-				"status": status,
-			})
-		}
-	})
-
-	r.GET("/register", func(c *gin.Context) {
-		setHeader(c)
-
-		status := register.Register(c, DB)
-		c.JSON(200, gin.H{
-			"status": status,
-		})
-	})
-
-	r.GET("/write_cookie", func(c *gin.Context) {
-		setHeader(c)
-
-		c.SetCookie("user_cookie", "cookie0", 3600, "/", utils.COOKIE_DOMAIN, false, true)
-		c.JSON(200, gin.H{
-			"status": "succeed",
-		})
-	})
-
-	r.GET("/read_cookie", func(c *gin.Context) {
-		setHeader(c)
-		b:=cookie.CookieCheck(c.Request, goc)
-		c.JSON(200, gin.H{
-			"res": b,
-		})
-	})
-
 	return r
 }
 
@@ -213,6 +340,7 @@ func main() {
 	cache.OfflineCacheInit()
 	r := RouterSet()
 	r.Run(":8080")
+	// TokenTest("user0", 1)
 	// fmt.Println(cookie.ShaConvert("user0"))
 	
 	// goc := cookie.CookieCacheInit()
