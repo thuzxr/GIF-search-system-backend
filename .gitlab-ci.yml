@@ -13,6 +13,11 @@ build:
     - export BUILD_IMAGE_USERNAME=$CI_REGISTRY_USER
     - export BUILD_IMAGE_PASSWORD=$CI_REGISTRY_PASSWORD
     - deployer build
+  
+  cache:
+    key: ${CI_PROJECT_NAME}
+    paths:
+      - tmp/
 
 .test:
   image: golang:1.13
@@ -21,15 +26,10 @@ build:
     - export GOPROXY=https://goproxy.cn
     - export GOPATH=$HOME/go
     - export GOBIN=$HOME/go/bin
-
-  cache:
-    key: ${CI_PROJECT_NAME}
-    paths:
-      - tmp/
-
-  before_script:
-    - curl -o /tmp/emb_short.json http://47.93.237.110/emb_short.json 
-    - curl -o /tmp/embVectors.json http://47.93.237.110/embVectors.json 
+    
+  # before_script:
+  #   - curl -o /tmp/emb_short.json http://47.93.237.110/emb_short.json 
+  #   - curl -o /tmp/embVectors.json http://47.93.237.110/embVectors.json 
 
 unit-test:
   extends: .test
