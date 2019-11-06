@@ -307,6 +307,14 @@ func RouterSet() *gin.Engine {
 		})
 	})
 
+	r.GET("/logout", func(c *gin.Context) {
+		setHeader(c)
+		c.SetCookie("token", "", -1, "/", utils.COOKIE_DOMAIN, false, false)
+		c.JSON(200, gin.H{
+			"status": "Logout",
+		})
+	})
+
 	r.GET("/upload", func(c *gin.Context) {
 		setHeader(c)
 
