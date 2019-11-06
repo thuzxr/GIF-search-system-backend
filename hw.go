@@ -299,7 +299,7 @@ func RouterSet() *gin.Engine {
 		})
 	})
 
-	r.GET("/refresh_veri.html", func(c *gin.Context) {
+	r.GET("/refresh_veri", func(c *gin.Context) {
 		setHeader(c)
 		vericode.Get_vericode(c)
 	})
