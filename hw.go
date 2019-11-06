@@ -2,11 +2,11 @@ package main
 
 import (
 	"backend/cache"
-	"backend/cookie"
+	// "backend/cookie"
 	"backend/database"
 	"backend/management/login"
 	"backend/management/register"
-	"backend/management/vericode"
+	// "backend/management/vericode"
 	"backend/ossUpload"
 	"backend/recommend"
 	"backend/search"
