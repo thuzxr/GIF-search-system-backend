@@ -2,9 +2,11 @@ package main
 
 import (
 	"backend/cache"
+	"backend/cookie"
 	"backend/database"
 	"backend/management/login"
 	"backend/management/register"
+	"backend/management/vericode"
 	"backend/ossUpload"
 	"backend/recommend"
 	"backend/search"
@@ -27,7 +29,7 @@ import (
 func setHeader(c *gin.Context) {
 	c.Header("Access-Control-Allow-Origin", "*")
 	// c.Header("Access-Control-Allow-Origin", c.GetHeader("Origin"));
-	// c.Header("Access-Control-Allow-Credentials","true")
+	c.Header("Access-Control-Allow-Credentials", "true")
 	c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 	c.Header("Access-Control-Allow-Headers", "Action, Module, X-PINGOTHER, Content-Type, Content-Disposition")
 	// c.Header("Access-Control-Expose-Headers", "Date, set-cookie")
@@ -347,10 +349,9 @@ func RouterSet() *gin.Engine {
 func main() {
 	cache.OfflineCacheInit()
 	r := RouterSet()
-	r.Run(":8080")
-	// TokenTest("user0", 1)
+	r.Run(":80")
 	// fmt.Println(cookie.ShaConvert("user0"))
-	
+
 	// goc := cookie.CookieCacheInit()
 	// cookie.CookieSet("user0", goc)
 	// fmt.Println(cookie.CookieTest(string(cookie.ShaConvert("user0")), goc))
