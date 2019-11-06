@@ -6,7 +6,7 @@ import (
 	"backend/database"
 	"backend/management/login"
 	"backend/management/register"
-	// "backend/management/vericode"
+	"backend/management/vericode"
 	"backend/ossUpload"
 	"backend/recommend"
 	"backend/search"
@@ -297,6 +297,16 @@ func RouterSet() *gin.Engine {
 		c.JSON(200, gin.H{
 			"status": "success",
 		})
+	})
+
+	r.GET("/refresh_veri.html", func(c *gin.Context) {
+		setHeader(c)
+		vericode.Get_vericode(c)
+	})
+
+	r.GET("/get_veri/:captchId", func(c *gin.Context) {
+		setHeader(c)
+		vericode.Gen_vericode(c)
 	})
 
 	//Routers with Auth
