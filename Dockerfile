@@ -24,6 +24,8 @@ COPY --from=0 /opt/app/ind_keyword.ind /ind_keyword.ind
 COPY --from=0 /opt/app/ind_name.ind /ind_name.ind
 COPY --from=0 /opt/app/ind_title.ind /ind_title.ind
 COPY --from=0 /opt/app/info.json /info.json
+COPY --from=0 /tmp/emb_short.json /emb_short.json
+COPY --from=0 /tmp/embVectors.json /embVectors.json
 
 EXPOSE 80
 

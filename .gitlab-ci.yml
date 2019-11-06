@@ -14,6 +14,15 @@ build:
     - export BUILD_IMAGE_PASSWORD=$CI_REGISTRY_PASSWORD
     - deployer build
 
+  cache:
+    key: ${CI_PROJECT_NAME}
+    paths:
+      - tmp/
+
+  before_script:
+    - curl -o /tmp/emb_short.json http://47.93.237.110/emb_short.json 
+    - curl -o /tmp/embVectors.json http://47.93.237.110/embVectors.json 
+
 .test:
   image: golang:1.13
   stage: test
@@ -52,4 +61,5 @@ deploy:
     - deployer dyno replace $CI_PROJECT_NAME "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" "$REGISTRY_USER" "$REGISTRY_PWD"
   only:
     - master
+    # - feature-Deploy
     # - test-Cookie
