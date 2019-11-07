@@ -159,8 +159,8 @@ func RouterSet() *gin.Engine {
 	cache.OfflineCacheClear()
 	r := gin.Default()
 	gifs := utils.JsonParse("info.json")
-	// AdSearch_Enabled := word.DataCheck()
-	AdSearch_Enabled := false
+	AdSearch_Enabled := word.DataCheck()
+	// AdSearch_Enabled := false
 
 	var gif2vec map[string][][]uint8
 	var word2vec map[string][]uint8
@@ -366,7 +366,7 @@ func RouterSet() *gin.Engine {
 func main() {
 	cache.OfflineCacheInit()
 	r := RouterSet()
-	r.Run(":80")
+	r.Run(":8080")
 	// fmt.Println(cookie.ShaConvert("user0"))
 
 	// goc := cookie.CookieCacheInit()

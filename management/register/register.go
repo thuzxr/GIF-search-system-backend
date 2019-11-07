@@ -13,10 +13,10 @@ import (
 )
 
 func Register(c *gin.Context, db *sql.DB) string {
-	username := c.DefaultQuery("user", "")
-	password := c.DefaultQuery("password", "")
-	veri_input := c.DefaultQuery("vericode", "")
-	captchaId := c.DefaultQuery("captchaId", "")
+	username := c.DefaultPostForm("user", "")
+	password := c.DefaultPostForm("password", "")
+	veri_input := c.DefaultPostForm("vericode", "")
+	captchaId := c.DefaultPostForm("captchaId", "")
 	if !captcha.VerifyString(captchaId, veri_input) {
 		return "验证码错误"
 	}
