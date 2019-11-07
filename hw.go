@@ -243,7 +243,7 @@ func RouterSet() *gin.Engine {
 			})
 		}
 	})
-	r.POST("/login", //UserAntiAuth(),	
+	r.POST("/login", UserAntiAuth(),	
 		func(c *gin.Context) {
 		setHeader(c)
 
@@ -318,7 +318,7 @@ func RouterSet() *gin.Engine {
 
 	//Routers with Auth
 
-	// r.Use(UserAuth())
+	r.Use(UserAuth())
 
 	r.GET("/test", func(c *gin.Context){
 		c.JSON(200, gin.H{
@@ -366,7 +366,7 @@ func RouterSet() *gin.Engine {
 func main() {
 	cache.OfflineCacheInit()
 	r := RouterSet()
-	r.Run(":8080")
+	r.Run(":80")
 	// fmt.Println(cookie.ShaConvert("user0"))
 
 	// goc := cookie.CookieCacheInit()
