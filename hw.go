@@ -243,11 +243,17 @@ func RouterSet() *gin.Engine {
 			})
 		}
 	})
-	r.GET("/login", UserAntiAuth(),	func(c *gin.Context) {
+	r.POST("/login", //UserAntiAuth(),	
+		func(c *gin.Context) {
 		setHeader(c)
 
-		user := c.DefaultQuery("user", "")
-		password := c.DefaultQuery("password", "")
+		// user := c.DefaultQuery("user", "")
+		// password := c.DefaultQuery("password", "")
+		user:=c.DefaultPostForm("user", "")
+		password:=c.DefaultPostForm("password", "")
+
+		fmt.Println(user)
+		fmt.Println(password)
 
 		status := login.Login(user, password, DB)
 		if(status=="登陆成功！"){
@@ -255,16 +261,17 @@ func RouterSet() *gin.Engine {
 			// cookie.CookieSet(user, goc)
 			TokenSet(c, user, 1)
 			c.JSON(200, gin.H{
-				"status": status,
+				"status": 1,
 			})
 		}else{
 			c.JSON(406, gin.H{
-				"status": status,
+				"status": 0,
 			})
 			// c.SetCookie("user_name", "", 3600, "/", utils.COOKIE_DOMAIN, false, false)
 		}
 	})
-	r.GET("/register", func(c *gin.Context) {
+
+	r.POST("/register", func(c *gin.Context) {
 		setHeader(c)
 		status := register.Register(c, DB)
 		c.JSON(200, gin.H{
@@ -311,7 +318,7 @@ func RouterSet() *gin.Engine {
 
 	//Routers with Auth
 
-	r.Use(UserAuth())
+	// r.Use(UserAuth())
 
 	r.GET("/test", func(c *gin.Context){
 		c.JSON(200, gin.H{
@@ -327,12 +334,12 @@ func RouterSet() *gin.Engine {
 		})
 	})
 
-	r.GET("/upload", func(c *gin.Context) {
+	r.POST("/upload", func(c *gin.Context) {
 		setHeader(c)
 
-		keyword := c.DefaultQuery("keyword", "")
-		name := c.DefaultQuery("name", "")
-		title := c.DefaultQuery("title", "")
+		keyword := c.DefaultPostForm("keyword", "")
+		name := c.DefaultPostForm("name", "")
+		title := c.DefaultPostForm("title", "")
 		keywords, names, titles = upload.Upload(keyword, name, title, keywords, names, titles)
 		c.JSON(200, gin.H{
 			"status": "succeed",
@@ -359,7 +366,7 @@ func RouterSet() *gin.Engine {
 func main() {
 	cache.OfflineCacheInit()
 	r := RouterSet()
-	r.Run(":80")
+	r.Run(":8080")
 	// fmt.Println(cookie.ShaConvert("user0"))
 
 	// goc := cookie.CookieCacheInit()
