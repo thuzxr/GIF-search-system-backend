@@ -18,8 +18,10 @@ RUN GOOS=linux GOARCH=amd64 go build -a -ldflags "-linkmode external -extldflags
 # Second stage for executable only image
 FROM scratch
 
-RUN curl -o /tmp/emb_short.json http://47.93.237.110/emb_short.json 
-RUN curl -o /tmp/embVectors.json http://47.93.237.110/embVectors.json 
+RUN mkdir /opt/app/cache
+RUN if [ -f /opt/app/cache/emb_short.json ]; then echo "emb_short.json exist"; else curl -o /opt/app/cache/emb_short.json http://47.93.237.110/emb_short.json; fi
+RUN if [ -f /opt/app/cache/embVectors.json ]; then echo "embVectors.json exist"; else curl -o /opt/app/cache/embVectors.json http://47.93.237.110/embVectors.json; fi
+# RUN curl -o /opt/app/cache/embVectors.json http://47.93.237.110/embVectors.json 
 
 # Copy executable from the first stage
 COPY --from=0 /opt/app/backend /backend
