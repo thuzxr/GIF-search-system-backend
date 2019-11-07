@@ -20,15 +20,15 @@ type Gifs struct {
 }
 
 const (
-	USERNAME  = "wangziqi"
-	PASSWORD  = "QWEasd123_"
-	NETWORK   = "tcp"
-	PORT      = "3306"
-	SERVER    = "49.233.71.202"
-	DATABASE  = "GIF_INFO"
-	CACHE_DIR = "cache/"
-	HAMMING_EDGE = 133
-	HAMMING_DIV = 79
+	USERNAME      = "wangziqi"
+	PASSWORD      = "QWEasd123_"
+	NETWORK       = "tcp"
+	PORT          = "3306"
+	SERVER        = "49.233.71.202"
+	DATABASE      = "GIF_INFO_NEW"
+	CACHE_DIR     = "cache/"
+	HAMMING_EDGE  = 133
+	HAMMING_DIV   = 79
 	COOKIE_EXPIRE = 3600
 	// COOKIE_DOMAIN = "127.0.0.1"
 	COOKIE_SALT = "The_World"
