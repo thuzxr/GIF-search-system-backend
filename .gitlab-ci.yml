@@ -14,10 +14,10 @@ build:
     - export BUILD_IMAGE_PASSWORD=$CI_REGISTRY_PASSWORD
     - deployer build
   
-  cache:
-    key: ${CI_PROJECT_NAME}
-    paths:
-      - cache/
+  # cache:
+  #   key: ${CI_PROJECT_NAME}
+  #   paths:
+  #     - cache/
 
 .test:
   image: golang:1.13
