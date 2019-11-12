@@ -1,8 +1,10 @@
 package upload
 
-func Upload(keyword, name, title string, keywords, names, titles []string) ([]string, []string, []string) {
+func Upload(users, names, titles, infos, keywords []string, user, name, title, info, keyword string) ([]string, []string, []string, []string, []string) {
 	keywords = append(keywords, keyword)
 	names = append(names, name)
 	titles = append(titles, title)
-	return keywords, names, titles
+	users = append(users, user)
+	infos = append(infos, info)
+	return users, names, titles, infos, keywords
 }
