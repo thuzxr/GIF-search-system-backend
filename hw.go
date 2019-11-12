@@ -338,7 +338,7 @@ func RouterSet() *gin.Engine {
 		})
 	})
 
-	r.GET("/")
+	// r.GET("/")
 
 	return r
 }
