@@ -43,8 +43,8 @@ func RouterSet() *gin.Engine {
 	cache.OfflineCacheClear()
 	r := gin.Default()
 	gifs := utils.JsonParse("info.json")
-	// AdSearch_Enabled := word.DataCheck()
-	AdSearch_Enabled := false
+	AdSearch_Enabled := word.DataCheck()
+	// AdSearch_Enabled := false
 
 	var gif2vec map[string][][]uint8
 	var word2vec map[string][]uint8
@@ -140,11 +140,11 @@ func RouterSet() *gin.Engine {
 			// cookie.CookieSet(user, goc)
 			cookie.TokenSet(c, user, 1)
 			c.JSON(200, gin.H{
-				"status": status,
+				"status": 1,
 			})
 		} else {
 			c.JSON(406, gin.H{
-				"status": status,
+				"status": 0,
 			})
 			// c.SetCookie("user_name", "", 3600, "/", utils.COOKIE_DOMAIN, false, false)
 		}
@@ -212,7 +212,7 @@ func RouterSet() *gin.Engine {
 		})
 	})
 
-	r.GET("/upload", func(c *gin.Context) {
+	r.POST("/upload", func(c *gin.Context) {
 		setHeader(c)
 
 		user := cookie.Getusername(c)

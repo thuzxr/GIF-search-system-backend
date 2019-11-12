@@ -86,14 +86,14 @@ func HammingCode(vec []uint8) []uint64{
 
 func HammingJudge(vec_1 []uint64, vec_2 []uint64) bool{
 	var EDGE uint64
-	EDGE=90
+	EDGE=200
 	// 50: 17/311 60: 25/311 100: 215/311
 	var cnt uint64
 	cnt=0
 	for i:=0;i<5;i++{
-		res:=vec_1[i]&vec_2[i]
+		res:=vec_1[i]^vec_2[i]
 		for j:=0;j<60;j++{
-			cnt+=res&1;
+			cnt+=1-(res&1);
 			res=res>>1;
 		}
 	}
