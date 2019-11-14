@@ -385,18 +385,20 @@ func QueryGifs(user string, DB *sql.DB) []QueryGif {
 	return QGifs
 }
 
-func QueryUser(user, password string, DB *sql.DB) string {
-	rows, _ := DB.Query("select USER from USER_MANAGE WHERE USER='" + user + "' AND PASSWORD='" + password + "'")
+func QueryUser(user, password string, DB *sql.DB) int {
+	var user_type int
+	rows, _ := DB.Query("select TYPE from USER_MANAGE WHERE USER='" + user + "' AND PASSWORD='" + password + "'")
 	defer func() {
 		if rows != nil {
 			rows.Close()
 		}
 	}()
 	if rows.Next() {
-		return "登陆成功！"
+		rows.Scan(&user_type)
 	} else {
-		return "用户名或密码错误"
+		user_type = -1
 	}
+	return user_type
 }
 
 func LoadAll(DB *sql.DB) ([]string, []string, []string, []string, []string) {
