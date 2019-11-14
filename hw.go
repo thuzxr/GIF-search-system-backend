@@ -331,8 +331,10 @@ func RouterSet() *gin.Engine {
 		City := c.DefaultPostForm("City", "")
 		Country := c.DefaultPostForm("Country", "")
 		About := c.DefaultPostForm("About", "")
+		Height := c.DefaultPostForm("Height", "")
+		Birthday := c.DefaultPostForm("Birthday", "")
 
-		database.ChangeProfile(user, Email, FirstName, LastName, Addr, ZipCode, City, Country, About, DB)
+		database.ChangeProfile(user, Email, FirstName, LastName, Addr, ZipCode, City, Country, About, Height, Birthday, DB)
 		c.JSON(200, gin.H{
 			"status": true,
 		})

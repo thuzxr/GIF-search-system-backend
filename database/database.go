@@ -66,6 +66,8 @@ func Init(DB *sql.DB) {
 		ZipCode		TEXT ,
 		City 		TEXT ,
 		Country		TEXT ,
+		Birthday 	TEXT ,
+		Height		TEXT ,
 		About		TEXT ,
 		FOREIGN KEY(USER) REFERENCES USER_MANAGE(USER) ON DELETE CASCADE
 		);`
@@ -204,8 +206,8 @@ func InsertFollow(user, follow string, DB *sql.DB) string {
 	}
 }
 
-func ChangeProfile(user, Email, FirstName, LastName, Addr, ZipCode, City, Country, About string, DB *sql.DB) string {
-	_, err := DB.Exec(`UPDATE PROFILE SET Email='` + Email + `', FirstName='` + FirstName + `', LastName='` + LastName + `', Addr='` + Addr + `',ZipCode='` + ZipCode + `', City='` + City + `', Country='` + Country + `', About='` + About + `' WHERE USER='` + user + `'`)
+func ChangeProfile(user, Email, FirstName, LastName, Addr, ZipCode, City, Country, About, Height, Birthday string, DB *sql.DB) string {
+	_, err := DB.Exec(`UPDATE PROFILE SET Email='` + Email + `', FirstName='` + FirstName + `', LastName='` + LastName + `', Addr='` + Addr + `',ZipCode='` + ZipCode + `', City='` + City + `', Country='` + Country + `', About='` + About + `', Height='` + Height + `', Birthday='` + Birthday + `' WHERE USER='` + user + `'`)
 	if err != nil {
 		return "更新失败"
 	} else {
