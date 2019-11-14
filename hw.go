@@ -16,6 +16,7 @@ import (
 
 	// "backend/cookie"
 	"fmt"
+	"time"
 
 	"backend/word"
 
@@ -52,6 +53,21 @@ func RouterSet() *gin.Engine {
 	var vec_h [][]uint64
 	var seg gse.Segmenter
 
+	fmt.Println("OssUpdating")
+	ossUpload.OssUpdate(gifs)
+	fmt.Println("OssUpdated")
+
+	// ch_ossUpdate:=make(chan bool)
+
+	go func() {
+		for{
+			time.Sleep(45*time.Minute);
+			fmt.Println("OssUpdating")
+			ossUpload.OssUpdate(gifs);
+			fmt.Println("OssUpdated")
+		}
+	}()
+
 	if AdSearch_Enabled {
 		fmt.Println("Advanced Searching Enabled")
 		word2vec = word.WordToVecInit()
@@ -67,10 +83,10 @@ func RouterSet() *gin.Engine {
 	// keywords:=make([]string,0)
 
 	fmt.Println(gifs[0])
-	var maps map[string]utils.Gifs
-	maps = make(map[string]utils.Gifs)
-	for _, gif := range gifs {
-		maps[gif.Name] = gif
+	var maps map[string]int
+	maps = make(map[string]int)
+	for i := range gifs {
+		maps[gifs[i].Name] = i
 	}
 
 	m := cache.OfflineCacheReload()
@@ -105,7 +121,7 @@ func RouterSet() *gin.Engine {
 				res := word.RankSearch(keyword, word2vec, gif2vec, vec_h, re_idx, seg)
 				match = make([]utils.Gifs, len(res))
 				for i := range res {
-					match[i] = maps[res[i]]
+					match[i] = gifs[maps[res[i]]]
 				}
 				match = append(match, search.SimpleSearch(keyword, names, titles, keywords)...)
 			} else {
@@ -231,10 +247,10 @@ func RouterSet() *gin.Engine {
 		setHeader(c)
 
 		name := c.DefaultQuery("name", "")
-		recommend_gifs := recommend.Recommend(maps[name], gifs)
-		for i := 0; i < len(recommend_gifs); i++ {
-			recommend_gifs[i].Oss_url = ossUpload.OssSignLink(recommend_gifs[i], 3600)
-		}
+		recommend_gifs := recommend.Recommend(gifs[maps[name]], gifs)
+		// for i := 0; i < len(recommend_gifs); i++ {
+		// 	recommend_gifs[i].Oss_url = ossUpload.OssSignLink(recommend_gifs[i], 3600)
+		// }
 		c.JSON(200, gin.H{
 			"status": "succeed",
 			"result": recommend_gifs,
@@ -346,21 +362,5 @@ func RouterSet() *gin.Engine {
 func main() {
 	cache.OfflineCacheInit()
 	r := RouterSet()
-	r.Run(":80")
-
-	// DB := database.ConnectDB()
-	// database.Init(DB)
-	// database.InsertUser("Admin", "Admin", "", DB)
-	// gifs := utils.JsonParse("/Users/saberrrrrrrr/Desktop/backend/info.json")
-	// for _, gif := range gifs {
-	// 	database.InsertGIF(DB, "Admin", gif.Name, gif.Keyword, "开始的gif", gif.Title)
-	// }
-
-	// fmt.Println(cookie.ShaConvert("user0"))
-
-	// goc := cookie.CookieCacheInit()
-	// cookie.CookieSet("user0", goc)
-	// fmt.Println(cookie.CookieTest(string(cookie.ShaConvert("user0")), goc))
-	// res, _:=goc.Get("user0")
-	// fmt.Println(res)
+	r.Run(":8080")
 }
