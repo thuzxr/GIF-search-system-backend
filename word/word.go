@@ -136,6 +136,9 @@ func WordToVec(keyword string, seg gse.Segmenter, m map[string][]uint8) [][]uint
 		}
 	}
 	// fmt.Println(res)
+	if(len(res)==0){
+		res=append(res, make([]uint8, 300))
+	}
 	return res
 }
 

@@ -68,6 +68,8 @@ func RouterSet() *gin.Engine {
 		}
 	}()
 
+	
+
 	if AdSearch_Enabled {
 		fmt.Println("Advanced Searching Enabled")
 		word2vec = word.WordToVecInit()
@@ -77,6 +79,26 @@ func RouterSet() *gin.Engine {
 		fmt.Println("Index not found, Advanced Searching Disabled")
 	}
 	users, names, titles, infos, keywords := database.LoadAll(DB)
+
+	ch_gifUpdate:=make(chan bool)
+	go func(){
+		for{
+			select{
+			case <- ch_gifUpdate:
+				users2, names2, titles2, infos2, keywords2 := database.LoadAll(DB)
+				users=users2
+				names=names2
+				titles=titles2
+				infos=infos2
+				keywords=keywords2
+				ch_gifUpdate <- false;
+				break;
+			default:
+				break;
+			}
+		}
+	}()
+
 	// names, titles, keywords := search.FastIndexParse()
 	// names:=make([]string,0)
 	// titles:=make([]string,0)
@@ -123,15 +145,16 @@ func RouterSet() *gin.Engine {
 				for i := range res {
 					match[i] = gifs[maps[res[i]]]
 				}
-				match = append(match, search.SimpleSearch(keyword, names, titles, keywords)...)
+				// match = append(match, search.SimpleSearch(keyword, names, titles, keywords)...)
 			} else {
 				match = search.SimpleSearch(keyword, names, titles, keywords)
 			}
+			m[keyword]=match
 			go cache.OfflineCacheAppend(keyword, match)
 		}
-		for i := 0; i < len(match); i++ {
-			match[i].Oss_url = ossUpload.OssSignLink(match[i], 3600)
-		}
+		// for i := 0; i < len(match); i++ {
+		// 	match[i].Oss_url = ossUpload.OssSignLink(match[i], 3600)
+		// }
 		// fmt.Println(time.Since(time0))
 		if len(match) == 0 {
 			c.JSON(200, gin.H{
@@ -237,7 +260,36 @@ func RouterSet() *gin.Engine {
 		name := c.DefaultQuery("name", "")
 		title := c.DefaultQuery("title", "")
 		users, names, titles, infos, keywords = upload.Upload(users, names, titles, infos, keywords, user, name, title, info, keyword)
-		database.InsertGIF(DB, user, name, keyword, info, title)
+		// database.InsertGIF(DB, user, name, keyword, info, title)
+
+		//Try to approach sync between upload and data, yet with 
+		if AdSearch_Enabled{
+			go func(){
+				title0:=title
+				name0:=name
+				keyword0:=keyword
+				fmt.Println("updating gif vec of ", title0)
+
+				new_gif:=utils.Gifs{Name: name, Keyword:keyword, Title:title}
+				gifs=append(gifs, new_gif)
+				maps[name]=len(gifs)-1
+				
+				tmpVec:=word.WordToVec(keyword0, seg, word2vec)
+				
+				gif2vec[name0]=tmpVec
+				for i:=range(tmpVec){
+					vec_h=append(vec_h, word.HammingCode(tmpVec[i]))
+					re_idx=append(re_idx, name0)
+				}
+
+				fmt.Println("gif vec of ",title0," updated")
+			}()
+		}else{
+			new_gif:=utils.Gifs{Name: name, Keyword:keyword, Title:title}
+			gifs=append(gifs, new_gif)
+			maps[name]=len(gifs)-1
+		}
+
 		c.JSON(200, gin.H{
 			"status": "succeed",
 		})

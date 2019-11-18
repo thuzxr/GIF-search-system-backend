@@ -114,6 +114,21 @@ func Init(DB *sql.DB) {
 	}
 	fmt.Println("create table GIF_INFO succeed")
 
+	sql = `CREATE TABLE IF NOT EXISTS GIF_TOVERIFY(
+		USER	VARCHAR(64)		NOT NULL,
+		GifId	VARCHAR(64)		NOT NULL	PRIMARY KEY,
+		TAG		TEXT,
+		INFO	TEXT,
+		TITLE	TEXT,
+		GIF_URL TEXT,
+		FOREIGN KEY(USER) REFERENCES PROFILE(USER) ON DELETE CASCADE
+	);`
+	_, err = DB.Exec(sql)
+	if ErrProc(err) == false {
+		return
+	}
+	fmt.Println("create table GIF_INFO succeed")
+
 	//Comments table
 	sql = `CREATE TABLE IF NOT EXISTS COMMENTS(
 		ComId 	INTEGER 	NOT NULL,
@@ -184,6 +199,40 @@ func InsertGIF(DB *sql.DB, user, GifId, TAG, INFO, TITLE string) {
 		// fmt.Print(gif)
 		return
 	}
+}
+
+func InsertUnderVerifyGIF(DB *sql.DB, user, GifId, TAG, INFO, TITLE, Gif_url string) {
+	_, err := DB.Exec("insert INTO GIF_TOVERIFY(USER,GifId,TAG,INFO,TITLE,GIF_URL) values(?,?,?,?,?,?)", user, GifId, TAG, INFO, TITLE,Gif_url)
+	if err != nil {
+		fmt.Printf("Insert data failed,err:%v", err)
+		return
+	}
+}
+
+func VerifyGIF(DB *sql.DB, GifId string, ch_update chan bool){
+	rows, qerr := DB.Query("select USER,GifId,TAG,INFO,TITLE,GIF_URL from GIF_INFO WHERE GifId like '%" + GifId + "%'")
+
+	defer func() {
+		if rows != nil {
+			rows.Close()
+		}
+	}()
+
+	if qerr != nil {
+		fmt.Printf("query failed, err:%v\n", qerr)
+	}
+	var user,gifId,tag,info,title,gif_url string
+	for rows.Next() {
+		if serr := rows.Scan(&user, &GifId, &tag, &info, &title, &gif_url); serr != nil {
+			fmt.Printf("scan failed, err:%v\n", serr)
+		}
+		InsertGIF(DB,user, gifId, tag, info, title)
+		_, err := DB.Exec(`DELETE FROM GIF_TOVERIFY WHERE GifId='` + GifId + `'`)
+		if err != nil {
+			fmt.Println("error in delete gif from toverify %v", err)
+		}
+	}
+	ch_update <- true;
 }
 
 func InsertFavor(user, GifId string, DB *sql.DB) string {
