@@ -120,14 +120,13 @@ func Init(DB *sql.DB) {
 		TAG		TEXT,
 		INFO	TEXT,
 		TITLE	TEXT,
-		GIF_URL TEXT,
 		FOREIGN KEY(USER) REFERENCES PROFILE(USER) ON DELETE CASCADE
 	);`
 	_, err = DB.Exec(sql)
 	if ErrProc(err) == false {
 		return
 	}
-	fmt.Println("create table GIF_INFO succeed")
+	fmt.Println("create table GIF_TOVERIFY succeed")
 
 	//Comments table
 	sql = `CREATE TABLE IF NOT EXISTS COMMENTS(
@@ -201,16 +200,16 @@ func InsertGIF(DB *sql.DB, user, GifId, TAG, INFO, TITLE string) {
 	}
 }
 
-func InsertUnderVerifyGIF(DB *sql.DB, user, GifId, TAG, INFO, TITLE, Gif_url string) {
-	_, err := DB.Exec("insert INTO GIF_TOVERIFY(USER,GifId,TAG,INFO,TITLE,GIF_URL) values(?,?,?,?,?,?)", user, GifId, TAG, INFO, TITLE,Gif_url)
+func InsertUnderVerifyGIF(DB *sql.DB, user, GifId, TAG, INFO, TITLE string) {
+	_, err := DB.Exec("insert INTO GIF_TOVERIFY(USER,GifId,TAG,INFO,TITLE) values(?,?,?,?,?)", user, GifId, TAG, INFO, TITLE)
 	if err != nil {
 		fmt.Printf("Insert data failed,err:%v", err)
 		return
 	}
 }
 
-func VerifyGIF(DB *sql.DB, GifId string, ch_update chan bool){
-	rows, qerr := DB.Query("select USER,GifId,TAG,INFO,TITLE,GIF_URL from GIF_INFO WHERE GifId like '%" + GifId + "%'")
+func GetToVerifyGIF(DB *sql.DB) []QueryGif{
+	rows, qerr := DB.Query("select USER,GifId,TAG,INFO,TITLE from GIF_TOVERIFY")
 
 	defer func() {
 		if rows != nil {
@@ -221,12 +220,46 @@ func VerifyGIF(DB *sql.DB, GifId string, ch_update chan bool){
 	if qerr != nil {
 		fmt.Printf("query failed, err:%v\n", qerr)
 	}
-	var user,gifId,tag,info,title,gif_url string
+	res:=make([]QueryGif, 0)
+	var user,gifId,tag,info,title string
 	for rows.Next() {
-		if serr := rows.Scan(&user, &GifId, &tag, &info, &title, &gif_url); serr != nil {
+		if serr := rows.Scan(&user, &gifId, &tag, &info, &title); serr != nil {
 			fmt.Printf("scan failed, err:%v\n", serr)
 		}
-		InsertGIF(DB,user, gifId, tag, info, title)
+		res=append(res, QueryGif{
+			GifId:gifId,
+			TAG:tag,
+			INFO:info,
+			TITLE:title,
+		})
+	}
+
+	return res
+}
+
+func DoNothing(DB *sql.DB,user, gifId, tag, info, title string){
+	fmt.Println("do noting", gifId)
+}
+
+func VerifyGIF(DB *sql.DB, GifId string, ch_update chan bool){
+	rows, qerr := DB.Query("select USER,GifId,TAG,INFO,TITLE from GIF_TOVERIFY WHERE GifId like '%" + GifId + "%'")
+
+	defer func() {
+		if rows != nil {
+			rows.Close()
+		}
+	}()
+
+	if qerr != nil {
+		fmt.Printf("query failed, err:%v\n", qerr)
+	}
+	var user,gifId,tag,info,title string
+	for rows.Next() {
+		if serr := rows.Scan(&user, &GifId, &tag, &info, &title); serr != nil {
+			fmt.Printf("scan failed, err:%v\n", serr)
+		}
+		// DoNothing(DB,user, gifId, tag, info, title)
+		InsertGIF(DB, user, gifId, tag, info, title)
 		_, err := DB.Exec(`DELETE FROM GIF_TOVERIFY WHERE GifId='` + GifId + `'`)
 		if err != nil {
 			fmt.Println("error in delete gif from toverify %v", err)

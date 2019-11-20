@@ -11,7 +11,7 @@ import (
 	"backend/ossUpload"
 	"backend/recommend"
 	"backend/search"
-	"backend/upload"
+	// "backend/upload"
 	"backend/utils"
 
 	// "backend/cookie"
@@ -44,8 +44,8 @@ func RouterSet() *gin.Engine {
 	cache.OfflineCacheClear()
 	r := gin.Default()
 	gifs := utils.JsonParse("info.json")
-	AdSearch_Enabled := word.DataCheck()
-	// AdSearch_Enabled := false
+	// AdSearch_Enabled := word.DataCheck()
+	AdSearch_Enabled := false
 
 	var gif2vec map[string][][]uint8
 	var word2vec map[string][]uint8
@@ -79,18 +79,24 @@ func RouterSet() *gin.Engine {
 		fmt.Println("Index not found, Advanced Searching Disabled")
 	}
 	users, names, titles, infos, keywords := database.LoadAll(DB)
+	fmt.Println("total gifs size ", len(users))
 
 	ch_gifUpdate:=make(chan bool)
 	go func(){
 		for{
 			select{
 			case <- ch_gifUpdate:
-				users2, names2, titles2, infos2, keywords2 := database.LoadAll(DB)
-				users=users2
-				names=names2
-				titles=titles2
-				infos=infos2
-				keywords=keywords2
+				if(true){
+					users2, names2, titles2, infos2, keywords2 := database.LoadAll(DB)
+					users=users2
+					names=names2
+					titles=titles2
+					infos=infos2
+					keywords=keywords2
+				}
+				fmt.Println("gif updates here")
+				fmt.Println("total gifs size ", len(users))
+				
 				ch_gifUpdate <- false;
 				break;
 			default:
@@ -255,41 +261,41 @@ func RouterSet() *gin.Engine {
 		setHeader(c)
 
 		user := cookie.Getusername(c)
-		info := c.DefaultQuery("info", "")
-		keyword := c.DefaultQuery("keyword", "")
-		name := c.DefaultQuery("name", "")
-		title := c.DefaultQuery("title", "")
-		users, names, titles, infos, keywords = upload.Upload(users, names, titles, infos, keywords, user, name, title, info, keyword)
+		info := c.DefaultPostForm("info", "")
+		keyword := c.DefaultPostForm("keyword", "")
+		name := c.DefaultPostForm("name", "")
+		title := c.DefaultPostForm("title", "")
+		// users, names, titles, infos, keywords = upload.Upload(users, names, titles, infos, keywords, user, name, title, info, keyword)
 		// database.InsertGIF(DB, user, name, keyword, info, title)
+		database.InsertUnderVerifyGIF(DB, user, name, keyword, info, title);
+		c.JSON(200, gin.H{
+			"status": "succeed",
+		})
+	})
 
-		//Try to approach sync between upload and data, yet with 
-		if AdSearch_Enabled{
-			go func(){
-				title0:=title
-				name0:=name
-				keyword0:=keyword
-				fmt.Println("updating gif vec of ", title0)
+	r.GET("/toBeVerify", func(c* gin.Context){
+		setHeader(c)
 
-				new_gif:=utils.Gifs{Name: name, Keyword:keyword, Title:title}
-				gifs=append(gifs, new_gif)
-				maps[name]=len(gifs)-1
-				
-				tmpVec:=word.WordToVec(keyword0, seg, word2vec)
-				
-				gif2vec[name0]=tmpVec
-				for i:=range(tmpVec){
-					vec_h=append(vec_h, word.HammingCode(tmpVec[i]))
-					re_idx=append(re_idx, name0)
-				}
+		res:=database.GetToVerifyGIF(DB);
+		c.JSON(200, gin.H{
+			"status": "succeed",
+			"result": res,
+		})
+	})
 
-				fmt.Println("gif vec of ",title0," updated")
-			}()
-		}else{
-			new_gif:=utils.Gifs{Name: name, Keyword:keyword, Title:title}
-			gifs=append(gifs, new_gif)
-			maps[name]=len(gifs)-1
-		}
+	r.POST("/verify", func(c *gin.Context){
+		setHeader(c)
+		name := c.DefaultPostForm("name", "")
+		database.VerifyGIF(DB, name, ch_gifUpdate)
+		c.JSON(200, gin.H{
+			"status": "succeed",
+		})
+	})
 
+	r.POST("/remove", func(c *gin.Context){
+		setHeader(c)
+		name:=c.DefaultPostForm("name","")
+		database.DeleteGif(name, DB);
 		c.JSON(200, gin.H{
 			"status": "succeed",
 		})
