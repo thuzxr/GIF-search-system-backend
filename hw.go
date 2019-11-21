@@ -14,6 +14,7 @@ import (
 	"backend/search"
 
 	"backend/utils"
+	"math/rand"
 
 	"fmt"
 	"time"
@@ -47,6 +48,8 @@ func RouterSet() *gin.Engine {
 
 	// gifs := utils.JsonParse("info.json")
 	users, _, gifs := database.LoadAll(DB)
+	gif_proto:=utils.JsonParse("info_old_recommend.json")
+	fmt.Println("gif proto", gif_proto[1])
 
 	// AdSearch_Enabled := word.DataCheck()
 	AdSearch_Enabled := false
@@ -67,6 +70,26 @@ func RouterSet() *gin.Engine {
 	for i := range gifs {
 		maps[gifs[i].Name] = i
 	}
+
+	var rec_tmp []int
+	for i:=range(gif_proto){
+		rec_tmp=make([]int, 0)
+		for j:=range(gif_proto[i].Recommend){
+			rec_tmp=append(rec_tmp, maps[gif_proto[gif_proto[i].Recommend[j]].Name])
+		}
+		gifs[maps[gif_proto[i].Name]].Recommend=rec_tmp
+	}
+
+	for i:=range(gifs){
+		rec_tmp=make([]int, 0)
+		if(len(gifs[i].Recommend)==0){
+			for j:=0;j<10;j++{
+				rec_tmp=append(rec_tmp, ((int)(rand.Int31())%(len(gifs))))
+			}
+			gifs[i].Recommend=rec_tmp
+		}
+	}
+	fmt.Println("## gif 0:",gifs[1], gifs[0])
 
 	go func() {
 		for {

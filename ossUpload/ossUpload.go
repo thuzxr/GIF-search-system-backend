@@ -46,10 +46,10 @@ func OssMove(name string){
 		log.Panicln(err)
 	}
 
-	err = bucket.DeleteObject(name)
-    if err != nil {
-        fmt.Println("Error:", err)
-        log.Panicln(err)
-    }
+	// err = bucket.DeleteObject(name)
+    // if err != nil {
+    //     fmt.Println("Error:", err)
+    //     log.Panicln(err)
+    // }
 
 }
