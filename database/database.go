@@ -225,7 +225,7 @@ func DoNothing(DB *sql.DB, user, gifId, tag, info, title string) {
 	fmt.Println("do noting", gifId)
 }
 
-func VerifyGIF(DB *sql.DB, GifId string, ch_update chan bool) {
+func VerifyGIF(DB *sql.DB, GifId string) {
 	rows, qerr := DB.Query("select USER,GifId,TAG,INFO,TITLE from GIF_TOVERIFY WHERE GifId like '%" + GifId + "%'")
 
 	defer func() {
@@ -249,7 +249,13 @@ func VerifyGIF(DB *sql.DB, GifId string, ch_update chan bool) {
 			fmt.Println("error in delete gif from toverify %v", err)
 		}
 	}
-	ch_update <- true
+}
+
+func RemoveVerify(DB *sql.DB, GifId string){
+	_, err := DB.Exec(`DELETE FROM GIF_TOVERIFY WHERE GifId='` + GifId + `'`)
+	if err != nil {
+		fmt.Println("error in delete gif from toverify %v", err)
+	}
 }
 
 func InsertFavor(user, GifId string, DB *sql.DB) string {
@@ -434,6 +440,7 @@ type QueryGif struct {
 	TAG   string
 	INFO  string
 	TITLE string
+	OSSURL string
 }
 
 func QueryGifs(user string, DB *sql.DB) []QueryGif {

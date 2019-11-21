@@ -195,3 +195,14 @@ func Name_reIdx(gifs []utils.Gifs) map[string]*utils.Gifs{
 	}
 	return m
 }
+
+func GifToVec(gif utils.Gifs, seg gse.Segmenter,m map[string][]uint8) ([][]uint8, [][]uint64, []string){
+	re_idx:=make([]string, 0)
+	veci:=WordToVec(gif.Keyword, seg, m);
+	vec_h:=make([][]uint64, 0)
+	for i:=range(veci){
+		vec_h=append(vec_h, HammingCode(veci[i]))
+		re_idx=append(re_idx, gif.Name)
+	}
+	return veci, vec_h, re_idx
+}

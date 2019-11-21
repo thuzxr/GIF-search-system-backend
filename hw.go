@@ -62,6 +62,12 @@ func RouterSet() *gin.Engine {
 	fmt.Println("OssUpdated")
 	fmt.Println(gifs[0].Oss_url)
 
+	var maps map[string]int
+	maps = make(map[string]int)
+	for i := range gifs {
+		maps[gifs[i].Name] = i
+	}
+
 	go func() {
 		for {
 			time.Sleep(50 * time.Minute)
@@ -90,12 +96,17 @@ func RouterSet() *gin.Engine {
 			select {
 			case <-ch_gifUpdate:
 				users2, infos2, gifs2 := database.LoadAll(DB)
+				maps2 := make(map[string]int)
+				for i := range gifs2 {
+					maps[gifs2[i].Name] = i
+				}
 				if AdSearch_Enabled {
 					// veci:=word.WortToVec(gifs)
 				}
 				users = users2
 				gifs = gifs2
 				_ = infos2
+				maps=maps2
 				fmt.Println("gif updates here")
 				fmt.Println("total gifs size ", len(gifs))
 
@@ -108,11 +119,6 @@ func RouterSet() *gin.Engine {
 	}()
 
 	fmt.Println(gifs[0])
-	var maps map[string]int
-	maps = make(map[string]int)
-	for i := range gifs {
-		maps[gifs[i].Name] = i
-	}
 
 	m := cache.OfflineCacheReload()
 
@@ -290,6 +296,11 @@ func RouterSet() *gin.Engine {
 		setHeader(c)
 
 		res := database.GetToVerifyGIF(DB)
+		for i:=range(res){
+			res[i].OSSURL=ossUpload.OssSignLink_Verify(utils.Gifs{
+				Name:res[i].GifId,
+			}, 3600)
+		}
 		c.JSON(200, gin.H{
 			"status": "succeed",
 			"result": res,
@@ -298,8 +309,24 @@ func RouterSet() *gin.Engine {
 
 	r.POST("/verify", func(c *gin.Context) {
 		setHeader(c)
+		veriName := c.DefaultPostForm("name", "")
+		veriNames:=strings.Split(veriName, " ")
+		for i:=range(veriNames){
+			database.VerifyGIF(DB, veriNames[i])
+		}
+		ch_gifUpdate<-true;
+		c.JSON(200, gin.H{
+			"status": "succeed",
+		})
+	})
+
+	r.POST("/remove_verify", func(c *gin.Context) {
+		setHeader(c)
 		name := c.DefaultPostForm("name", "")
-		database.VerifyGIF(DB, name, ch_gifUpdate)
+		removeNames:=strings.Split(name, " ")
+		for i:=range(removeNames){
+			database.RemoveVerify(DB, removeNames[i])
+		}
 		c.JSON(200, gin.H{
 			"status": "succeed",
 		})
@@ -485,8 +512,9 @@ func LoadTls() gin.HandlerFunc {
 func main() {
 	cache.OfflineCacheInit()
 	r := RouterSet()
-	r.Use(LoadTls())
-	r.RunTLS(":8080", "/etc/nginx/1_www.gifxiv.com_bundle.crt", "/etc/nginx/2_www.gifxiv.com.key")
+	r.Run()
+	// r.Use(LoadTls())
+	// r.RunTLS(":8080", "/etc/nginx/1_www.gifxiv.com_bundle.crt", "/etc/nginx/2_www.gifxiv.com.key")
 
 	// DB := database.ConnectDB()
 	// database.Init(DB)
