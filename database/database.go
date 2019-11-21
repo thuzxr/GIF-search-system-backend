@@ -471,12 +471,13 @@ func QueryUser(user, password string, DB *sql.DB) int {
 	return user_type
 }
 
-func LoadAll(DB *sql.DB) ([]string, []string, []string, []string, []string) {
+func LoadAll(DB *sql.DB) ([]string, []string, []utils.Gifs) {
 	var users []string
-	var names []string    //id
-	var titles []string   //title
+	// var names []string    //id
+	// var titles []string   //title
 	var infos []string    //info
-	var keywords []string //tags
+	// var keywords []string //tags
+	gifs:=make([]utils.Gifs, 0)
 
 	var user string
 	var name string
@@ -494,9 +495,14 @@ func LoadAll(DB *sql.DB) ([]string, []string, []string, []string, []string) {
 		rows.Scan(&user, &name, &keyword, &info, &title)
 		users = append(users, user)
 		infos = append(infos, info)
-		names = append(names, name)
-		titles = append(titles, title)
-		keywords = append(keywords, keyword)
+		// names = append(names, name)
+		// titles = append(titles, title)
+		// keywords = append(keywords, keyword)
+		gifs=append(gifs, utils.Gifs{
+			Name:name,
+			Title:title,
+			Keyword:keyword,
+		})
 	}
-	return users, names, titles, infos, keywords
+	return users, infos, gifs
 }
