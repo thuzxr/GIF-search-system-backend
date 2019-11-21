@@ -26,6 +26,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-ego/gse"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/unrolled/secure"
 	// "github.com/dgrijalva/jwt-go/request"
 )
 
@@ -474,10 +475,28 @@ func RouterSet() *gin.Engine {
 	return r
 }
 
+func LoadTls() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		middleware := secure.New(secure.Options{
+			SSLRedirect: true,
+			SSLHost:     "49.233.71.202:8080",
+		})
+		err := middleware.Process(c.Writer, c.Request)
+		if err != nil {
+			//如果出现错误，请不要继续。
+			fmt.Println(err)
+			return
+		}
+		// 继续往下处理
+		c.Next()
+	}
+}
+
 func main() {
 	cache.OfflineCacheInit()
 	r := RouterSet()
-	r.Run(":8080")
+	r.Use(LoadTls())
+	r.RunTLS(":8080", "/etc/nginx/1_www.gifxiv.com_bundle.crt", "/etc/nginx/2_www.gifxiv.com.key")
 
 	// DB := database.ConnectDB()
 	// database.Init(DB)
