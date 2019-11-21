@@ -24,18 +24,6 @@ func ConnectDB() *sql.DB {
 	return DB
 }
 
-// func InitDB(gifs []utils.Gifs, DB *sql.DB) {
-// 	_, err := DB.Exec("DELETE FROM GIF_INFO")
-// 	if err != nil {
-// 		fmt.Println("delete data in table failed:", err)
-// 		return
-// 	}
-// 	var idx int
-// 	for idx = 0; idx < len(gifs); idx++ {
-// 		InsertData(DB, gifs[idx])
-// 	}
-// }
-
 func ErrProc(err error) bool {
 	if err != nil {
 		fmt.Println("create table failed:", err)
@@ -144,12 +132,6 @@ func Init(DB *sql.DB) {
 		return
 	}
 	fmt.Println("create table COMMENTS succeed")
-
-	// _, err = DB.Exec("alter table PROFILE convert to character set utf8mb4 collate utf8mb4_bin")
-	// if ErrProc(err) == false {
-	// 	return
-	// }
-
 }
 
 func InsertComments(comment string, GifId string, user string, DB *sql.DB) {
@@ -489,12 +471,13 @@ func QueryUser(user, password string, DB *sql.DB) int {
 	return user_type
 }
 
-func LoadAll(DB *sql.DB) ([]string, []string, []string, []string, []string) {
+func LoadAll(DB *sql.DB) ([]string, []string, []utils.Gifs) {
 	var users []string
-	var names []string    //id
-	var titles []string   //title
+	// var names []string    //id
+	// var titles []string   //title
 	var infos []string    //info
-	var keywords []string //tags
+	// var keywords []string //tags
+	gifs:=make([]utils.Gifs, 0)
 
 	var user string
 	var name string
@@ -512,37 +495,14 @@ func LoadAll(DB *sql.DB) ([]string, []string, []string, []string, []string) {
 		rows.Scan(&user, &name, &keyword, &info, &title)
 		users = append(users, user)
 		infos = append(infos, info)
-		names = append(names, name)
-		titles = append(titles, title)
-		keywords = append(keywords, keyword)
+		// names = append(names, name)
+		// titles = append(titles, title)
+		// keywords = append(keywords, keyword)
+		gifs=append(gifs, utils.Gifs{
+			Name:name,
+			Title:title,
+			Keyword:keyword,
+		})
 	}
-	return users, names, titles, infos, keywords
+	return users, infos, gifs
 }
-
-// func Query(DB *sql.DB, q string) []utils.Gifs {
-// 	gif := new(utils.Gifs)
-// 	var ans []utils.Gifs
-// 	fmt.Print(q)
-// 	rows, qerr := DB.Query("select Name,Title,Keyword,Gif_url from GIF_INFO WHERE Keyword like '%" + q + "%'")
-
-// 	defer func() {
-// 		if rows != nil {
-// 			rows.Close()
-// 		}
-// 	}()
-
-// 	if qerr != nil {
-// 		fmt.Printf("query failed, err:%v\n", qerr)
-// 		return ans
-// 	}
-// 	for rows.Next() {
-// 		if serr := rows.Scan(&gif.Name, &gif.Title, &gif.Keyword, &gif.Gif_url); serr != nil {
-// 			fmt.Printf("scan failed, err:%v\n", serr)
-// 			return ans
-// 		}
-// 		gif.Oss_url = ossUpload.OssSignLink(*gif, 3600)
-// 		ans = append(ans, *gif)
-// 		fmt.Println(gif.Oss_url)
-// 	}
-// 	return ans
-// }

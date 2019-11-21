@@ -4,7 +4,6 @@ import (
 	"backend/cache"
 	"strings"
 
-	// "backend/cookie"
 	"backend/cookie"
 	"backend/database"
 	"backend/management/login"
@@ -14,10 +13,8 @@ import (
 	"backend/recommend"
 	"backend/search"
 
-	// "backend/upload"
 	"backend/utils"
 
-	// "backend/cookie"
 	"fmt"
 	"time"
 
@@ -47,7 +44,10 @@ func RouterSet() *gin.Engine {
 	cache.OfflineCacheInit()
 	cache.OfflineCacheClear()
 	r := gin.Default()
-	gifs := utils.JsonParse("info.json")
+
+	// gifs := utils.JsonParse("info.json")
+	users, _, gifs := database.LoadAll(DB)
+
 	// AdSearch_Enabled := word.DataCheck()
 	AdSearch_Enabled := false
 
@@ -61,13 +61,14 @@ func RouterSet() *gin.Engine {
 	ossUpload.OssUpdate(gifs)
 	fmt.Println("OssUpdated")
 	fmt.Println(gifs[0].Oss_url)
-	// ch_ossUpdate:=make(chan bool)
 
 	go func() {
 		for {
-			time.Sleep(45 * time.Minute)
+			time.Sleep(50 * time.Minute)
+			// time.Sleep(30*time.Second)
 			fmt.Println("OssUpdating")
 			ossUpload.OssUpdate(gifs)
+			fmt.Println(gifs[0].Oss_url)
 			fmt.Println("OssUpdated")
 		}
 	}()
@@ -81,7 +82,6 @@ func RouterSet() *gin.Engine {
 		fmt.Println("Index not found, Advanced Searching Disabled")
 	}
 
-	users, names, titles, _, keywords := database.LoadAll(DB)
 	fmt.Println("total gifs size ", len(users))
 
 	ch_gifUpdate := make(chan bool)
@@ -89,16 +89,15 @@ func RouterSet() *gin.Engine {
 		for {
 			select {
 			case <-ch_gifUpdate:
-				if true {
-					users2, names2, titles2, infos2, keywords2 := database.LoadAll(DB)
-					users = users2
-					names = names2
-					titles = titles2
-					_ = infos2
-					keywords = keywords2
+				users2, infos2, gifs2 := database.LoadAll(DB)
+				if AdSearch_Enabled {
+					// veci:=word.WortToVec(gifs)
 				}
+				users = users2
+				gifs = gifs2
+				_ = infos2
 				fmt.Println("gif updates here")
-				fmt.Println("total gifs size ", len(users))
+				fmt.Println("total gifs size ", len(gifs))
 
 				ch_gifUpdate <- false
 				break
@@ -108,11 +107,6 @@ func RouterSet() *gin.Engine {
 		}
 	}()
 
-	// names, titles, keywords := search.FastIndexParse()
-	// names:=make([]string,0)
-	// titles:=make([]string,0)
-	// keywords:=make([]string,0)
-
 	fmt.Println(gifs[0])
 	var maps map[string]int
 	maps = make(map[string]int)
@@ -121,9 +115,6 @@ func RouterSet() *gin.Engine {
 	}
 
 	m := cache.OfflineCacheReload()
-	// gif := utils.JsonParse(".")
-
-	// goc := cookie.CookieCacheInit()
 
 	//Routers without Auth
 
@@ -145,7 +136,11 @@ func RouterSet() *gin.Engine {
 		var match []utils.Gifs
 		// fmt.Println(time.Since(time0))
 		if finded {
-			match = res
+			match = make([]utils.Gifs, len(res))
+			for i := range res {
+				match[i] = gifs[maps[res[i].Name]]
+			}
+			m[keyword] = match
 			fmt.Println("Hit Cache " + keyword)
 		} else {
 			if AdSearch_Enabled {
@@ -154,9 +149,8 @@ func RouterSet() *gin.Engine {
 				for i := range res {
 					match[i] = gifs[maps[res[i]]]
 				}
-				// match = append(match, search.SimpleSearch(keyword, names, titles, keywords)...)
 			} else {
-				match0 := search.SimpleSearch(keyword, names, titles, keywords)
+				match0 := search.SimpleSearch(keyword, gifs)
 				match = make([]utils.Gifs, len(match0))
 				for i := range match0 {
 					match[i] = gifs[maps[match0[i].Name]]
@@ -190,8 +184,6 @@ func RouterSet() *gin.Engine {
 		status := login.Login(user, password, DB)
 
 		if status != -1 {
-			// c.SetCookie("user_name", string(cookie.ShaConvert(user)), 3600, "/", utils.COOKIE_DOMAIN,  false, false)
-			// cookie.CookieSet(user, goc)
 			cookie.TokenSet(c, user, status)
 			favors := database.QueryFavor(user, DB)
 			profile := database.QueryProfile(user, DB)
@@ -288,8 +280,6 @@ func RouterSet() *gin.Engine {
 		keyword := c.DefaultPostForm("keyword", "")
 		name := c.DefaultPostForm("name", "")
 		title := c.DefaultPostForm("title", "")
-		// users, names, titles, infos, keywords = upload.Upload(users, names, titles, infos, keywords, user, name, title, info, keyword)
-		// database.InsertGIF(DB, user, name, keyword, info, title)
 		database.InsertUnderVerifyGIF(DB, user, name, keyword, info, title)
 		c.JSON(200, gin.H{
 			"status": "succeed",

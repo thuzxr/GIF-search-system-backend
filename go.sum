@@ -62,6 +62,7 @@ github.com/ugorji/go v1.1.4 h1:j4s+tAvLfL3bZyefP2SEWmhBzmuIlH/eqNuPdFPgngw=
 github.com/ugorji/go v1.1.4/go.mod h1:uQMGLiO92mf5W77hV/PUCpI3pbzQx3CRekS0kk+RGrc=
 github.com/unrolled/secure v1.0.5 h1:KRGJ8DQC3jKpERjBKF3H6b3HcAsM/SRTVwfNJnWs25E=
 github.com/unrolled/secure v1.0.5/go.mod h1:R6rugAuzh4TQpbFAq69oqZggyBQxFRFQIewtz5z7Jsc=
+github.com/vcaesar/tt v0.0.0-20190311143935-d2abd51da7af h1:1zF2e+eQ0m4QFW/WBLDSbVTMh/68BMcOdQkm5AXrlUQ=
 github.com/vcaesar/tt v0.0.0-20190311143935-d2abd51da7af/go.mod h1:xKkGp+ufbz/1DQmNxdbAMFqZJOVIJEX7dGvLZMhPIWg=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405 h1:yhCVgyC4o1eVCa2tZl7eS0r+SDo693bJlVdllGtEeKM=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
