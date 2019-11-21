@@ -328,6 +328,7 @@ func RouterSet() *gin.Engine {
 		veriNames:=strings.Split(veriName, " ")
 		for i:=range(veriNames){
 			database.VerifyGIF(DB, veriNames[i])
+			ossUpload.OssMove(veriNames[i])
 		}
 		ch_gifUpdate<-true;
 		c.JSON(200, gin.H{
