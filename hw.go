@@ -58,7 +58,7 @@ func RouterSet() *gin.Engine {
 	fmt.Println("OssUpdating")
 	ossUpload.OssUpdate(gifs)
 	fmt.Println("OssUpdated")
-
+	fmt.Println(gifs[0].Oss_url)
 	// ch_ossUpdate:=make(chan bool)
 
 	go func() {
@@ -154,7 +154,11 @@ func RouterSet() *gin.Engine {
 				}
 				// match = append(match, search.SimpleSearch(keyword, names, titles, keywords)...)
 			} else {
-				match = search.SimpleSearch(keyword, names, titles, keywords)
+				match0 := search.SimpleSearch(keyword, names, titles, keywords)
+				match = make([]utils.Gifs, len(match0))
+				for i:=range(match0){
+					match[i]=gifs[maps[match0[i].Name]]
+				}
 			}
 			m[keyword] = match
 			go cache.OfflineCacheAppend(keyword, match)
@@ -450,7 +454,7 @@ func RouterSet() *gin.Engine {
 func main() {
 	cache.OfflineCacheInit()
 	r := RouterSet()
-	r.Run(":80")
+	r.Run(":8080")
 
 	// DB := database.ConnectDB()
 	// database.Init(DB)
