@@ -2,6 +2,7 @@ package main
 
 import (
 	"backend/cache"
+
 	// "backend/cookie"
 	"backend/cookie"
 	"backend/database"
@@ -77,6 +78,7 @@ func RouterSet() *gin.Engine {
 	} else {
 		fmt.Println("Index not found, Advanced Searching Disabled")
 	}
+
 	users, names, titles, infos, keywords := database.LoadAll(DB)
 	fmt.Println("total gifs size ", len(users))
 
@@ -179,16 +181,27 @@ func RouterSet() *gin.Engine {
 		password := c.DefaultPostForm("password", "")
 
 		status := login.Login(user, password, DB)
-		if status == "登陆成功！" {
+		profile := database.QueryProfile(user, DB)
+		if status != -1 {
 			// c.SetCookie("user_name", string(cookie.ShaConvert(user)), 3600, "/", utils.COOKIE_DOMAIN,  false, false)
 			// cookie.CookieSet(user, goc)
-			cookie.TokenSet(c, user, 1)
+			cookie.TokenSet(c, user, status)
 			c.JSON(200, gin.H{
-				"status": 1,
+				"status":    status,
+				"Email":     profile[0],
+				"FirstName": profile[1],
+				"LastName":  profile[2],
+				"Addr":      profile[3],
+				"ZipCode":   profile[4],
+				"City":      profile[5],
+				"Country":   profile[6],
+				"About":     profile[7],
+				"Height":    profile[8],
+				"Birthday":  profile[9],
 			})
 		} else {
 			c.JSON(406, gin.H{
-				"status": 0,
+				"status": -1,
 			})
 			// c.SetCookie("user_name", "", 3600, "/", utils.COOKIE_DOMAIN, false, false)
 		}
@@ -329,6 +342,8 @@ func RouterSet() *gin.Engine {
 			"City":      profile[5],
 			"Country":   profile[6],
 			"About":     profile[7],
+			"Height":    profile[8],
+			"Birthday":  profile[9],
 		})
 	})
 
@@ -404,8 +419,10 @@ func RouterSet() *gin.Engine {
 		City := c.DefaultPostForm("City", "")
 		Country := c.DefaultPostForm("Country", "")
 		About := c.DefaultPostForm("About", "")
+		Height := c.DefaultPostForm("Height", "")
+		Birthday := c.DefaultPostForm("Birthday", "")
 
-		database.ChangeProfile(user, Email, FirstName, LastName, Addr, ZipCode, City, Country, About, DB)
+		database.ChangeProfile(user, Email, FirstName, LastName, Addr, ZipCode, City, Country, About, Height, Birthday, DB)
 		c.JSON(200, gin.H{
 			"status": true,
 		})
@@ -419,5 +436,22 @@ func RouterSet() *gin.Engine {
 func main() {
 	cache.OfflineCacheInit()
 	r := RouterSet()
-	r.Run(":8080")
+	r.Run(":80")
+
+	// DB := database.ConnectDB()
+	// database.Init(DB)
+	// database.InsertUser("Admin", "Admin", "", DB)
+	// // /Users/saberrrrrrrr/Desktop/spider_info.json
+	// gifs := utils.JsonParse("/Users/saberrrrrrrr/Desktop/info_spider.json") //("/Users/saberrrrrrrr/Desktop/backend/info.json")
+	// for _, gif := range gifs {
+	// 	database.InsertGIF(DB, "Admin", gif.Name, gif.Keyword, "开始的gif", gif.Title)
+	// }
+
+	// fmt.Println(cookie.ShaConvert("user0"))
+
+	// goc := cookie.CookieCacheInit()
+	// cookie.CookieSet("user0", goc)
+	// fmt.Println(cookie.CookieTest(string(cookie.ShaConvert("user0")), goc))
+	// res, _:=goc.Get("user0")
+	// fmt.Println(res)
 }

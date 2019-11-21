@@ -66,6 +66,8 @@ func Init(DB *sql.DB) {
 		ZipCode		TEXT ,
 		City 		TEXT ,
 		Country		TEXT ,
+		Birthday 	TEXT ,
+		Height		TEXT ,
 		About		TEXT ,
 		FOREIGN KEY(USER) REFERENCES USER_MANAGE(USER) ON DELETE CASCADE
 		);`
@@ -208,7 +210,7 @@ func InsertUnderVerifyGIF(DB *sql.DB, user, GifId, TAG, INFO, TITLE string) {
 	}
 }
 
-func GetToVerifyGIF(DB *sql.DB) []QueryGif{
+func GetToVerifyGIF(DB *sql.DB) []QueryGif {
 	rows, qerr := DB.Query("select USER,GifId,TAG,INFO,TITLE from GIF_TOVERIFY")
 
 	defer func() {
@@ -220,28 +222,28 @@ func GetToVerifyGIF(DB *sql.DB) []QueryGif{
 	if qerr != nil {
 		fmt.Printf("query failed, err:%v\n", qerr)
 	}
-	res:=make([]QueryGif, 0)
-	var user,gifId,tag,info,title string
+	res := make([]QueryGif, 0)
+	var user, gifId, tag, info, title string
 	for rows.Next() {
 		if serr := rows.Scan(&user, &gifId, &tag, &info, &title); serr != nil {
 			fmt.Printf("scan failed, err:%v\n", serr)
 		}
-		res=append(res, QueryGif{
-			GifId:gifId,
-			TAG:tag,
-			INFO:info,
-			TITLE:title,
+		res = append(res, QueryGif{
+			GifId: gifId,
+			TAG:   tag,
+			INFO:  info,
+			TITLE: title,
 		})
 	}
 
 	return res
 }
 
-func DoNothing(DB *sql.DB,user, gifId, tag, info, title string){
+func DoNothing(DB *sql.DB, user, gifId, tag, info, title string) {
 	fmt.Println("do noting", gifId)
 }
 
-func VerifyGIF(DB *sql.DB, GifId string, ch_update chan bool){
+func VerifyGIF(DB *sql.DB, GifId string, ch_update chan bool) {
 	rows, qerr := DB.Query("select USER,GifId,TAG,INFO,TITLE from GIF_TOVERIFY WHERE GifId like '%" + GifId + "%'")
 
 	defer func() {
@@ -253,7 +255,7 @@ func VerifyGIF(DB *sql.DB, GifId string, ch_update chan bool){
 	if qerr != nil {
 		fmt.Printf("query failed, err:%v\n", qerr)
 	}
-	var user,gifId,tag,info,title string
+	var user, gifId, tag, info, title string
 	for rows.Next() {
 		if serr := rows.Scan(&user, &GifId, &tag, &info, &title); serr != nil {
 			fmt.Printf("scan failed, err:%v\n", serr)
@@ -265,7 +267,7 @@ func VerifyGIF(DB *sql.DB, GifId string, ch_update chan bool){
 			fmt.Println("error in delete gif from toverify %v", err)
 		}
 	}
-	ch_update <- true;
+	ch_update <- true
 }
 
 func InsertFavor(user, GifId string, DB *sql.DB) string {
@@ -286,8 +288,8 @@ func InsertFollow(user, follow string, DB *sql.DB) string {
 	}
 }
 
-func ChangeProfile(user, Email, FirstName, LastName, Addr, ZipCode, City, Country, About string, DB *sql.DB) string {
-	_, err := DB.Exec(`UPDATE PROFILE SET Email='` + Email + `', FirstName='` + FirstName + `', LastName='` + LastName + `', Addr='` + Addr + `',ZipCode='` + ZipCode + `', City='` + City + `', Country='` + Country + `', About='` + About + `' WHERE USER='` + user + `'`)
+func ChangeProfile(user, Email, FirstName, LastName, Addr, ZipCode, City, Country, About, Height, Birthday string, DB *sql.DB) string {
+	_, err := DB.Exec(`UPDATE PROFILE SET Email='` + Email + `', FirstName='` + FirstName + `', LastName='` + LastName + `', Addr='` + Addr + `',ZipCode='` + ZipCode + `', City='` + City + `', Country='` + Country + `', About='` + About + `', Height='` + Height + `', Birthday='` + Birthday + `' WHERE USER='` + user + `'`)
 	if err != nil {
 		return "更新失败"
 	} else {
@@ -341,20 +343,20 @@ func DeleteAccount(user string, DB *sql.DB) string {
 }
 
 func QueryProfile(user string, DB *sql.DB) []string {
-	var Email, FirstName, LastName, Addr, ZipCode, City, Country, About string
-	rows, _ := DB.Query("select Email, FirstName, LastName, Addr, ZipCode, City, Country, About from PROFILE WHERE USER='" + user + "'")
+	var Email, FirstName, LastName, Addr, ZipCode, City, Country, About, Height, Birthday string
+	rows, _ := DB.Query("select Email, FirstName, LastName, Addr, ZipCode, City, Country, About,Height,Birthday from PROFILE WHERE USER='" + user + "'")
 	defer func() {
 		if rows != nil {
 			rows.Close()
 		}
 	}()
 	rows.Next()
-	err := rows.Scan(&Email, &FirstName, &LastName, &Addr, &ZipCode, &City, &Country, &About)
+	err := rows.Scan(&Email, &FirstName, &LastName, &Addr, &ZipCode, &City, &Country, &About, &Height, &Birthday)
 	if err != nil {
 		fmt.Println("查询失败！")
 	}
 	var returns []string
-	returns = append(returns, Email, FirstName, LastName, Addr, ZipCode, City, Country, About)
+	returns = append(returns, Email, FirstName, LastName, Addr, ZipCode, City, Country, About, Height, Birthday)
 	return returns
 }
 
@@ -465,18 +467,20 @@ func QueryGifs(user string, DB *sql.DB) []QueryGif {
 	return QGifs
 }
 
-func QueryUser(user, password string, DB *sql.DB) string {
-	rows, _ := DB.Query("select USER from USER_MANAGE WHERE USER='" + user + "' AND PASSWORD='" + password + "'")
+func QueryUser(user, password string, DB *sql.DB) int {
+	var user_type int
+	rows, _ := DB.Query("select TYPE from USER_MANAGE WHERE USER='" + user + "' AND PASSWORD='" + password + "'")
 	defer func() {
 		if rows != nil {
 			rows.Close()
 		}
 	}()
 	if rows.Next() {
-		return "登陆成功！"
+		rows.Scan(&user_type)
 	} else {
-		return "用户名或密码错误"
+		user_type = -1
 	}
+	return user_type
 }
 
 func LoadAll(DB *sql.DB) ([]string, []string, []string, []string, []string) {

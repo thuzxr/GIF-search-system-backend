@@ -5,6 +5,6 @@ import (
 	"database/sql"
 )
 
-func Login(user, password string, DB *sql.DB) string {
+func Login(user, password string, DB *sql.DB) int {
 	return database.QueryUser(user, password, DB)
 }
