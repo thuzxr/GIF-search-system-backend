@@ -98,7 +98,7 @@ func RouterSet() *gin.Engine {
 				users2, infos2, gifs2 := database.LoadAll(DB)
 				maps2 := make(map[string]int)
 				for i := range gifs2 {
-					maps[gifs2[i].Name] = i
+					maps2[gifs2[i].Name] = i
 				}
 				if AdSearch_Enabled {
 					// veci:=word.WortToVec(gifs)
@@ -355,9 +355,6 @@ func RouterSet() *gin.Engine {
 
 		name := c.DefaultQuery("name", "")
 		recommend_gifs := recommend.Recommend(gifs[maps[name]], gifs)
-		// for i := 0; i < len(recommend_gifs); i++ {
-		// 	recommend_gifs[i].Oss_url = ossUpload.OssSignLink(recommend_gifs[i], 3600)
-		// }
 		c.JSON(200, gin.H{
 			"status": "succeed",
 			"result": recommend_gifs,
