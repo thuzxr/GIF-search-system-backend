@@ -239,7 +239,7 @@ func VerifyGIF(DB *sql.DB, GifId string) {
 	}
 	var user, gifId, tag, info, title string
 	for rows.Next() {
-		if serr := rows.Scan(&user, &GifId, &tag, &info, &title); serr != nil {
+		if serr := rows.Scan(&user, &gifId, &tag, &info, &title); serr != nil {
 			fmt.Printf("scan failed, err:%v\n", serr)
 		}
 		// DoNothing(DB,user, gifId, tag, info, title)
