@@ -142,7 +142,7 @@ func Getusername(c *gin.Context) string {
 	return ""
 }
 
-func RootAuth() gin.HandlerFunc{
+func RootAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		cookie, _ := c.Request.Cookie("token")
 		if cookie != nil {

@@ -297,8 +297,14 @@ func ChangeProfile(user, Email, FirstName, LastName, Addr, ZipCode, City, Countr
 	}
 }
 
-func DeleteFavor(user, GifId string, DB *sql.DB) string {
-	_, err := DB.Exec(`DELETE FROM FAVOR WHERE USER='` + user + `' AND GifId='` + GifId + `'`)
+func DeleteFavor(user string, GifIds []string, DB *sql.DB) string {
+	var GifId string
+	for gifid := range GifIds {
+		gifname := "'" + GifIds[gifid] + "'"
+		GifId = GifId + "," + gifname
+	}
+	GifId = GifId[1:]
+	_, err := DB.Exec(`DELETE FROM FAVOR WHERE USER='` + user + `' AND GifId IN(` + GifId + `)`)
 	if err != nil {
 		return "删除错误"
 	} else {

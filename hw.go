@@ -2,6 +2,7 @@ package main
 
 import (
 	"backend/cache"
+	"strings"
 
 	// "backend/cookie"
 	"backend/cookie"
@@ -156,8 +157,8 @@ func RouterSet() *gin.Engine {
 			} else {
 				match0 := search.SimpleSearch(keyword, names, titles, keywords)
 				match = make([]utils.Gifs, len(match0))
-				for i:=range(match0){
-					match[i]=gifs[maps[match0[i].Name]]
+				for i := range match0 {
+					match[i] = gifs[maps[match0[i].Name]]
 				}
 			}
 			m[keyword] = match
@@ -359,9 +360,15 @@ func RouterSet() *gin.Engine {
 		user := cookie.Getusername(c)
 
 		favors := database.QueryFavor(user, DB)
+
+		var osslinks []string
+		for favor_id := range favors {
+			favor := favors[favor_id]
+			osslinks = append(osslinks, gifs[maps[favor]].Oss_url)
+		}
 		c.JSON(200, gin.H{
-			"favors": favors,
-			// "OssLink":
+			"favors":  favors,
+			"OssLink": osslinks,
 		})
 	})
 
@@ -372,6 +379,19 @@ func RouterSet() *gin.Engine {
 		user := cookie.Getusername(c)
 		gifid := c.DefaultPostForm("GifId", "")
 		favors := database.InsertFavor(user, gifid, DB)
+		c.JSON(200, gin.H{
+			"status": favors,
+		})
+	})
+
+	r.POST("/delete_favor", func(c *gin.Context) {
+		setHeader(c)
+
+		// user := c.DefaultQuery("user", "")
+		user := cookie.Getusername(c)
+		gifid_string := c.DefaultPostForm("GifId", "")
+		gifids := strings.Split(gifid_string, " ")
+		favors := database.DeleteFavor(user, gifids, DB)
 		c.JSON(200, gin.H{
 			"status": favors,
 		})
