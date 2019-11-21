@@ -64,9 +64,11 @@ func RouterSet() *gin.Engine {
 
 	go func() {
 		for {
-			time.Sleep(45 * time.Minute)
+			time.Sleep(50 * time.Minute)
+			// time.Sleep(30*time.Second)
 			fmt.Println("OssUpdating")
 			ossUpload.OssUpdate(gifs)
+			fmt.Println(gifs[0].Oss_url)
 			fmt.Println("OssUpdated")
 		}
 	}()
@@ -144,7 +146,11 @@ func RouterSet() *gin.Engine {
 		var match []utils.Gifs
 		// fmt.Println(time.Since(time0))
 		if finded {
-			match = res
+			match=make([]utils.Gifs, len(res))
+			for i:=range(res){
+				match[i]=gifs[maps[res[i].Name]]
+			}
+			m[keyword]=match
 			fmt.Println("Hit Cache " + keyword)
 		} else {
 			if AdSearch_Enabled {
