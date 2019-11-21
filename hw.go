@@ -98,6 +98,12 @@ func RouterSet() *gin.Engine {
 				users2, infos2, gifs2 := database.LoadAll(DB)
 				maps2 := make(map[string]int)
 				for i := range gifs2 {
+					res,b:=maps[gifs2[i].Name]
+					if(b){
+						gifs2[i].Oss_url=gifs[res].Oss_url
+					}else{
+						gifs2[i].Oss_url=ossUpload.OssSignLink(gifs2[i], 3600);
+					}
 					maps2[gifs2[i].Name] = i
 				}
 				if AdSearch_Enabled {
