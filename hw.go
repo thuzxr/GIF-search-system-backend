@@ -79,7 +79,7 @@ func RouterSet() *gin.Engine {
 		fmt.Println("Index not found, Advanced Searching Disabled")
 	}
 
-	users, names, titles, infos, keywords := database.LoadAll(DB)
+	users, names, titles, _, keywords := database.LoadAll(DB)
 	fmt.Println("total gifs size ", len(users))
 
 	ch_gifUpdate := make(chan bool)
@@ -92,7 +92,7 @@ func RouterSet() *gin.Engine {
 					users = users2
 					names = names2
 					titles = titles2
-					infos = infos2
+					_ = infos2
 					keywords = keywords2
 				}
 				fmt.Println("gif updates here")
