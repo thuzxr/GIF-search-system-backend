@@ -4,7 +4,6 @@ import (
 	"backend/cache"
 	"strings"
 
-	// "backend/cookie"
 	"backend/cookie"
 	"backend/database"
 	"backend/management/login"
@@ -14,10 +13,8 @@ import (
 	"backend/recommend"
 	"backend/search"
 
-	// "backend/upload"
 	"backend/utils"
 
-	// "backend/cookie"
 	"fmt"
 	"time"
 
@@ -26,7 +23,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-ego/gse"
 	_ "github.com/go-sql-driver/mysql"
-	// "github.com/dgrijalva/jwt-go/request"
 )
 
 func setHeader(c *gin.Context) {
@@ -195,8 +191,6 @@ func RouterSet() *gin.Engine {
 		status := login.Login(user, password, DB)
 
 		if status != -1 {
-			// c.SetCookie("user_name", string(cookie.ShaConvert(user)), 3600, "/", utils.COOKIE_DOMAIN,  false, false)
-			// cookie.CookieSet(user, goc)
 			cookie.TokenSet(c, user, status)
 			favors := database.QueryFavor(user, DB)
 			profile := database.QueryProfile(user, DB)
@@ -484,21 +478,4 @@ func main() {
 	cache.OfflineCacheInit()
 	r := RouterSet()
 	r.Run(":8080")
-
-	// DB := database.ConnectDB()
-	// database.Init(DB)
-	// database.InsertUser("Admin", "Admin", "", DB)
-	// // /Users/saberrrrrrrr/Desktop/spider_info.json
-	// gifs := utils.JsonParse("/Users/saberrrrrrrr/Desktop/info_spider.json") //("/Users/saberrrrrrrr/Desktop/backend/info.json")
-	// for _, gif := range gifs {
-	// 	database.InsertGIF(DB, "Admin", gif.Name, gif.Keyword, "开始的gif", gif.Title)
-	// }
-
-	// fmt.Println(cookie.ShaConvert("user0"))
-
-	// goc := cookie.CookieCacheInit()
-	// cookie.CookieSet("user0", goc)
-	// fmt.Println(cookie.CookieTest(string(cookie.ShaConvert("user0")), goc))
-	// res, _:=goc.Get("user0")
-	// fmt.Println(res)
 }
