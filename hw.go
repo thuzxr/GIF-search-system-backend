@@ -174,6 +174,7 @@ func RouterSet() *gin.Engine {
 			})
 		}
 	})
+
 	r.POST("/login", cookie.UserAntiAuth(), func(c *gin.Context) {
 		setHeader(c)
 
@@ -356,6 +357,19 @@ func RouterSet() *gin.Engine {
 		favors := database.QueryFavor(user, DB)
 		c.JSON(200, gin.H{
 			"favors": favors,
+			// "OssLink":
+		})
+	})
+
+	r.POST("/insert_favor", func(c *gin.Context) {
+		setHeader(c)
+
+		// user := c.DefaultQuery("user", "")
+		user := cookie.Getusername(c)
+		gifid := c.DefaultPostForm("GifId", "")
+		favors := database.InsertFavor(user, gifid, DB)
+		c.JSON(200, gin.H{
+			"status": favors,
 		})
 	})
 

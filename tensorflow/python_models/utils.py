@@ -119,6 +119,7 @@ def recommend_bert(path,config,model):
                 model.bert_len2: bert_lens[j],
                 model.numtags2: np.array([numtags[j]])
                 }))
+        print(mean_sim)
         sims = [(j,sim) for j,sim in enumerate(mean_sim) if j!=i ]
         sims = sorted(sims,key= lambda x:x[1],reverse=True)
         gifs[i]['recommend'] = " ".join([str(s[0]) for s in sims][:10])

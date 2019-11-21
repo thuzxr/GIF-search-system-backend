@@ -273,9 +273,9 @@ func VerifyGIF(DB *sql.DB, GifId string, ch_update chan bool) {
 func InsertFavor(user, GifId string, DB *sql.DB) string {
 	_, err := DB.Exec("INSERT INTO FAVOR(USER,GifId) values(?,?)", user, GifId)
 	if err != nil {
-		return "添加错误"
+		return "收藏失败"
 	} else {
-		return "成功添加"
+		return "收藏成功"
 	}
 }
 
