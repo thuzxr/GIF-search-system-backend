@@ -371,14 +371,13 @@ func RouterSet() *gin.Engine {
 
 		favors := database.QueryFavor(user, DB)
 
-		var osslinks []string
+		var results []utils.Gifs
 		for favor_id := range favors {
 			favor := favors[favor_id]
-			osslinks = append(osslinks, gifs[maps[favor]].Oss_url)
+			results = append(results, gifs[maps[favor]])
 		}
 		c.JSON(200, gin.H{
-			"favors":  favors,
-			"OssLink": osslinks,
+			"result": results,
 		})
 	})
 
