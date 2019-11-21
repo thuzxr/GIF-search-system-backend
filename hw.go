@@ -102,6 +102,15 @@ func RouterSet() *gin.Engine {
 				}
 				if AdSearch_Enabled {
 					// veci:=word.WortToVec(gifs)
+					for i:=range(gifs2){
+						_,b:=gif2vec[gifs2[i].Name]
+						if(b==false){
+							veci, vechi, re_idxi:=word.GifToVec(gifs2[i], seg, word2vec)
+							gif2vec[gifs2[i].Name]=veci
+							vec_h=append(vec_h, vechi...)
+							re_idx=append(re_idx,re_idxi...)
+						}
+					}
 				}
 				users = users2
 				gifs = gifs2
