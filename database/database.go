@@ -132,6 +132,19 @@ func Init(DB *sql.DB) {
 		return
 	}
 	fmt.Println("create table COMMENTS succeed")
+
+	//like table
+	sql = `CREATE TABLE IF NOT EXISTS LIKES(
+		GifId 	   VARCHAR(64)  NOT NULL,
+		USER       VARCHAR(64)  NOT NULL,
+		PRIMARY KEY(GifId,USER),
+		FOREIGN KEY(GifId) REFERENCES GIF_INFO(GifId) ON DELETE CASCADE
+		); `
+	_, err = DB.Exec(sql)
+	if ErrProc(err) == false {
+		return
+	}
+	fmt.Println("create table LIKES succeed")
 }
 
 func InsertComments(comment string, GifId string, user string, DB *sql.DB) {
@@ -258,6 +271,26 @@ func InsertFavor(user, GifId string, DB *sql.DB) string {
 		return "收藏失败"
 	} else {
 		return "收藏成功"
+	}
+}
+
+func UpdateLikes(likes map[string][]string, DB *sql.DB) {
+	DB.Exec("DELETE * from LIKES")
+
+	sql := "INSERT INTO LIKES(GifId,USER) VALUES"
+	all_str := ""
+	for gifid := range likes {
+		for i := range likes[gifid] {
+			all_str += ",('" + gifid + "','" + likes[gifid][i] + "')"
+		}
+	}
+	sql += all_str[1:]
+
+	_, err := DB.Exec(sql)
+	if err != nil {
+		fmt.Println("失败")
+	} else {
+		fmt.Println("成功")
 	}
 }
 
@@ -471,13 +504,13 @@ func QueryUser(user, password string, DB *sql.DB) int {
 	return user_type
 }
 
-func LoadAll(DB *sql.DB) ([]string, []string, []utils.Gifs) {
+func LoadAll(DB *sql.DB) ([]string, []string, []utils.Gifs, map[string][]string) {
 	var users []string
 	// var names []string    //id
 	// var titles []string   //title
-	var infos []string    //info
+	var infos []string //info
 	// var keywords []string //tags
-	gifs:=make([]utils.Gifs, 0)
+	gifs := make([]utils.Gifs, 0)
 
 	var user string
 	var name string
@@ -498,11 +531,30 @@ func LoadAll(DB *sql.DB) ([]string, []string, []utils.Gifs) {
 		// names = append(names, name)
 		// titles = append(titles, title)
 		// keywords = append(keywords, keyword)
-		gifs=append(gifs, utils.Gifs{
-			Name:name,
-			Title:title,
-			Keyword:keyword,
+		gifs = append(gifs, utils.Gifs{
+			Name:    name,
+			Title:   title,
+			Keyword: keyword,
 		})
 	}
-	return users, infos, gifs
+	if rows != nil {
+		rows.Close()
+	}
+
+	var gifid string
+
+	var likes map[string][]string
+	likes = make(map[string][]string)
+
+	rows, _ = DB.Query("Select GifId,USER FROM LIKES")
+	for rows.Next() {
+		rows.Scan(&gifid, &user)
+		_, ok := likes[gifid]
+		if !ok {
+			likes[gifid] = make([]string, 0)
+		}
+		likes[gifid] = append(likes[gifid], user)
+	}
+
+	return users, infos, gifs, likes
 }

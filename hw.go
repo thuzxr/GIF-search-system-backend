@@ -2,6 +2,7 @@ package main
 
 import (
 	"backend/cache"
+	"sort"
 	"strings"
 
 	"backend/cookie"
@@ -46,7 +47,7 @@ func RouterSet() *gin.Engine {
 	r := gin.Default()
 
 	// gifs := utils.JsonParse("info.json")
-	users, _, gifs := database.LoadAll(DB)
+	users, _, gifs, likes := database.LoadAll(DB)
 
 	// AdSearch_Enabled := word.DataCheck()
 	AdSearch_Enabled := false
@@ -61,17 +62,6 @@ func RouterSet() *gin.Engine {
 	ossUpload.OssUpdate(gifs)
 	fmt.Println("OssUpdated")
 	fmt.Println(gifs[0].Oss_url)
-
-	go func() {
-		for {
-			time.Sleep(50 * time.Minute)
-			// time.Sleep(30*time.Second)
-			fmt.Println("OssUpdating")
-			ossUpload.OssUpdate(gifs)
-			fmt.Println(gifs[0].Oss_url)
-			fmt.Println("OssUpdated")
-		}
-	}()
 
 	if AdSearch_Enabled {
 		fmt.Println("Advanced Searching Enabled")
@@ -89,13 +79,14 @@ func RouterSet() *gin.Engine {
 		for {
 			select {
 			case <-ch_gifUpdate:
-				users2, infos2, gifs2 := database.LoadAll(DB)
+				users2, infos2, gifs2, likes2 := database.LoadAll(DB)
 				if AdSearch_Enabled {
 					// veci:=word.WortToVec(gifs)
 				}
 				users = users2
 				gifs = gifs2
 				_ = infos2
+				likes = likes2
 				fmt.Println("gif updates here")
 				fmt.Println("total gifs size ", len(gifs))
 
@@ -113,6 +104,18 @@ func RouterSet() *gin.Engine {
 	for i := range gifs {
 		maps[gifs[i].Name] = i
 	}
+
+	go func() {
+		for {
+			time.Sleep(50 * time.Minute)
+			// time.Sleep(30*time.Second)
+			fmt.Println("Oss&likes Updating")
+			ossUpload.OssUpdate(gifs)
+			database.UpdateLikes(likes, DB)
+			fmt.Println(gifs[0].Oss_url)
+			fmt.Println("Oss&likes Updated")
+		}
+	}()
 
 	m := cache.OfflineCacheReload()
 
@@ -163,14 +166,38 @@ func RouterSet() *gin.Engine {
 		// 	match[i].Oss_url = ossUpload.OssSignLink(match[i], 3600)
 		// }
 		// fmt.Println(time.Since(time0))
+
 		if len(match) == 0 {
 			c.JSON(200, gin.H{
 				"status": "failed",
 			})
 		} else {
+
+			var match_likes []utils.Like_based_sort
+			for i := range match {
+				_, ok := likes[match[i].Name]
+				var match_like utils.Like_based_sort
+				if ok {
+					match_like = utils.Like_based_sort{Gif: match[i], Like: len(likes[match[i].Name])}
+				} else {
+					match_like = utils.Like_based_sort{Gif: match[i], Like: 0}
+				}
+				match_likes = append(match_likes, match_like)
+			}
+
+			sort.Sort(utils.LikeSlice(match_likes))
+
+			var result_match []utils.Gifs
+			var result_score []int
+			for i := range match_likes {
+				result_match = append(result_match, match_likes[i].Gif)
+				result_score = append(result_score, match_likes[i].Like)
+			}
+
 			c.JSON(200, gin.H{
 				"status": "succeed",
-				"result": match,
+				"result": result_match,
+				"score":  result_score,
 			})
 		}
 	})
@@ -438,6 +465,29 @@ func RouterSet() *gin.Engine {
 		})
 	})
 
+	r.POST("/like", func(c *gin.Context) {
+		setHeader(c)
+		user := cookie.Getusername(c)
+		GifId := c.DefaultPostForm("GifId", "")
+		contains := false
+		_, ok := likes[GifId]
+		if ok {
+			for i := range likes[GifId] {
+				if likes[GifId][i] == user {
+					contains = true
+					likes[GifId] = append(likes[GifId][:i], likes[GifId][i+1:]...)
+					break
+				}
+			}
+			if !contains {
+				likes[GifId] = append(likes[GifId], user)
+			}
+		} else {
+			likes[GifId] = make([]string, 0)
+			likes[GifId] = append(likes[GifId], user)
+		}
+	})
+
 	r.POST("/change_profile", func(c *gin.Context) {
 		setHeader(c)
 
@@ -485,16 +535,22 @@ func LoadTls() gin.HandlerFunc {
 func main() {
 	cache.OfflineCacheInit()
 	r := RouterSet()
-	r.Use(LoadTls())
-	r.RunTLS(":8080", "/etc/nginx/1_www.gifxiv.com_bundle.crt", "/etc/nginx/2_www.gifxiv.com.key")
+	r.Run(":8080")
+	// r.Use(LoadTls())
+	// r.RunTLS(":8080", "/etc/nginx/1_www.gifxiv.com_bundle.crt", "/etc/nginx/2_www.gifxiv.com.key")
 
 	// DB := database.ConnectDB()
 	// database.Init(DB)
-	// database.InsertUser("Admin", "Admin", "", DB)
-	// // /Users/saberrrrrrrr/Desktop/spider_info.json
-	// gifs := utils.JsonParse("/Users/saberrrrrrrr/Desktop/info_spider.json") //("/Users/saberrrrrrrr/Desktop/backend/info.json")
+	// // database.InsertUser("Admin", "Admin", "", DB)
+	// // // /Users/saberrrrrrrr/Desktop/spider_info.json
+	// gifs := utils.JsonParse("/Users/saberrrrrrrr/Desktop/backend/info.json")
 	// for _, gif := range gifs {
-	// 	database.InsertGIF(DB, "Admin", gif.Name, gif.Keyword, "开始的gif", gif.Title)
+	// 	_, err := DB.Exec("insert INTO LIKES(GifId,Likenum) values('" + gif.Name + "',0)")
+	// 	if err != nil {
+	// 		fmt.Printf("Insert data failed,err:%v", err)
+	// 		// fmt.Print(gif)
+	// 		return
+	// 	}
 	// }
 
 	// fmt.Println(cookie.ShaConvert("user0"))
