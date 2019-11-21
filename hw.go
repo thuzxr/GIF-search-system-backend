@@ -187,11 +187,14 @@ func RouterSet() *gin.Engine {
 		password := c.DefaultPostForm("password", "")
 
 		status := login.Login(user, password, DB)
-		profile := database.QueryProfile(user, DB)
+
 		if status != -1 {
 			// c.SetCookie("user_name", string(cookie.ShaConvert(user)), 3600, "/", utils.COOKIE_DOMAIN,  false, false)
 			// cookie.CookieSet(user, goc)
 			cookie.TokenSet(c, user, status)
+			favors := database.QueryFavor(user, DB)
+			profile := database.QueryProfile(user, DB)
+
 			c.JSON(200, gin.H{
 				"status":    status,
 				"Email":     profile[0],
@@ -204,6 +207,7 @@ func RouterSet() *gin.Engine {
 				"About":     profile[7],
 				"Height":    profile[8],
 				"Birthday":  profile[9],
+				"favor":     favors,
 			})
 		} else {
 			c.JSON(406, gin.H{
