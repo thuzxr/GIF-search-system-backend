@@ -141,3 +141,25 @@ func Getusername(c *gin.Context) string {
 	}
 	return ""
 }
+
+func RootAuth() gin.HandlerFunc{
+	return func(c *gin.Context) {
+		cookie, _ := c.Request.Cookie("token")
+		if cookie != nil {
+			_, status := ClaimsParse(cookie.Value)
+			if status >= 2 {
+				c.Next()
+			} else {
+				c.Abort()
+				c.JSON(401, gin.H{
+					"status": "Not Root",
+				})
+			}
+		} else {
+			c.Abort()
+			c.JSON(401, gin.H{
+				"status": "Unauthorized",
+			})
+		}
+	}
+}
