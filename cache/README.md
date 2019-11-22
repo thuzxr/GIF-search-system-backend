@@ -24,8 +24,6 @@ cache.OfflineCacheAppend(keyword,searchResult)
 //查询特定keyword的name list
 var ans []string
 ans=cache.OfflineCacheQuery(keyword)
-//删除对应keyword对应的cache
-cache.OfflineCacheDelete(keyword)
 //清空cache
 cache.OfflineCacheClear()
 //TBD:客户端缓存的显示

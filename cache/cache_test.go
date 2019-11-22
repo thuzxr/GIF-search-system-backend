@@ -35,7 +35,7 @@ func TestFastWriteAndAppend(t *testing.T) {
 }
 
 func mockGif(name string) utils.Gifs {
-	return utils.Gifs{name, "title", "keyword", "gifurl", "covurl", "ossurl", nil,nil}
+	return utils.Gifs{name, "title", "keyword", "gifurl", "covurl", "ossurl", nil, nil}
 }
 
 func TestOfflineCache(t *testing.T) {
@@ -43,15 +43,16 @@ func TestOfflineCache(t *testing.T) {
 	gwd, _ := os.Getwd()
 	os.Chdir("..")
 	OfflineCacheInit()
+	OfflineCacheClear()
 	assert.DirExists(t, path.Join(gwd, "cache_name"))
 	assert.DirExists(t, path.Join(gwd, "cache_title"))
 
 	// test append and query
 	gifs := []utils.Gifs{mockGif("testGif1"), mockGif("testGif2")}
-	OfflineCacheAppend("testGif", gifs)
+	OfflineCacheAppend("testGif", gifs, "L", "200")
 	gifs = []utils.Gifs{mockGif("gif1"), mockGif("gif2")}
-	OfflineCacheAppend("gif", gifs)
-	res := OfflineCacheQuery("testGif")
+	OfflineCacheAppend("gif", gifs, "L", "200")
+	res := OfflineCacheQuery("L200testGif")
 	fmt.Println(len(res))
 	assert.Equal(t, len(res), 4)
 	assert.Equal(t, "Succeed", res[0])
@@ -60,18 +61,11 @@ func TestOfflineCache(t *testing.T) {
 
 	// test reload
 	gifmap := OfflineCacheReload()
-	assert.Equal(t, "gif1", gifmap["gif"][0].Name)
-	assert.Equal(t, "gif2", gifmap["gif"][1].Name)
-	assert.Equal(t, "testGif1", gifmap["testGif"][0].Name)
-	assert.Equal(t, "testGif2", gifmap["testGif"][1].Name)
+	assert.Equal(t, "gif1", gifmap["L200gif"][0].Name)
+	assert.Equal(t, "gif2", gifmap["L200gif"][1].Name)
+	assert.Equal(t, "testGif1", gifmap["L200testGif"][0].Name)
+	assert.Equal(t, "testGif2", gifmap["L200testGif"][1].Name)
 	assert.Equal(t, len(gifmap), 2)
-
-	// test delete
-	OfflineCacheDelete("testGif")
-	gifmap = OfflineCacheReload()
-	assert.Equal(t, len(gifmap), 1)
-	assert.Equal(t, "gif1", gifmap["gif"][0].Name)
-	assert.Equal(t, "gif2", gifmap["gif"][1].Name)
 
 	// test clear
 	OfflineCacheClear()

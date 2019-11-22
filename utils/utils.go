@@ -30,7 +30,7 @@ const (
 	HAMMING_EDGE  = 133
 	HAMMING_DIV   = 79
 	COOKIE_EXPIRE = 3600
-	COOKIE_DOMAIN = "127.0.0.1" //"www.gifxiv.com"
+	COOKIE_DOMAIN = "www.gifxiv.com"
 	COOKIE_SALT   = "The_World"
 	// COOKIE_DOMAIN = "183.173.58.166"
 	// COOKIE_DOMAIN = "gif-dio-stardustcrusaders.app.secoder.net"

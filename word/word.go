@@ -102,9 +102,6 @@ func WordToVec(keyword string, seg gse.Segmenter, m map[string][]uint8) [][]uint
 		}
 	}
 	// fmt.Println(res)
-	if len(res) == 0 {
-		res = append(res, make([]uint8, 300))
-	}
 	return res
 }
 
@@ -176,6 +173,9 @@ func RankSearch(keyword string, word2vec map[string][]uint8, gif2vec map[string]
 	fmt.Println("searching")
 	time_start := time.Now()
 	vec_keyword := WordToVec(keyword, seg, word2vec)
+	if len(vec_keyword) == 0 {
+		return make([]string, 0)
+	}
 	vec_0 := HammingCode(vec_keyword[0])
 	pre_res := HammingScreen(vec_0, vec_h, re_idx, HAM_EDGE)
 	ranks := make([]sortRank, len(pre_res))
@@ -204,6 +204,9 @@ func Name_reIdx(gifs []utils.Gifs) map[string]*utils.Gifs {
 func GifToVec(gif utils.Gifs, seg gse.Segmenter, m map[string][]uint8) ([][]uint8, [][]uint64, []string) {
 	re_idx := make([]string, 0)
 	veci := WordToVec(gif.Keyword, seg, m)
+	if len(veci) == 0 {
+		veci = append(veci, make([]uint8, 300))
+	}
 	vec_h := make([][]uint64, 0)
 	for i := range veci {
 		vec_h = append(vec_h, HammingCode(veci[i]))

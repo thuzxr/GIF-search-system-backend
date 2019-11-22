@@ -57,6 +57,7 @@ func RouterSet() *gin.Engine {
 	AdSearch_Enabled := word.DataCheck()
 	// _ := AdSearch_Enabled
 	// AdSearch_Enabled := false
+	// AdSearch_Activated := AdSearch_Enabled
 
 	var gif2vec map[string][][]uint8
 	var word2vec map[string][]uint8
@@ -194,6 +195,7 @@ func RouterSet() *gin.Engine {
 		})
 	})
 	r.GET("/search", func(c *gin.Context) {
+		time0 := time.Now()
 		setHeader(c)
 
 		// time0:=time.Now()
@@ -202,15 +204,17 @@ func RouterSet() *gin.Engine {
 		rank_type := c.DefaultQuery("rank_type", "Sim")
 		edg := c.DefaultQuery("edge", "200")
 
-		edg0, _ := strconv.ParseInt(edg, 10, 64)
-		if edg0 > 250 {
-			edg0 = 250
-		} else if edg0 < 125 {
-			edg0 = 125
+		edg0, err := strconv.ParseInt(edg, 10, 64)
+		if err != nil {
+			edg0 = 10
+		} else if edg0 < 1 || edg0 > 10 {
+			edg0 = 10
 		}
+		edg0 = edg0*10 + 150
 		HAM_EDGE := uint64(edg0)
 
-		res, finded := m[keyword]
+		keyw0 := typ + edg + keyword
+		res, finded := m[keyw0]
 		var match []utils.Gifs
 		// fmt.Println(time.Since(time0))
 		if finded {
@@ -218,7 +222,7 @@ func RouterSet() *gin.Engine {
 			for i := range res {
 				match[i] = gifs[maps[res[i].Name]]
 			}
-			m[keyword] = match
+			m[keyw0] = match
 			fmt.Println("Hit Cache " + keyword)
 		} else {
 			if typ == "H" {
@@ -234,8 +238,12 @@ func RouterSet() *gin.Engine {
 					match[i] = gifs[maps[match0[i].Name]]
 				}
 			}
-			m[keyword] = match
-			go cache.OfflineCacheAppend(keyword, match)
+			m[keyw0] = match
+			go cache.OfflineCacheAppend(keyword, match, typ, edg)
+		}
+		t0 := int64(time.Since(time0) / time.Nanosecond)
+		if t0 < 10 {
+			t0 = 1
 		}
 		// for i := 0; i < len(match); i++ {
 		// 	match[i].Oss_url = ossUpload.OssSignLink(match[i], 3600)
@@ -245,6 +253,7 @@ func RouterSet() *gin.Engine {
 		if len(match) == 0 {
 			c.JSON(200, gin.H{
 				"status": "failed",
+				"time":   t0,
 			})
 		} else {
 			if rank_type == "Sim" {
@@ -689,9 +698,9 @@ func LoadTls() gin.HandlerFunc {
 func main() {
 	cache.OfflineCacheInit()
 	r := RouterSet()
-	r.Run(":8080")
-	// r.Use(LoadTls())
-	// r.RunTLS(":8080", "/etc/nginx/1_www.gifxiv.com_bundle.crt", "/etc/nginx/2_www.gifxiv.com.key")
+	// r.Run(":8080")
+	r.Use(LoadTls())
+	r.RunTLS(":8080", "/etc/nginx/1_www.gifxiv.com_bundle.crt", "/etc/nginx/2_www.gifxiv.com.key")
 
 	// DB := database.ConnectDB()
 	// database.Init(DB)
