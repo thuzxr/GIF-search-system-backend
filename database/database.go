@@ -3,7 +3,6 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"strconv"
 	"time"
 
 	"backend/utils"
@@ -147,20 +146,20 @@ func Init(DB *sql.DB) {
 	fmt.Println("create table LIKES succeed")
 }
 
-func InsertComments(comment string, GifId string, user string, DB *sql.DB) {
-	last_com := `SELECT MAX(ComId) FROM COMMENTS WHERE GifId=` + GifId
-	rows, _ := DB.Query(last_com)
-	rows.Next()
-	var last_com_Id int
-	rows.Scan(&last_com_Id)
-	rows.Close()
+// func InsertComments(comment string, GifId string, user string, DB *sql.DB) {
+// 	last_com := `SELECT MAX(ComId) FROM COMMENTS WHERE GifId=` + GifId
+// 	rows, _ := DB.Query(last_com)
+// 	rows.Next()
+// 	var last_com_Id int
+// 	rows.Scan(&last_com_Id)
+// 	rows.Close()
 
-	insert_coments := `INSERT INTO COMMENTS(ComId,GifId,Comment,User) values(` + strconv.Itoa(last_com_Id+1) + `,'` + GifId + `','` + comment + `','` + user + `')`
-	_, err := DB.Exec(insert_coments)
-	if err != nil {
-		print(err)
-	}
-}
+// 	insert_coments := `INSERT INTO COMMENTS(ComId,GifId,Comment,User) values(` + strconv.Itoa(last_com_Id+1) + `,'` + GifId + `','` + comment + `','` + user + `')`
+// 	_, err := DB.Exec(insert_coments)
+// 	if err != nil {
+// 		print(err)
+// 	}
+// }
 
 func InsertUser(user, password, admin string, DB *sql.DB) string {
 	sql := `select USER from USER_MANAGE where USER='` + user + `'`
@@ -264,21 +263,21 @@ func VerifyGIF(DB *sql.DB, GifId string) {
 	}
 }
 
-func RemoveVerify(DB *sql.DB, GifId string){
+func RemoveVerify(DB *sql.DB, GifId string) {
 	_, err := DB.Exec(`DELETE FROM GIF_TOVERIFY WHERE GifId='` + GifId + `'`)
 	if err != nil {
 		fmt.Println("error in delete gif from toverify %v", err)
 	}
 }
 
-func InsertFavor(user, GifId string, DB *sql.DB) string {
-	_, err := DB.Exec("INSERT INTO FAVOR(USER,GifId) values(?,?)", user, GifId)
-	if err != nil {
-		return "收藏失败"
-	} else {
-		return "收藏成功"
-	}
-}
+// func InsertFavor(user, GifId string, DB *sql.DB) string {
+// 	_, err := DB.Exec("INSERT INTO FAVOR(USER,GifId) values(?,?)", user, GifId)
+// 	if err != nil {
+// 		return "收藏失败"
+// 	} else {
+// 		return "收藏成功"
+// 	}
+// }
 
 func UpdateLikes(likes map[string][]string, DB *sql.DB) {
 	DB.Exec("DELETE * from LIKES")
@@ -300,14 +299,14 @@ func UpdateLikes(likes map[string][]string, DB *sql.DB) {
 	}
 }
 
-func InsertFollow(user, follow string, DB *sql.DB) string {
-	_, err := DB.Exec("INSERT INTO FOLLOW(USER,Follows) values(?,?)", user, follow)
-	if err != nil {
-		return "关注失败"
-	} else {
-		return "关注成功"
-	}
-}
+// func InsertFollow(user, follow string, DB *sql.DB) string {
+// 	_, err := DB.Exec("INSERT INTO FOLLOW(USER,Follows) values(?,?)", user, follow)
+// 	if err != nil {
+// 		return "关注失败"
+// 	} else {
+// 		return "关注成功"
+// 	}
+// }
 
 func ChangeProfile(user, Email, FirstName, LastName, Addr, ZipCode, City, Country, About, Height, Birthday string, DB *sql.DB) string {
 	_, err := DB.Exec(`UPDATE PROFILE SET Email='` + Email + `', FirstName='` + FirstName + `', LastName='` + LastName + `', Addr='` + Addr + `',ZipCode='` + ZipCode + `', City='` + City + `', Country='` + Country + `', About='` + About + `', Height='` + Height + `', Birthday='` + Birthday + `' WHERE USER='` + user + `'`)
@@ -318,38 +317,38 @@ func ChangeProfile(user, Email, FirstName, LastName, Addr, ZipCode, City, Countr
 	}
 }
 
-func DeleteFavor(user string, GifIds []string, DB *sql.DB) string {
-	var GifId string
-	for gifid := range GifIds {
-		gifname := "'" + GifIds[gifid] + "'"
-		GifId = GifId + "," + gifname
-	}
-	GifId = GifId[1:]
-	_, err := DB.Exec(`DELETE FROM FAVOR WHERE USER='` + user + `' AND GifId IN(` + GifId + `)`)
-	if err != nil {
-		return "删除错误"
-	} else {
-		return "删除成功"
-	}
-}
+// func DeleteFavor(user string, GifIds []string, DB *sql.DB) string {
+// 	var GifId string
+// 	for gifid := range GifIds {
+// 		gifname := "'" + GifIds[gifid] + "'"
+// 		GifId = GifId + "," + gifname
+// 	}
+// 	GifId = GifId[1:]
+// 	_, err := DB.Exec(`DELETE FROM FAVOR WHERE USER='` + user + `' AND GifId IN(` + GifId + `)`)
+// 	if err != nil {
+// 		return "删除错误"
+// 	} else {
+// 		return "删除成功"
+// 	}
+// }
 
-func DeleteFollow(user, follow string, DB *sql.DB) string {
-	_, err := DB.Exec(`DELETE FROM FOLLOW WHERE USER='` + user + `' AND Follows='` + follow + `'`)
-	if err != nil {
-		return "删除关注失败"
-	} else {
-		return "删除关注成功"
-	}
-}
+// func DeleteFollow(user, follow string, DB *sql.DB) string {
+// 	_, err := DB.Exec(`DELETE FROM FOLLOW WHERE USER='` + user + `' AND Follows='` + follow + `'`)
+// 	if err != nil {
+// 		return "删除关注失败"
+// 	} else {
+// 		return "删除关注成功"
+// 	}
+// }
 
-func DeleteComment(commentId, GifId string, DB *sql.DB) string {
-	_, err := DB.Exec(`DELETE FROM COMMENTS WHERE commentId=` + commentId + ` AND GifId='` + GifId + `'`)
-	if err != nil {
-		return "删除评论失败"
-	} else {
-		return "删除评论成功"
-	}
-}
+// func DeleteComment(commentId, GifId string, DB *sql.DB) string {
+// 	_, err := DB.Exec(`DELETE FROM COMMENTS WHERE commentId=` + commentId + ` AND GifId='` + GifId + `'`)
+// 	if err != nil {
+// 		return "删除评论失败"
+// 	} else {
+// 		return "删除评论成功"
+// 	}
+// }
 
 func DeleteGif(GifId string, DB *sql.DB) string {
 	_, err := DB.Exec(`DELETE FROM GIF_INFO WHERE GifId='` + GifId + `'`)
@@ -387,92 +386,92 @@ func QueryProfile(user string, DB *sql.DB) []string {
 	return returns
 }
 
-func QueryFavor(user string, DB *sql.DB) []string {
-	var favors []string
-	var favor string
-	rows, _ := DB.Query("select GifId from FAVOR WHERE USER='" + user + "'")
-	defer func() {
-		if rows != nil {
-			rows.Close()
-		}
-	}()
-	for rows.Next() {
-		err := rows.Scan(&favor)
-		if err != nil {
-			fmt.Printf("scan failed, err:%v\n", err)
-		}
-		favors = append(favors, favor)
-	}
-	return favors
-}
+// func QueryFavor(user string, DB *sql.DB) []string {
+// 	var favors []string
+// 	var favor string
+// 	rows, _ := DB.Query("select GifId from FAVOR WHERE USER='" + user + "'")
+// 	defer func() {
+// 		if rows != nil {
+// 			rows.Close()
+// 		}
+// 	}()
+// 	for rows.Next() {
+// 		err := rows.Scan(&favor)
+// 		if err != nil {
+// 			fmt.Printf("scan failed, err:%v\n", err)
+// 		}
+// 		favors = append(favors, favor)
+// 	}
+// 	return favors
+// }
 
-func QueryFollow(user string, DB *sql.DB) []string {
-	var follows []string
-	var follow string
-	rows, _ := DB.Query("select Follows from FOLLOW WHERE USER='" + user + "'")
-	defer func() {
-		if rows != nil {
-			rows.Close()
-		}
-	}()
-	for rows.Next() {
-		err := rows.Scan(&follow)
-		if err != nil {
-			fmt.Printf("scan failed, err:%v\n", err)
-		}
-		follows = append(follows, follow)
-	}
-	return follows
-}
+// func QueryFollow(user string, DB *sql.DB) []string {
+// 	var follows []string
+// 	var follow string
+// 	rows, _ := DB.Query("select Follows from FOLLOW WHERE USER='" + user + "'")
+// 	defer func() {
+// 		if rows != nil {
+// 			rows.Close()
+// 		}
+// 	}()
+// 	for rows.Next() {
+// 		err := rows.Scan(&follow)
+// 		if err != nil {
+// 			fmt.Printf("scan failed, err:%v\n", err)
+// 		}
+// 		follows = append(follows, follow)
+// 	}
+// 	return follows
+// }
 
-func QueryFollower(user string, DB *sql.DB) []string {
-	var followers []string
-	var follower string
-	rows, _ := DB.Query("select USER from FOLLOW WHERE Follows='" + user + "'")
-	defer func() {
-		if rows != nil {
-			rows.Close()
-		}
-	}()
-	for rows.Next() {
-		err := rows.Scan(&follower)
-		if err != nil {
-			fmt.Printf("scan failed, err:%v\n", err)
-		}
-		followers = append(followers, follower)
-	}
-	return followers
-}
+// func QueryFollower(user string, DB *sql.DB) []string {
+// 	var followers []string
+// 	var follower string
+// 	rows, _ := DB.Query("select USER from FOLLOW WHERE Follows='" + user + "'")
+// 	defer func() {
+// 		if rows != nil {
+// 			rows.Close()
+// 		}
+// 	}()
+// 	for rows.Next() {
+// 		err := rows.Scan(&follower)
+// 		if err != nil {
+// 			fmt.Printf("scan failed, err:%v\n", err)
+// 		}
+// 		followers = append(followers, follower)
+// 	}
+// 	return followers
+// }
 
-type Comment struct {
-	ComId   int
-	Comment string
-}
+// type Comment struct {
+// 	ComId   int
+// 	Comment string
+// }
 
-func QueryComment(GifId string, DB *sql.DB) []Comment {
-	var comments []Comment
-	comment := new(Comment)
-	rows, _ := DB.Query("select ComId, Comment from COMMENTS WHERE GifId='" + GifId + "'")
-	defer func() {
-		if rows != nil {
-			rows.Close()
-		}
-	}()
-	for rows.Next() {
-		err := rows.Scan(&comment.ComId, &comment.Comment)
-		if err != nil {
-			fmt.Printf("scan failed, err:%v\n", err)
-		}
-		comments = append(comments, *comment)
-	}
-	return comments
-}
+// func QueryComment(GifId string, DB *sql.DB) []Comment {
+// 	var comments []Comment
+// 	comment := new(Comment)
+// 	rows, _ := DB.Query("select ComId, Comment from COMMENTS WHERE GifId='" + GifId + "'")
+// 	defer func() {
+// 		if rows != nil {
+// 			rows.Close()
+// 		}
+// 	}()
+// 	for rows.Next() {
+// 		err := rows.Scan(&comment.ComId, &comment.Comment)
+// 		if err != nil {
+// 			fmt.Printf("scan failed, err:%v\n", err)
+// 		}
+// 		comments = append(comments, *comment)
+// 	}
+// 	return comments
+// }
 
 type QueryGif struct {
-	GifId string
-	TAG   string
-	INFO  string
-	TITLE string
+	GifId  string
+	TAG    string
+	INFO   string
+	TITLE  string
 	OSSURL string
 }
 
@@ -511,7 +510,7 @@ func QueryUser(user, password string, DB *sql.DB) int {
 	return user_type
 }
 
-func LoadAll(DB *sql.DB) ([]string, []string, []utils.Gifs, map[string][]string) {
+func LoadAll(DB *sql.DB) ([]string, []string, []utils.Gifs, map[string][]string, map[string][]string) {
 	var users []string
 	// var names []string    //id
 	// var titles []string   //title
@@ -553,6 +552,9 @@ func LoadAll(DB *sql.DB) ([]string, []string, []utils.Gifs, map[string][]string)
 	var likes map[string][]string
 	likes = make(map[string][]string)
 
+	var likes_u2g map[string][]string
+	likes_u2g = make(map[string][]string)
+
 	rows, _ = DB.Query("Select GifId,USER FROM LIKES")
 	for rows.Next() {
 		rows.Scan(&gifid, &user)
@@ -561,7 +563,13 @@ func LoadAll(DB *sql.DB) ([]string, []string, []utils.Gifs, map[string][]string)
 			likes[gifid] = make([]string, 0)
 		}
 		likes[gifid] = append(likes[gifid], user)
+
+		_, ok = likes_u2g[user]
+		if !ok {
+			likes_u2g[user] = make([]string, 0)
+		}
+		likes_u2g[user] = append(likes_u2g[gifid], user)
 	}
 
-	return users, infos, gifs, likes
+	return users, infos, gifs, likes, likes_u2g
 }

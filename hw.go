@@ -49,7 +49,8 @@ func RouterSet() *gin.Engine {
 	r := gin.Default()
 
 	// gifs := utils.JsonParse("info.json")
-	_, _, gifs, likes := database.LoadAll(DB)
+	_, _, gifs, likes, likes_u2g := database.LoadAll(DB)
+	userCF := recommend.UserCF(likes, likes_u2g)
 	gif_proto := utils.JsonParse("info_old_recommend.json")
 	fmt.Println("gif proto", gif_proto[1])
 
@@ -114,7 +115,7 @@ func RouterSet() *gin.Engine {
 		for {
 			select {
 			case <-ch_gifUpdate:
-				_, infos2, gifs2, likes2 := database.LoadAll(DB)
+				_, infos2, gifs2, likes2, likes_u2g2 := database.LoadAll(DB)
 				maps2 := make(map[string]int)
 				for i := range gifs2 {
 					res, b := maps[gifs2[i].Name]
@@ -143,6 +144,7 @@ func RouterSet() *gin.Engine {
 				_ = infos2
 				likes = likes2
 				maps = maps2
+				likes_u2g = likes_u2g2
 				fmt.Println("gif updates here")
 				fmt.Println("total gifs size ", len(gifs))
 				fmt.Println("spec here ", maps["0000aaaa"])
@@ -166,6 +168,15 @@ func RouterSet() *gin.Engine {
 			database.UpdateLikes(likes, DB)
 			fmt.Println(gifs[0].Oss_url)
 			fmt.Println("Oss&likes Updated")
+		}
+	}()
+
+	go func() {
+		for {
+			time.Sleep(time.Minute)
+			fmt.Println("user_CF Updating")
+			userCF = recommend.UserCF(likes, likes_u2g)
+			fmt.Println("user_CF Updated")
 		}
 	}()
 
@@ -293,7 +304,8 @@ func RouterSet() *gin.Engine {
 
 		if status != -1 {
 			cookie.TokenSet(c, user, status)
-			favors := database.QueryFavor(user, DB)
+			// favors := database.QueryFavor(user, DB)
+			favors := likes_u2g[user]
 			profile := database.QueryProfile(user, DB)
 
 			c.JSON(200, gin.H{
@@ -447,12 +459,32 @@ func RouterSet() *gin.Engine {
 	r.GET("/recommend", func(c *gin.Context) {
 		setHeader(c)
 
-		name := c.DefaultQuery("name", "")
-		recommend_gifs := recommend.Recommend(gifs[maps[name]], gifs)
-		c.JSON(200, gin.H{
-			"status": "succeed",
-			"result": recommend_gifs,
-		})
+		user := cookie.Getusername(c)
+
+		recom, ok := userCF[user]
+		// fmt.Println(recom)
+		if !ok || len(recom) == 0 {
+			c.JSON(200, gin.H{
+				"status": "succeed",
+				"result": gifs[:10],
+			})
+		} else {
+			var rets []utils.Gifs
+			for _, rec := range recom {
+				rets = append(rets, gifs[maps[rec]])
+			}
+			c.JSON(200, gin.H{
+				"status": "succeed",
+				"result": rets,
+			})
+		}
+
+		// name := c.DefaultQuery("name", "")
+		// recommend_gifs := recommend.Recommend(gifs[maps[name]], gifs)
+		// c.JSON(200, gin.H{
+		// 	"status": "succeed",
+		// 	"result": recommend_gifs,
+		// })
 	})
 
 	r.GET("/profile", func(c *gin.Context) {
@@ -481,13 +513,14 @@ func RouterSet() *gin.Engine {
 		// user := c.DefaultQuery("user", "")
 		user := cookie.Getusername(c)
 
-		favors := database.QueryFavor(user, DB)
-
+		// favors := database.QueryFavor(user, DB)
+		favors := likes_u2g[user]
 		var results []utils.Gifs
 		for favor_id := range favors {
 			favor := favors[favor_id]
 			results = append(results, gifs[maps[favor]])
 		}
+
 		c.JSON(200, gin.H{
 			"result": results,
 		})
@@ -499,9 +532,12 @@ func RouterSet() *gin.Engine {
 		// user := c.DefaultQuery("user", "")
 		user := cookie.Getusername(c)
 		gifid := c.DefaultPostForm("GifId", "")
-		favors := database.InsertFavor(user, gifid, DB)
+		// favors := database.InsertFavor(user, gifid, DB)
+		likes[gifid] = append(likes[gifid], user)
+		likes_u2g[user] = append(likes_u2g[user], gifid)
+
 		c.JSON(200, gin.H{
-			"status": favors,
+			"status": "收藏成功",
 		})
 	})
 
@@ -512,81 +548,99 @@ func RouterSet() *gin.Engine {
 		user := cookie.Getusername(c)
 		gifid_string := c.DefaultPostForm("GifId", "")
 		gifids := strings.Split(gifid_string, " ")
-		favors := database.DeleteFavor(user, gifids, DB)
-		c.JSON(200, gin.H{
-			"status": favors,
-		})
-	})
-
-	r.GET("/follow", func(c *gin.Context) {
-		setHeader(c)
-
-		// user := c.DefaultQuery("user", "")
-		user := cookie.Getusername(c)
-
-		follows := database.QueryFollow(user, DB)
-		c.JSON(200, gin.H{
-			"follows": follows,
-		})
-	})
-
-	r.GET("/follower", func(c *gin.Context) {
-		setHeader(c)
-
-		// user := c.DefaultQuery("user", "")
-		user := cookie.Getusername(c)
-
-		followers := database.QueryFollower(user, DB)
-		c.JSON(200, gin.H{
-			"follows": followers,
-		})
-	})
-
-	r.GET("/comment", func(c *gin.Context) {
-		setHeader(c)
-
-		gifid := c.DefaultQuery("gifid", "")
-
-		comments := database.QueryComment(gifid, DB)
-		c.JSON(200, gin.H{
-			"comments": comments,
-		})
-	})
-
-	r.GET("/user_gifs", func(c *gin.Context) {
-		setHeader(c)
-
-		// user := c.DefaultQuery("user", "")
-		user := cookie.Getusername(c)
-
-		gifs := database.QueryGifs(user, DB)
-		c.JSON(200, gin.H{
-			"gifs": gifs,
-		})
-	})
-
-	r.POST("/like", func(c *gin.Context) {
-		setHeader(c)
-		user := cookie.Getusername(c)
-		GifId := c.DefaultPostForm("GifId", "")
-		contains := false
-		_, ok := likes[GifId]
-		if ok {
-			for i := range likes[GifId] {
-				if likes[GifId][i] == user {
-					contains = true
-					likes[GifId] = append(likes[GifId][:i], likes[GifId][i+1:]...)
+		// favors := database.DeleteFavor(user, gifids, DB)
+		for _, gifid := range gifids {
+			for j, usr := range likes[gifid] {
+				if usr == user {
+					likes[gifid] = append(likes[gifid][:j], likes[gifid][j+1:]...)
 					break
 				}
 			}
-			if !contains {
-				likes[GifId] = append(likes[GifId], user)
-			}
-		} else {
-			likes[GifId] = make([]string, 0)
-			likes[GifId] = append(likes[GifId], user)
 		}
+
+		for _, gifid := range gifids {
+			for i, checkgif := range likes_u2g[user] {
+				if gifid == checkgif {
+					likes_u2g[user] = append(likes_u2g[user][:i], likes_u2g[user][i+1:]...)
+					break
+				}
+			}
+		}
+
+		c.JSON(200, gin.H{
+			"status": "删除成功",
+		})
 	})
+
+	// r.GET("/follow", func(c *gin.Context) {
+	// 	setHeader(c)
+
+	// 	// user := c.DefaultQuery("user", "")
+	// 	user := cookie.Getusername(c)
+
+	// 	follows := database.QueryFollow(user, DB)
+	// 	c.JSON(200, gin.H{
+	// 		"follows": follows,
+	// 	})
+	// })
+
+	// r.GET("/follower", func(c *gin.Context) {
+	// 	setHeader(c)
+
+	// 	// user := c.DefaultQuery("user", "")
+	// 	user := cookie.Getusername(c)
+
+	// 	followers := database.QueryFollower(user, DB)
+	// 	c.JSON(200, gin.H{
+	// 		"follows": followers,
+	// 	})
+	// })
+
+	// r.GET("/comment", func(c *gin.Context) {
+	// 	setHeader(c)
+
+	// 	gifid := c.DefaultQuery("gifid", "")
+
+	// 	comments := database.QueryComment(gifid, DB)
+	// 	c.JSON(200, gin.H{
+	// 		"comments": comments,
+	// 	})
+	// })
+
+	// r.GET("/user_gifs", func(c *gin.Context) {
+	// 	setHeader(c)
+
+	// 	// user := c.DefaultQuery("user", "")
+	// 	user := cookie.Getusername(c)
+
+	// 	gifs := database.QueryGifs(user, DB)
+	// 	c.JSON(200, gin.H{
+	// 		"gifs": gifs,
+	// 	})
+	// })
+
+	// r.POST("/like", func(c *gin.Context) {
+	// 	setHeader(c)
+	// 	user := cookie.Getusername(c)
+	// 	GifId := c.DefaultPostForm("GifId", "")
+	// 	contains := false
+	// 	_, ok := likes[GifId]
+	// 	if ok {
+	// 		for i := range likes[GifId] {
+	// 			if likes[GifId][i] == user {
+	// 				contains = true
+	// 				likes[GifId] = append(likes[GifId][:i], likes[GifId][i+1:]...)
+	// 				break
+	// 			}
+	// 		}
+	// 		if !contains {
+	// 			likes[GifId] = append(likes[GifId], user)
+	// 		}
+	// 	} else {
+	// 		likes[GifId] = make([]string, 0)
+	// 		likes[GifId] = append(likes[GifId], user)
+	// 	}
+	// })
 
 	r.POST("/change_profile", func(c *gin.Context) {
 		setHeader(c)
