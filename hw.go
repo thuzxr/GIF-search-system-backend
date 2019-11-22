@@ -541,16 +541,11 @@ func main() {
 
 	// DB := database.ConnectDB()
 	// database.Init(DB)
-	// // database.InsertUser("Admin", "Admin", "", DB)
+	// database.InsertUser("Admin", "Admin", "", DB)
 	// // // /Users/saberrrrrrrr/Desktop/spider_info.json
-	// gifs := utils.JsonParse("/Users/saberrrrrrrr/Desktop/backend/info.json")
+	// gifs := utils.JsonParse("/Users/saberrrrrrrr/Desktop/backend/info_old_recommend.json")
 	// for _, gif := range gifs {
-	// 	_, err := DB.Exec("insert INTO LIKES(GifId,Likenum) values('" + gif.Name + "',0)")
-	// 	if err != nil {
-	// 		fmt.Printf("Insert data failed,err:%v", err)
-	// 		// fmt.Print(gif)
-	// 		return
-	// 	}
+	// 	database.InsertGIF(DB, "Admin", gif.Name, gif.Keyword, "开始的gif", gif.Title)
 	// }
 
 	// fmt.Println(cookie.ShaConvert("user0"))
