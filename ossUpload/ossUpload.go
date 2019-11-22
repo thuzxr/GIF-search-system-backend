@@ -40,7 +40,7 @@ func OssMove(name string) {
 		log.Panicln(err)
 	}
 
-	bucket.CopyObjectTo("gif-dio", name, name)
+	bucket.CopyObjectTo("gif-dio", name+".gif", name+".gif")
 	if err != nil {
 		fmt.Println("CopyObjectTo Error:", err)
 		log.Panicln(err)
