@@ -280,22 +280,24 @@ func RemoveVerify(DB *sql.DB, GifId string) {
 // }
 
 func UpdateLikes(likes map[string][]string, DB *sql.DB) {
+
 	DB.Exec("DELETE * from LIKES")
-
-	sql := "INSERT INTO LIKES(GifId,USER) VALUES"
-	all_str := ""
-	for gifid := range likes {
-		for i := range likes[gifid] {
-			all_str += ",('" + gifid + "','" + likes[gifid][i] + "')"
+	if len(likes) != 0 {
+		sql := "INSERT INTO LIKES(GifId,USER) VALUES"
+		all_str := ""
+		for gifid := range likes {
+			for i := range likes[gifid] {
+				all_str += ",('" + gifid + "','" + likes[gifid][i] + "')"
+			}
 		}
-	}
-	sql += all_str[1:]
+		sql += all_str[1:]
 
-	_, err := DB.Exec(sql)
-	if err != nil {
-		fmt.Println("失败")
-	} else {
-		fmt.Println("成功")
+		_, err := DB.Exec(sql)
+		if err != nil {
+			fmt.Println("失败")
+		} else {
+			fmt.Println("成功")
+		}
 	}
 }
 
