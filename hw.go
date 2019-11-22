@@ -47,12 +47,13 @@ func RouterSet() *gin.Engine {
 	r := gin.Default()
 
 	// gifs := utils.JsonParse("info.json")
-	users, _, gifs := database.LoadAll(DB)
+	_, _, gifs := database.LoadAll(DB)
 	gif_proto:=utils.JsonParse("info_old_recommend.json")
 	fmt.Println("gif proto", gif_proto[1])
 
-	// AdSearch_Enabled := word.DataCheck()
-	AdSearch_Enabled := false
+	AdSearch_Enabled := word.DataCheck()
+	AdSearch_Activated := AdSearch_Enabled
+	// AdSearch_Enabled := false
 
 	var gif2vec map[string][][]uint8
 	var word2vec map[string][]uint8
@@ -63,7 +64,11 @@ func RouterSet() *gin.Engine {
 	fmt.Println("OssUpdating")
 	ossUpload.OssUpdate(gifs)
 	fmt.Println("OssUpdated")
-	fmt.Println(gifs[0].Oss_url)
+	if(len(gifs)>0){
+		fmt.Println(gifs[0].Oss_url)
+	}else{
+		fmt.Println("###### WARNING #######       GIF LOAD FAILED , Checkout your database")
+	}
 
 	var maps map[string]int
 	maps = make(map[string]int)
@@ -89,7 +94,7 @@ func RouterSet() *gin.Engine {
 			gifs[i].Recommend=rec_tmp
 		}
 	}
-	fmt.Println("## gif 0:",gifs[1], gifs[0])
+	// fmt.Println("## gif 0:",gifs[1], gifs[0])
 
 	go func() {
 		for {
@@ -97,7 +102,6 @@ func RouterSet() *gin.Engine {
 			// time.Sleep(30*time.Second)
 			fmt.Println("OssUpdating")
 			ossUpload.OssUpdate(gifs)
-			fmt.Println(gifs[0].Oss_url)
 			fmt.Println("OssUpdated")
 		}
 	}()
@@ -111,14 +115,14 @@ func RouterSet() *gin.Engine {
 		fmt.Println("Index not found, Advanced Searching Disabled")
 	}
 
-	fmt.Println("total gifs size ", len(users))
+	fmt.Println("total gifs size ", len(gifs))
 
 	ch_gifUpdate := make(chan bool)
 	go func() {
 		for {
 			select {
 			case <-ch_gifUpdate:
-				users2, infos2, gifs2 := database.LoadAll(DB)
+				_, infos2, gifs2 := database.LoadAll(DB)
 				maps2 := make(map[string]int)
 				for i := range gifs2 {
 					res,b:=maps[gifs2[i].Name]
@@ -138,15 +142,17 @@ func RouterSet() *gin.Engine {
 							gif2vec[gifs2[i].Name]=veci
 							vec_h=append(vec_h, vechi...)
 							re_idx=append(re_idx,re_idxi...)
+							fmt.Println("discovered new gif in ad search ",gifs2[i].Name)
 						}
 					}
 				}
-				users = users2
+				// users = users2
 				gifs = gifs2
 				_ = infos2
 				maps=maps2
 				fmt.Println("gif updates here")
 				fmt.Println("total gifs size ", len(gifs))
+				fmt.Println("spec here ", maps["0000aaaa"])
 
 				ch_gifUpdate <- false
 				break
@@ -156,7 +162,7 @@ func RouterSet() *gin.Engine {
 		}
 	}()
 
-	fmt.Println(gifs[0])
+	// fmt.Println(gifs[0])
 
 	m := cache.OfflineCacheReload()
 
@@ -187,8 +193,8 @@ func RouterSet() *gin.Engine {
 			m[keyword] = match
 			fmt.Println("Hit Cache " + keyword)
 		} else {
-			if AdSearch_Enabled {
-				res := word.RankSearch(keyword, word2vec, gif2vec, vec_h, re_idx, seg)
+			if AdSearch_Activated {
+				res := word.RankSearch(keyword, word2vec, gif2vec, vec_h, re_idx, seg, 200)
 				match = make([]utils.Gifs, len(res))
 				for i := range res {
 					match[i] = gifs[maps[res[i]]]
@@ -203,10 +209,6 @@ func RouterSet() *gin.Engine {
 			m[keyword] = match
 			go cache.OfflineCacheAppend(keyword, match)
 		}
-		// for i := 0; i < len(match); i++ {
-		// 	match[i].Oss_url = ossUpload.OssSignLink(match[i], 3600)
-		// }
-		// fmt.Println(time.Since(time0))
 		if len(match) == 0 {
 			c.JSON(200, gin.H{
 				"status": "failed",
@@ -306,6 +308,16 @@ func RouterSet() *gin.Engine {
 		c.JSON(200, gin.H{
 			"res": "test",
 		})
+	})
+
+	r.POST("/change_search", func(c *gin.Context){
+		tttmmmppp:=c.DefaultPostForm("type","H")
+		if(tttmmmppp=="H"){
+			AdSearch_Activated=true;
+		}else{
+			AdSearch_Activated=false;
+		}
+		c.String(200, "success")
 	})
 
 	r.GET("/logout", func(c *gin.Context) {
