@@ -53,8 +53,8 @@ func RouterSet() *gin.Engine {
 	fmt.Println("gif proto", gif_proto[1])
 
 	AdSearch_Enabled := word.DataCheck()
-	AdSearch_Activated := AdSearch_Enabled
 	// AdSearch_Enabled := false
+	AdSearch_Activated := AdSearch_Enabled
 
 	var gif2vec map[string][][]uint8
 	var word2vec map[string][]uint8
@@ -177,6 +177,7 @@ func RouterSet() *gin.Engine {
 		})
 	})
 	r.GET("/search", func(c *gin.Context) {
+		time0:=time.Now()
 		setHeader(c)
 
 		// time0:=time.Now()
@@ -226,14 +227,20 @@ func RouterSet() *gin.Engine {
 			m[keyw0] = match
 			go cache.OfflineCacheAppend(keyword, match, typ, edg)
 		}
+		t0:=int64(time.Since(time0)/time.Nanosecond)
+		if(t0<10){
+			t0=1;
+		}
 		if len(match) == 0 {
 			c.JSON(200, gin.H{
 				"status": "failed",
+				"time": t0,
 			})
 		} else {
 			c.JSON(200, gin.H{
 				"status": "succeed",
 				"result": match,
+				"time":t0,
 			})
 		}
 	})
