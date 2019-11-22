@@ -18,6 +18,7 @@ import (
 
 	"fmt"
 	"time"
+	"strconv"
 
 	"backend/word"
 
@@ -182,6 +183,22 @@ func RouterSet() *gin.Engine {
 
 		// time0:=time.Now()
 		keyword := c.DefaultQuery("key", "UNK")
+		typ:=c.DefaultQuery("type", "L")
+		edg:=c.DefaultQuery("edge", "200")
+		if(typ=="H"){
+			AdSearch_Activated=true;
+		}else{
+			AdSearch_Activated=false;
+		}
+
+		edg0, _:=strconv.ParseInt(edg, 10, 64)
+		if(edg0>250){
+			edg0=250;
+		}else if(edg0<125){
+			edg0=125;
+		}
+		HAM_EDGE:=uint64(edg0)
+		
 		res, finded := m[keyword]
 		var match []utils.Gifs
 		// fmt.Println(time.Since(time0))
@@ -194,7 +211,7 @@ func RouterSet() *gin.Engine {
 			fmt.Println("Hit Cache " + keyword)
 		} else {
 			if AdSearch_Activated {
-				res := word.RankSearch(keyword, word2vec, gif2vec, vec_h, re_idx, seg, 200)
+				res := word.RankSearch(keyword, word2vec, gif2vec, vec_h, re_idx, seg, HAM_EDGE)
 				match = make([]utils.Gifs, len(res))
 				for i := range res {
 					match[i] = gifs[maps[res[i]]]
@@ -308,16 +325,6 @@ func RouterSet() *gin.Engine {
 		c.JSON(200, gin.H{
 			"res": "test",
 		})
-	})
-
-	r.POST("/change_search", func(c *gin.Context){
-		tttmmmppp:=c.DefaultPostForm("type","H")
-		if(tttmmmppp=="H"){
-			AdSearch_Activated=true;
-		}else{
-			AdSearch_Activated=false;
-		}
-		c.String(200, "success")
 	})
 
 	r.GET("/logout", func(c *gin.Context) {
