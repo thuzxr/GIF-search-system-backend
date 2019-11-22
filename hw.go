@@ -682,7 +682,7 @@ func LoadTls() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		middleware := secure.New(secure.Options{
 			SSLRedirect: true,
-			SSLHost:     "49.233.71.202:8080",
+			SSLHost:     utils.SSLHOST,
 		})
 		err := middleware.Process(c.Writer, c.Request)
 		if err != nil {

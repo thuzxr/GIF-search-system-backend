@@ -32,6 +32,7 @@ const (
 	COOKIE_EXPIRE = 3600
 	COOKIE_DOMAIN = "www.gifxiv.com"
 	COOKIE_SALT   = "The_World"
+	SSLHOST       = "49.233.71.202:8080"
 	// COOKIE_DOMAIN = "183.173.58.166"
 	// COOKIE_DOMAIN = "gif-dio-stardustcrusaders.app.secoder.net"
 )
