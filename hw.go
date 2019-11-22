@@ -163,8 +163,6 @@ func RouterSet() *gin.Engine {
 		}
 	}()
 
-	// fmt.Println(gifs[0])
-
 	m := cache.OfflineCacheReload()
 
 	//Routers without Auth
@@ -184,22 +182,24 @@ func RouterSet() *gin.Engine {
 		// time0:=time.Now()
 		keyword := c.DefaultQuery("key", "UNK")
 		typ:=c.DefaultQuery("type", "L")
-		edg:=c.DefaultQuery("edge", "200")
+		edg:=c.DefaultQuery("edge", "10")
 		if(typ=="H"){
 			AdSearch_Activated=true;
 		}else{
 			AdSearch_Activated=false;
 		}
 
-		edg0, _:=strconv.ParseInt(edg, 10, 64)
-		if(edg0>250){
-			edg0=250;
-		}else if(edg0<125){
-			edg0=125;
+		edg0, err:=strconv.ParseInt(edg, 10, 64)
+		if(err!=nil){
+			edg0=10;
+		}else if(edg0<1 || edg0>10){
+			edg0=10
 		}
+		edg0=edg0*10+150
 		HAM_EDGE:=uint64(edg0)
 		
-		res, finded := m[keyword]
+		keyw0:=typ+edg+keyword
+		res, finded := m[keyw0]
 		var match []utils.Gifs
 		// fmt.Println(time.Since(time0))
 		if finded {
@@ -207,7 +207,7 @@ func RouterSet() *gin.Engine {
 			for i := range res {
 				match[i] = gifs[maps[res[i].Name]]
 			}
-			m[keyword] = match
+			m[keyw0] = match
 			fmt.Println("Hit Cache " + keyword)
 		} else {
 			if AdSearch_Activated {
@@ -223,8 +223,8 @@ func RouterSet() *gin.Engine {
 					match[i] = gifs[maps[match0[i].Name]]
 				}
 			}
-			m[keyword] = match
-			go cache.OfflineCacheAppend(keyword, match)
+			m[keyw0] = match
+			go cache.OfflineCacheAppend(keyword, match, typ, edg)
 		}
 		if len(match) == 0 {
 			c.JSON(200, gin.H{

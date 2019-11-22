@@ -3,7 +3,7 @@ package cache
 import (
 	"backend/utils"
 	"encoding/base64"
-	"fmt"
+	// "fmt"
 	"io/ioutil"
 	"os"
 	"path"
@@ -46,15 +46,15 @@ func OfflineCacheInit() {
 }
 
 //向Cache添加keyword及其搜索结果
-func OfflineCacheAppend(keyword string, gif []utils.Gifs) {
-	w1, _ := os.OpenFile(path.Join(cacheNamePath(), base64.URLEncoding.EncodeToString([]byte(keyword))),
+func OfflineCacheAppend(keyword string, gif []utils.Gifs, typ, edg string) {
+	w1, _ := os.OpenFile(path.Join(cacheNamePath(), base64.URLEncoding.EncodeToString([]byte(typ+edg+keyword))),
 		os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
 
 	for i := 0; i < len(gif); i++ {
 		_, _ = w1.Write([]byte(gif[i].Name + "#"))
 	}
 	_ = w1.Close()
-	w1, _ = os.OpenFile(path.Join(cacheTitlePath(), base64.URLEncoding.EncodeToString([]byte(keyword))),
+	w1, _ = os.OpenFile(path.Join(cacheTitlePath(), base64.URLEncoding.EncodeToString([]byte(typ+edg+keyword))),
 		os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
 
 	for i := 0; i < len(gif); i++ {
@@ -114,17 +114,4 @@ func OfflineCacheClear() {
 			os.Remove(path.Join(cacheTitlePath(), TmpName))
 		}
 	}
-}
-
-func OfflineCacheDelete(keyword string) {
-	KeywordName := base64.URLEncoding.EncodeToString([]byte(keyword))
-	_, err := os.Stat(path.Join(cacheNamePath(), KeywordName))
-	if os.IsNotExist(err) {
-		return
-	}
-	err = os.Remove(path.Join(cacheNamePath(), KeywordName))
-	if err != nil {
-		fmt.Println(err)
-	}
-	os.Remove(path.Join(cacheTitlePath(), KeywordName))
 }
