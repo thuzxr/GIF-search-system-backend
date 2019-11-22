@@ -104,26 +104,6 @@ func TokenSet(c *gin.Context, user string, access int) {
 	}
 }
 
-func TokenTest(user string, access int) {
-	claims := MyClaims{
-		user,
-		access,
-		jwt.StandardClaims{
-			ExpiresAt: int64(time.Now().Unix() + 3600),
-			Issuer:    "Gif-Dio",
-		},
-	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString([]byte(utils.COOKIE_SALT))
-	if err != nil {
-		fmt.Println("err in tokenSet:", err)
-		return
-	} else {
-		// c.SetCookie("token", tokenString, 3600, "/", utils.COOKIE_DOMAIN, false, false)
-		fmt.Println(tokenString)
-	}
-}
-
 func Getusername(c *gin.Context) string {
 	cookie, _ := c.Request.Cookie("token")
 	if cookie != nil {
@@ -140,26 +120,4 @@ func Getusername(c *gin.Context) string {
 		}
 	}
 	return ""
-}
-
-func RootAuth() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		cookie, _ := c.Request.Cookie("token")
-		if cookie != nil {
-			_, status := ClaimsParse(cookie.Value)
-			if status >= 2 {
-				c.Next()
-			} else {
-				c.Abort()
-				c.JSON(401, gin.H{
-					"status": "Not Root",
-				})
-			}
-		} else {
-			c.Abort()
-			c.JSON(401, gin.H{
-				"status": "Unauthorized",
-			})
-		}
-	}
 }
