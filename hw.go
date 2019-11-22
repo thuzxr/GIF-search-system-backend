@@ -282,6 +282,7 @@ func RouterSet() *gin.Engine {
 					"status":   "succeed",
 					"result":   result_match,
 					"like_num": result_score,
+					"time": t0,
 				})
 			} else {
 				var likes_num []int
@@ -298,6 +299,7 @@ func RouterSet() *gin.Engine {
 					"status":   "succeed",
 					"result":   match,
 					"like_num": likes_num,
+					"time":t0,
 				})
 			}
 		}
@@ -434,14 +436,22 @@ func RouterSet() *gin.Engine {
 		setHeader(c)
 		veriName := c.DefaultPostForm("name", "")
 		veriNames := strings.Split(veriName, " ")
+		var veriName0 string
 		for i := range veriNames {
+			if(len(veriNames[i])==0){
+				continue
+			}
+			veriName0=veriNames[i]
 			database.VerifyGIF(DB, veriNames[i])
-			ossUpload.OssMove(veriNames[i])
+			fmt.Println("verifing gif ", veriName0, "@@")
+			ossUpload.OssMove(veriName0)
+			fmt.Println("verifing gif ", veriName0, "@@")
 		}
-		ch_gifUpdate <- true
 		c.JSON(200, gin.H{
 			"status": "succeed",
 		})
+		ch_gifUpdate <- true
+		fmt.Println("verifing over")
 	})
 
 	r.POST("/remove_verify", func(c *gin.Context) {
@@ -471,7 +481,7 @@ func RouterSet() *gin.Engine {
 		user := cookie.Getusername(c)
 
 		recom, ok := userCF[user]
-		// fmt.Println(recom)
+		//fmt.Println(recom)
 		if !ok || len(recom) == 0 {
 			c.JSON(200, gin.H{
 				"status": "succeed",
@@ -488,12 +498,12 @@ func RouterSet() *gin.Engine {
 			})
 		}
 
-		// name := c.DefaultQuery("name", "")
-		// recommend_gifs := recommend.Recommend(gifs[maps[name]], gifs)
-		// c.JSON(200, gin.H{
-		// 	"status": "succeed",
-		// 	"result": recommend_gifs,
-		// })
+		 //name := c.DefaultQuery("name", "")
+		 //recommend_gifs := recommend.Recommend(gifs[maps[name]], gifs)
+		 //c.JSON(200, gin.H{
+		//	"status": "succeed",
+		//	"result": recommend_gifs,
+		 //})
 	})
 
 	r.GET("/profile", func(c *gin.Context) {
