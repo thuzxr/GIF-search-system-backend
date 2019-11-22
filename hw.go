@@ -15,6 +15,7 @@ import (
 	"backend/search"
 
 	"backend/utils"
+	"math/rand"
 
 	"fmt"
 	"time"
@@ -47,10 +48,13 @@ func RouterSet() *gin.Engine {
 	r := gin.Default()
 
 	// gifs := utils.JsonParse("info.json")
-	users, _, gifs, likes := database.LoadAll(DB)
+	_, _, gifs, likes := database.LoadAll(DB)
+	gif_proto := utils.JsonParse("info_old_recommend.json")
+	fmt.Println("gif proto", gif_proto[1])
 
-	// AdSearch_Enabled := word.DataCheck()
-	AdSearch_Enabled := false
+	AdSearch_Enabled := word.DataCheck()
+	AdSearch_Activated := AdSearch_Enabled
+	// AdSearch_Enabled := false
 
 	var gif2vec map[string][][]uint8
 	var word2vec map[string][]uint8
@@ -61,7 +65,37 @@ func RouterSet() *gin.Engine {
 	fmt.Println("OssUpdating")
 	ossUpload.OssUpdate(gifs)
 	fmt.Println("OssUpdated")
-	fmt.Println(gifs[0].Oss_url)
+	if len(gifs) > 0 {
+		fmt.Println(gifs[0].Oss_url)
+	} else {
+		fmt.Println("###### WARNING #######       GIF LOAD FAILED , Checkout your database")
+	}
+
+	var maps map[string]int
+	maps = make(map[string]int)
+	for i := range gifs {
+		maps[gifs[i].Name] = i
+	}
+
+	var rec_tmp []int
+	for i := range gif_proto {
+		rec_tmp = make([]int, 0)
+		for j := range gif_proto[i].Recommend {
+			rec_tmp = append(rec_tmp, maps[gif_proto[gif_proto[i].Recommend[j]].Name])
+		}
+		gifs[maps[gif_proto[i].Name]].Recommend = rec_tmp
+	}
+
+	for i := range gifs {
+		rec_tmp = make([]int, 0)
+		if len(gifs[i].Recommend) == 0 {
+			for j := 0; j < 10; j++ {
+				rec_tmp = append(rec_tmp, ((int)(rand.Int31()) % (len(gifs))))
+			}
+			gifs[i].Recommend = rec_tmp
+		}
+	}
+	// fmt.Println("## gif 0:",gifs[1], gifs[0])
 
 	if AdSearch_Enabled {
 		fmt.Println("Advanced Searching Enabled")
@@ -72,23 +106,45 @@ func RouterSet() *gin.Engine {
 		fmt.Println("Index not found, Advanced Searching Disabled")
 	}
 
-	fmt.Println("total gifs size ", len(users))
+	fmt.Println("total gifs size ", len(gifs))
 
 	ch_gifUpdate := make(chan bool)
 	go func() {
 		for {
 			select {
 			case <-ch_gifUpdate:
-				users2, infos2, gifs2, likes2 := database.LoadAll(DB)
+				_, infos2, gifs2, likes2 := database.LoadAll(DB)
+				maps2 := make(map[string]int)
+				for i := range gifs2 {
+					res, b := maps[gifs2[i].Name]
+					if b {
+						gifs2[i].Oss_url = gifs[res].Oss_url
+					} else {
+						gifs2[i].Oss_url = ossUpload.OssSignLink(gifs2[i], 3600)
+					}
+					maps2[gifs2[i].Name] = i
+				}
 				if AdSearch_Enabled {
 					// veci:=word.WortToVec(gifs)
+					for i := range gifs2 {
+						_, b := gif2vec[gifs2[i].Name]
+						if b == false {
+							veci, vechi, re_idxi := word.GifToVec(gifs2[i], seg, word2vec)
+							gif2vec[gifs2[i].Name] = veci
+							vec_h = append(vec_h, vechi...)
+							re_idx = append(re_idx, re_idxi...)
+							fmt.Println("discovered new gif in ad search ", gifs2[i].Name)
+						}
+					}
 				}
-				users = users2
+				// users = users2
 				gifs = gifs2
 				_ = infos2
 				likes = likes2
+				maps = maps2
 				fmt.Println("gif updates here")
 				fmt.Println("total gifs size ", len(gifs))
+				fmt.Println("spec here ", maps["0000aaaa"])
 
 				ch_gifUpdate <- false
 				break
@@ -98,12 +154,7 @@ func RouterSet() *gin.Engine {
 		}
 	}()
 
-	fmt.Println(gifs[0])
-	var maps map[string]int
-	maps = make(map[string]int)
-	for i := range gifs {
-		maps[gifs[i].Name] = i
-	}
+	// fmt.Println(gifs[0])
 
 	go func() {
 		for {
@@ -146,8 +197,8 @@ func RouterSet() *gin.Engine {
 			m[keyword] = match
 			fmt.Println("Hit Cache " + keyword)
 		} else {
-			if AdSearch_Enabled {
-				res := word.RankSearch(keyword, word2vec, gif2vec, vec_h, re_idx, seg)
+			if AdSearch_Activated {
+				res := word.RankSearch(keyword, word2vec, gif2vec, vec_h, re_idx, seg, 200)
 				match = make([]utils.Gifs, len(res))
 				for i := range res {
 					match[i] = gifs[maps[res[i]]]
@@ -195,9 +246,10 @@ func RouterSet() *gin.Engine {
 			}
 
 			c.JSON(200, gin.H{
-				"status": "succeed",
-				"result": result_match,
-				"score":  result_score,
+				"status":              "succeed",
+				"liked_sorted_result": result_match,
+				"like_num":            result_score,
+				"sim_sorted_result":   match,
 			})
 		}
 	})
@@ -291,6 +343,16 @@ func RouterSet() *gin.Engine {
 		})
 	})
 
+	r.POST("/change_search", func(c *gin.Context) {
+		tttmmmppp := c.DefaultPostForm("type", "H")
+		if tttmmmppp == "H" {
+			AdSearch_Activated = true
+		} else {
+			AdSearch_Activated = false
+		}
+		c.String(200, "success")
+	})
+
 	r.GET("/logout", func(c *gin.Context) {
 		setHeader(c)
 		c.SetCookie("token", "", -1, "/", utils.COOKIE_DOMAIN, false, false)
@@ -317,6 +379,11 @@ func RouterSet() *gin.Engine {
 		setHeader(c)
 
 		res := database.GetToVerifyGIF(DB)
+		for i := range res {
+			res[i].OSSURL = ossUpload.OssSignLink_Verify(utils.Gifs{
+				Name: res[i].GifId,
+			}, 3600)
+		}
 		c.JSON(200, gin.H{
 			"status": "succeed",
 			"result": res,
@@ -325,8 +392,25 @@ func RouterSet() *gin.Engine {
 
 	r.POST("/verify", func(c *gin.Context) {
 		setHeader(c)
+		veriName := c.DefaultPostForm("name", "")
+		veriNames := strings.Split(veriName, " ")
+		for i := range veriNames {
+			database.VerifyGIF(DB, veriNames[i])
+			ossUpload.OssMove(veriNames[i])
+		}
+		ch_gifUpdate <- true
+		c.JSON(200, gin.H{
+			"status": "succeed",
+		})
+	})
+
+	r.POST("/remove_verify", func(c *gin.Context) {
+		setHeader(c)
 		name := c.DefaultPostForm("name", "")
-		database.VerifyGIF(DB, name, ch_gifUpdate)
+		removeNames := strings.Split(name, " ")
+		for i := range removeNames {
+			database.RemoveVerify(DB, removeNames[i])
+		}
 		c.JSON(200, gin.H{
 			"status": "succeed",
 		})
@@ -346,9 +430,6 @@ func RouterSet() *gin.Engine {
 
 		name := c.DefaultQuery("name", "")
 		recommend_gifs := recommend.Recommend(gifs[maps[name]], gifs)
-		// for i := 0; i < len(recommend_gifs); i++ {
-		// 	recommend_gifs[i].Oss_url = ossUpload.OssSignLink(recommend_gifs[i], 3600)
-		// }
 		c.JSON(200, gin.H{
 			"status": "succeed",
 			"result": recommend_gifs,

@@ -28,3 +28,28 @@ func OssUpload(gif utils.Gifs, localpath string) {
 	}
 	fmt.Println(gif.Title + "Uploaded")
 }
+
+func OssMove(name string){
+	client, err := oss.New("oss-cn-beijing.aliyuncs.com", "LTAI4FduW6Yf6AZY8ysPGmB9", "2eayaXUYwzCzK8HuOv8yrqRvtmsxd9")
+	if err != nil {
+		log.Panicln(err)
+	}
+
+	bucket, err := client.Bucket("gif-pre")
+	if err != nil {
+		log.Panicln(err)
+	}
+
+	bucket.CopyObjectTo("gif-dio", name, name)
+	if err != nil {
+		fmt.Println("CopyObjectTo Error:", err)
+		log.Panicln(err)
+	}
+
+	// err = bucket.DeleteObject(name)
+    // if err != nil {
+    //     fmt.Println("Error:", err)
+    //     log.Panicln(err)
+    // }
+
+}
