@@ -18,6 +18,7 @@ import (
 	"math/rand"
 
 	"fmt"
+	"strconv"
 	"time"
 
 	"backend/word"
@@ -53,7 +54,7 @@ func RouterSet() *gin.Engine {
 	fmt.Println("gif proto", gif_proto[1])
 
 	AdSearch_Enabled := word.DataCheck()
-	AdSearch_Activated := AdSearch_Enabled
+	// _ := AdSearch_Enabled
 	// AdSearch_Enabled := false
 
 	var gif2vec map[string][][]uint8
@@ -186,6 +187,18 @@ func RouterSet() *gin.Engine {
 
 		// time0:=time.Now()
 		keyword := c.DefaultQuery("key", "UNK")
+		typ := c.DefaultQuery("type", "L")
+		rank_type := c.DefaultQuery("rank_type", "Sim")
+		edg := c.DefaultQuery("edge", "200")
+
+		edg0, _ := strconv.ParseInt(edg, 10, 64)
+		if edg0 > 250 {
+			edg0 = 250
+		} else if edg0 < 125 {
+			edg0 = 125
+		}
+		HAM_EDGE := uint64(edg0)
+
 		res, finded := m[keyword]
 		var match []utils.Gifs
 		// fmt.Println(time.Since(time0))
@@ -197,8 +210,8 @@ func RouterSet() *gin.Engine {
 			m[keyword] = match
 			fmt.Println("Hit Cache " + keyword)
 		} else {
-			if AdSearch_Activated {
-				res := word.RankSearch(keyword, word2vec, gif2vec, vec_h, re_idx, seg, 200)
+			if typ == "H" {
+				res := word.RankSearch(keyword, word2vec, gif2vec, vec_h, re_idx, seg, HAM_EDGE)
 				match = make([]utils.Gifs, len(res))
 				for i := range res {
 					match[i] = gifs[maps[res[i]]]
@@ -223,34 +236,50 @@ func RouterSet() *gin.Engine {
 				"status": "failed",
 			})
 		} else {
-
-			var match_likes []utils.Like_based_sort
-			for i := range match {
-				_, ok := likes[match[i].Name]
-				var match_like utils.Like_based_sort
-				if ok {
-					match_like = utils.Like_based_sort{Gif: match[i], Like: len(likes[match[i].Name])}
-				} else {
-					match_like = utils.Like_based_sort{Gif: match[i], Like: 0}
+			if rank_type == "Sim" {
+				var match_likes []utils.Like_based_sort
+				for i := range match {
+					_, ok := likes[match[i].Name]
+					var match_like utils.Like_based_sort
+					if ok {
+						match_like = utils.Like_based_sort{Gif: match[i], Like: len(likes[match[i].Name])}
+					} else {
+						match_like = utils.Like_based_sort{Gif: match[i], Like: 0}
+					}
+					match_likes = append(match_likes, match_like)
 				}
-				match_likes = append(match_likes, match_like)
+
+				sort.Sort(utils.LikeSlice(match_likes))
+
+				var result_match []utils.Gifs
+				var result_score []int
+				for i := range match_likes {
+					result_match = append(result_match, match_likes[i].Gif)
+					result_score = append(result_score, match_likes[i].Like)
+				}
+
+				c.JSON(200, gin.H{
+					"status":   "succeed",
+					"result":   result_match,
+					"like_num": result_score,
+				})
+			} else {
+				var likes_num []int
+				for i := range match {
+					_, ok := likes[match[i].Name]
+					if ok {
+						likes_num = append(likes_num, len(likes[match[i].Name]))
+					} else {
+						likes_num = append(likes_num, 0)
+					}
+				}
+
+				c.JSON(200, gin.H{
+					"status":   "succeed",
+					"result":   match,
+					"like_num": likes_num,
+				})
 			}
-
-			sort.Sort(utils.LikeSlice(match_likes))
-
-			var result_match []utils.Gifs
-			var result_score []int
-			for i := range match_likes {
-				result_match = append(result_match, match_likes[i].Gif)
-				result_score = append(result_score, match_likes[i].Like)
-			}
-
-			c.JSON(200, gin.H{
-				"status":              "succeed",
-				"liked_sorted_result": result_match,
-				"like_num":            result_score,
-				"sim_sorted_result":   match,
-			})
 		}
 	})
 
@@ -341,16 +370,6 @@ func RouterSet() *gin.Engine {
 		c.JSON(200, gin.H{
 			"res": "test",
 		})
-	})
-
-	r.POST("/change_search", func(c *gin.Context) {
-		tttmmmppp := c.DefaultPostForm("type", "H")
-		if tttmmmppp == "H" {
-			AdSearch_Activated = true
-		} else {
-			AdSearch_Activated = false
-		}
-		c.String(200, "success")
 	})
 
 	r.GET("/logout", func(c *gin.Context) {

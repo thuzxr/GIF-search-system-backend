@@ -29,7 +29,7 @@ func OssUpload(gif utils.Gifs, localpath string) {
 	fmt.Println(gif.Title + "Uploaded")
 }
 
-func OssMove(name string){
+func OssMove(name string) {
 	client, err := oss.New("oss-cn-beijing.aliyuncs.com", "LTAI4FduW6Yf6AZY8ysPGmB9", "2eayaXUYwzCzK8HuOv8yrqRvtmsxd9")
 	if err != nil {
 		log.Panicln(err)
@@ -47,9 +47,9 @@ func OssMove(name string){
 	}
 
 	// err = bucket.DeleteObject(name)
-    // if err != nil {
-    //     fmt.Println("Error:", err)
-    //     log.Panicln(err)
-    // }
+	// if err != nil {
+	//     fmt.Println("Error:", err)
+	//     log.Panicln(err)
+	// }
 
 }
