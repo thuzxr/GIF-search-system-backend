@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Get_vericode(c *gin.Context) {
+func Getvericode(c *gin.Context) {
 	length := captcha.DefaultLen
 	captchaId := captcha.NewLen(length)
 	c.JSON(http.StatusOK, gin.H{
@@ -18,7 +18,7 @@ func Get_vericode(c *gin.Context) {
 	})
 }
 
-func Gen_vericode(c *gin.Context) {
+func Genvericode(c *gin.Context) {
 	w := c.Writer
 	r := c.Request
 	// captchaId := c.Param("captchaId")

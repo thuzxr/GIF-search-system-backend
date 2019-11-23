@@ -20,5 +20,5 @@ func Register(c *gin.Context, db *sql.DB) string {
 	if !captcha.VerifyString(captchaId, veri_input) {
 		return "验证码错误"
 	}
-	return database.InsertUser(username, password, "", db)
+	return database.InsertUser(username, password, db)
 }

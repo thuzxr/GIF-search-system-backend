@@ -69,11 +69,9 @@ func HammingJudge(vec_1 []uint64, vec_2 []uint64, HAM_EDGE uint64) bool {
 func HammingScreen(hamVec0 []uint64, hamVec [][]uint64, names []string, HAM_EDGE uint64) []string {
 	res := make([]string, 0)
 	for i := range hamVec {
-		if i > 0 {
-			if strings.Compare(names[i-1], names[i]) != 0 {
+		if i > 0 && strings.Compare(names[i-1], names[i]) != 0 {
 				continue
 			}
-		}
 		if HammingJudge(hamVec0, hamVec[i], HAM_EDGE) {
 			res = append(res, names[i])
 		}
@@ -137,7 +135,7 @@ func cosine(vec_1 []uint8, vec_2 []uint8) uint64 {
 	return ans
 }
 
-func Simple_Sim(vec_1 [][]uint8, vec_2 [][]uint8) uint64 {
+func SimpleSim(vec_1 [][]uint8, vec_2 [][]uint8) uint64 {
 	var t, t0 uint64
 	t = 0
 	for i := range vec_1 {
@@ -181,7 +179,7 @@ func RankSearch(keyword string, word2vec map[string][]uint8, gif2vec map[string]
 	ranks := make([]sortRank, len(pre_res))
 	for i := range pre_res {
 		ranks[i].name = pre_res[i]
-		ranks[i].rank = Simple_Sim(gif2vec[pre_res[i]], vec_keyword)
+		ranks[i].rank = SimpleSim(gif2vec[pre_res[i]], vec_keyword)
 	}
 	sort.Sort(sortRanks(ranks))
 	res2 := make([]string, len(pre_res))
@@ -191,14 +189,6 @@ func RankSearch(keyword string, word2vec map[string][]uint8, gif2vec map[string]
 	time_2 := time.Since(time_start)
 	fmt.Println(time_2)
 	return res2
-}
-
-func Name_reIdx(gifs []utils.Gifs) map[string]*utils.Gifs {
-	m := make(map[string]*utils.Gifs)
-	for i := range gifs {
-		m[gifs[i].Name] = &gifs[i]
-	}
-	return m
 }
 
 func GifToVec(gif utils.Gifs, seg gse.Segmenter, m map[string][]uint8) ([][]uint8, [][]uint64, []string) {

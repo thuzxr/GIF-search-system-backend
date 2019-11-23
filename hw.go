@@ -131,7 +131,7 @@ func RouterSet() *gin.Engine {
 					// veci:=word.WortToVec(gifs)
 					for i := range gifs2 {
 						_, b := gif2vec[gifs2[i].Name]
-						if b == false {
+						if ! b {
 							veci, vechi, re_idxi := word.GifToVec(gifs2[i], seg, word2vec)
 							gif2vec[gifs2[i].Name] = veci
 							vec_h = append(vec_h, vechi...)
@@ -252,7 +252,7 @@ func RouterSet() *gin.Engine {
 
 		if len(match) == 0 {
 			c.JSON(200, gin.H{
-				"status": "failed",
+				utils.STATUS: "failed",
 				"time":   t0,
 			})
 		} else {
@@ -279,8 +279,8 @@ func RouterSet() *gin.Engine {
 				}
 
 				c.JSON(200, gin.H{
-					"status":   "succeed",
-					"result":   result_match,
+					utils.STATUS:   "succeed",
+					utils.RESULT:   result_match,
 					"like_num": result_score,
 					"time":     t0,
 				})
@@ -296,8 +296,8 @@ func RouterSet() *gin.Engine {
 				}
 
 				c.JSON(200, gin.H{
-					"status":   "succeed",
-					"result":   match,
+					utils.STATUS:   "succeed",
+					utils.RESULT:   match,
 					"like_num": likes_num,
 					"time":     t0,
 				})
@@ -322,15 +322,15 @@ func RouterSet() *gin.Engine {
 			c.JSON(200, gin.H{
 				"status":    status,
 				"Email":     profile[0],
-				"FirstName": profile[1],
-				"LastName":  profile[2],
+				utils.FIRSTNAME: profile[1],
+				utils.LASTNAME:  profile[2],
 				"Addr":      profile[3],
-				"ZipCode":   profile[4],
+				utils.ZIPCODE:   profile[4],
 				"City":      profile[5],
-				"Country":   profile[6],
+				utils.COUNTRY:   profile[6],
 				"About":     profile[7],
-				"Height":    profile[8],
-				"Birthday":  profile[9],
+				utils.HEIGHT:    profile[8],
+				utils.BIRTHDAY:  profile[9],
 				"favor":     favors,
 			})
 		} else {
@@ -377,12 +377,12 @@ func RouterSet() *gin.Engine {
 
 	r.GET("/refresh_veri", func(c *gin.Context) {
 		setHeader(c)
-		vericode.Get_vericode(c)
+		vericode.Getvericode(c)
 	})
 
 	r.GET("/get_veri/:captchId", func(c *gin.Context) {
 		setHeader(c)
-		vericode.Gen_vericode(c)
+		vericode.Genvericode(c)
 	})
 
 	//Routers with Auth
@@ -514,15 +514,15 @@ func RouterSet() *gin.Engine {
 		profile := database.QueryProfile(user, DB)
 		c.JSON(200, gin.H{
 			"Email":     profile[0],
-			"FirstName": profile[1],
-			"LastName":  profile[2],
+			utils.FIRSTNAME: profile[1],
+			utils.LASTNAME:  profile[2],
 			"Addr":      profile[3],
-			"ZipCode":   profile[4],
+			utils.ZIPCODE:   profile[4],
 			"City":      profile[5],
-			"Country":   profile[6],
+			utils.COUNTRY:   profile[6],
 			"About":     profile[7],
-			"Height":    profile[8],
-			"Birthday":  profile[9],
+			utils.HEIGHT:    profile[8],
+			utils.BIRTHDAY:  profile[9],
 		})
 	})
 
@@ -667,15 +667,15 @@ func RouterSet() *gin.Engine {
 		// user := c.DefaultQuery("user", "")
 		user := cookie.Getusername(c)
 		Email := c.DefaultPostForm("Email", "")
-		FirstName := c.DefaultPostForm("FirstName", "")
-		LastName := c.DefaultPostForm("LastName", "")
+		FirstName := c.DefaultPostForm(utils.FIRSTNAME, "")
+		LastName := c.DefaultPostForm(utils.LASTNAME, "")
 		Addr := c.DefaultPostForm("Addr", "")
-		ZipCode := c.DefaultPostForm("ZipCode", "")
+		ZipCode := c.DefaultPostForm(utils.ZIPCODE, "")
 		City := c.DefaultPostForm("City", "")
-		Country := c.DefaultPostForm("Country", "")
+		Country := c.DefaultPostForm(utils.COUNTRY, "")
 		About := c.DefaultPostForm("About", "")
-		Height := c.DefaultPostForm("Height", "")
-		Birthday := c.DefaultPostForm("Birthday", "")
+		Height := c.DefaultPostForm(utils.HEIGHT, "")
+		Birthday := c.DefaultPostForm(utils.BIRTHDAY, "")
 
 		database.ChangeProfile(user, Email, FirstName, LastName, Addr, ZipCode, City, Country, About, Height, Birthday, DB)
 		c.JSON(200, gin.H{
@@ -714,7 +714,7 @@ func main() {
 
 	// DB := database.ConnectDB()
 	// database.Init(DB)
-	// database.InsertUser("Admin", "Admin", "", DB)
+	// database.InsertUser("Admin", "Admin", DB)
 	// // // /Users/saberrrrrrrr/Desktop/spider_info.json
 	// gifs := utils.JsonParse("/Users/saberrrrrrrr/Desktop/backend/info_old_recommend.json")
 	// for _, gif := range gifs {

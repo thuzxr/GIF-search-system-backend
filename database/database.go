@@ -39,7 +39,7 @@ func Init(DB *sql.DB) {
 			TYPE		INTEGER			DEFAULT 1
 			);`
 	_, err := DB.Exec(sql)
-	if ErrProc(err) == false {
+	if ! ErrProc(err) {
 		return
 	}
 	fmt.Println("create table USER_MANAGE succeed")
@@ -59,7 +59,7 @@ func Init(DB *sql.DB) {
 		FOREIGN KEY(USER) REFERENCES USER_MANAGE(USER) ON DELETE CASCADE
 		);`
 	_, err = DB.Exec(sql)
-	if ErrProc(err) == false {
+	if ! ErrProc(err){
 		return
 	}
 	fmt.Println("create table PROFILE succeed")
@@ -72,7 +72,7 @@ func Init(DB *sql.DB) {
 		PRIMARY KEY(USER, Follows)
 		);`
 	_, err = DB.Exec(sql)
-	if ErrProc(err) == false {
+	if ! ErrProc(err){
 		return
 	}
 	fmt.Println("create table FOLLOW succeed")
@@ -84,7 +84,7 @@ func Init(DB *sql.DB) {
 		FOREIGN KEY(USER) REFERENCES PROFILE(USER) ON DELETE CASCADE
 		);`
 	_, err = DB.Exec(sql)
-	if ErrProc(err) == false {
+	if ! ErrProc(err){
 		return
 	}
 	fmt.Println("create table FAVOR succeed")
@@ -98,7 +98,7 @@ func Init(DB *sql.DB) {
 		FOREIGN KEY(USER) REFERENCES PROFILE(USER) ON DELETE CASCADE
 	);`
 	_, err = DB.Exec(sql)
-	if ErrProc(err) == false {
+	if ! ErrProc(err){
 		return
 	}
 	fmt.Println("create table GIF_INFO succeed")
@@ -112,7 +112,7 @@ func Init(DB *sql.DB) {
 		FOREIGN KEY(USER) REFERENCES PROFILE(USER) ON DELETE CASCADE
 	);`
 	_, err = DB.Exec(sql)
-	if ErrProc(err) == false {
+	if ! ErrProc(err){
 		return
 	}
 	fmt.Println("create table GIF_TOVERIFY succeed")
@@ -127,7 +127,7 @@ func Init(DB *sql.DB) {
 		FOREIGN KEY(GifId) REFERENCES GIF_INFO(GifId) ON DELETE CASCADE
 		); `
 	_, err = DB.Exec(sql)
-	if ErrProc(err) == false {
+	if ! ErrProc(err){
 		return
 	}
 	fmt.Println("create table COMMENTS succeed")
@@ -140,28 +140,13 @@ func Init(DB *sql.DB) {
 		FOREIGN KEY(GifId) REFERENCES GIF_INFO(GifId) ON DELETE CASCADE
 		); `
 	_, err = DB.Exec(sql)
-	if ErrProc(err) == false {
+	if ! ErrProc(err){
 		return
 	}
 	fmt.Println("create table LIKES succeed")
 }
 
-// func InsertComments(comment string, GifId string, user string, DB *sql.DB) {
-// 	last_com := `SELECT MAX(ComId) FROM COMMENTS WHERE GifId=` + GifId
-// 	rows, _ := DB.Query(last_com)
-// 	rows.Next()
-// 	var last_com_Id int
-// 	rows.Scan(&last_com_Id)
-// 	rows.Close()
-
-// 	insert_coments := `INSERT INTO COMMENTS(ComId,GifId,Comment,User) values(` + strconv.Itoa(last_com_Id+1) + `,'` + GifId + `','` + comment + `','` + user + `')`
-// 	_, err := DB.Exec(insert_coments)
-// 	if err != nil {
-// 		print(err)
-// 	}
-// }
-
-func InsertUser(user, password, admin string, DB *sql.DB) string {
+func InsertUser(user, password string, DB *sql.DB) string {
 	sql := `select USER from USER_MANAGE where USER='` + user + `'`
 	rows, _ := DB.Query(sql)
 	defer func() {
@@ -233,10 +218,6 @@ func GetToVerifyGIF(DB *sql.DB) []QueryGif {
 	return res
 }
 
-func DoNothing(DB *sql.DB, user, gifId, tag, info, title string) {
-	fmt.Println("do noting", gifId)
-}
-
 func VerifyGIF(DB *sql.DB, GifId string) {
 	rows, qerr := DB.Query("select USER,GifId,TAG,INFO,TITLE from GIF_TOVERIFY WHERE GifId like '%" + GifId + "%'")
 
@@ -254,7 +235,6 @@ func VerifyGIF(DB *sql.DB, GifId string) {
 		if serr := rows.Scan(&user, &gifId, &tag, &info, &title); serr != nil {
 			fmt.Printf("scan failed, err:%v\n", serr)
 		}
-		// DoNothing(DB,user, gifId, tag, info, title)
 		InsertGIF(DB, user, gifId, tag, info, title)
 		_, err := DB.Exec(`DELETE FROM GIF_TOVERIFY WHERE GifId='` + GifId + `'`)
 		if err != nil {
