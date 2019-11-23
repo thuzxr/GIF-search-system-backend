@@ -72,6 +72,7 @@ func TestGeneralRouter(t *testing.T){
 		Value:tokenString,
 	})
 	router.ServeHTTP(w, req)
+	time.Sleep(5*time.Second)
 	req, _ = http.NewRequest(http.MethodPost, "/remove", nil)
 	req.AddCookie(&http.Cookie{
 		Name:"token",
