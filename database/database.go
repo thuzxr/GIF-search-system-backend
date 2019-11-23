@@ -8,10 +8,14 @@ import (
 	"backend/utils"
 
 	_ "github.com/go-sql-driver/mysql"
+
+	goini "github.com/clod-moon/goconf"
 )
 
 func ConnectDB() *sql.DB {
-	dsn := fmt.Sprintf("%s:%s@%s(%s:%s)/%s", utils.USERNAME, utils.PASSWORD, utils.NETWORK, utils.SERVER, utils.PORT, utils.DATABASE)
+	conf:=goini.InitConfig("settings.ini")
+	serverAddr:=conf.GetValue("database","server")
+	dsn := fmt.Sprintf("%s:%s@%s(%s:%s)/%s", utils.USERNAME, utils.PASSWORD, utils.NETWORK, serverAddr, utils.PORT, utils.DATABASE)
 	DB, err := sql.Open("mysql", dsn)
 	if err != nil {
 		fmt.Printf("Open mysql failed,err:%v\n", err)
