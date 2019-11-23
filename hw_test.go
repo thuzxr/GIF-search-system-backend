@@ -6,6 +6,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"backend/utils"
+	"backend/cookie"
+	"time"
+	jwt "github.com/dgrijalva/jwt-go"
+
 	jsoniter "github.com/json-iterator/go"
 	"github.com/stretchr/testify/assert"
 )
@@ -41,4 +46,49 @@ func TestSearchRouter(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 	status = jsoniter.Get(w.Body.Bytes(), "status").ToString()
 	assert.Equal(t, status, "failed")
+	req, _ = http.NewRequest(http.MethodGet, "/search?key=吐出来&rank_type=Heat", nil)
+	router.ServeHTTP(w, req)
+}
+
+func TestGeneralRouter(t *testing.T){
+	cache.OfflineCacheClear()
+	router:=RouterSet()
+	w := httptest.NewRecorder()
+
+	claims := cookie.MyClaims{
+		"Admin",
+		1,
+		jwt.StandardClaims{
+			ExpiresAt: int64(time.Now().Unix() + 3600),
+			Issuer:    "Gif-Dio",
+		},
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, _ := token.SignedString([]byte(utils.COOKIE_SALT))
+	
+	req, _ := http.NewRequest(http.MethodPost, "/verify", nil)
+	req.AddCookie(&http.Cookie{
+		Name:"token",
+		Value:tokenString,
+	})
+	router.ServeHTTP(w, req)
+	req, _ = http.NewRequest(http.MethodPost, "/remove", nil)
+	req.AddCookie(&http.Cookie{
+		Name:"token",
+		Value:tokenString,
+	})
+	router.ServeHTTP(w, req)
+	req, _ = http.NewRequest(http.MethodGet, "/recommend", nil)
+	req.AddCookie(&http.Cookie{
+		Name:"token",
+		Value:tokenString,
+	})
+	router.ServeHTTP(w, req)
+	req, _ = http.NewRequest(http.MethodGet, "/favor", nil)
+	req.AddCookie(&http.Cookie{
+		Name:"token",
+		Value:tokenString,
+	})
+	router.ServeHTTP(w, req)
+
 }
