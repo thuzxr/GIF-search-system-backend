@@ -12,9 +12,10 @@ import (
 	goini "github.com/clod-moon/goconf"
 )
 
-func ConnectDB() *sql.DB {
-	conf:=goini.InitConfig("settings.ini")
+func ConnectDB(path string) *sql.DB {
+	conf:=goini.InitConfig(path)
 	serverAddr:=conf.GetValue("database","server")
+	fmt.Println(serverAddr)
 	dsn := fmt.Sprintf("%s:%s@%s(%s:%s)/%s", utils.USERNAME, utils.PASSWORD, utils.NETWORK, serverAddr, utils.PORT, utils.DATABASE)
 	DB, err := sql.Open("mysql", dsn)
 	if err != nil {

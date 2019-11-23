@@ -15,7 +15,7 @@ import(
 
 func TestRouters(t *testing.T){
 	r:=gin.Default()
-	DB := database.ConnectDB()
+	DB := database.ConnectDB("../settings.ini")
 	
 	ProfileRouterSet(r, DB)
 	w:=httptest.NewRecorder()

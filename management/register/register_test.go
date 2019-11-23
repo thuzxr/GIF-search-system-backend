@@ -11,7 +11,7 @@ import(
 
 func TestRegister(t *testing.T){
 	r:=gin.Default()
-	DB:=database.ConnectDB()
+	DB:=database.ConnectDB("../../settings.ini")
 	r.GET("/", func(c *gin.Context){
 		c.String(200, Register(c, DB))
 	})

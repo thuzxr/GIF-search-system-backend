@@ -15,7 +15,7 @@ func TestRecommend(t *testing.T){
 }
 
 func TestUserCF(t *testing.T){
-	DB:=database.ConnectDB()
+	DB:=database.ConnectDB("../settings.ini")
 	_, _, _, likes, likes_u2g := database.LoadAll(DB)
 	_ = UserCF(likes, likes_u2g)
 }

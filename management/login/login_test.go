@@ -6,6 +6,6 @@ import(
 )
 
 func TestLogin(t *testing.T){
-	DB:=database.ConnectDB()
+	DB:=database.ConnectDB("../../settings.ini")
 	Login("", "", DB)
 }

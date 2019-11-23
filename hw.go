@@ -29,7 +29,7 @@ import (
 )
 
 func RouterSet() *gin.Engine {
-	DB := database.ConnectDB()
+	DB := database.ConnectDB("./settings.ini")
 	database.Init(DB)
 
 	cache.OfflineCacheInit()
@@ -480,7 +480,7 @@ func LoadTls() gin.HandlerFunc {
 func main() {
 	cache.OfflineCacheInit()
 	r := RouterSet()
-	// // r.Run(":8080")
+	// // // r.Run(":8080")
 	r.Use(LoadTls())
 	r.RunTLS(":8080", "/etc/nginx/1_www.gifxiv.com_bundle.crt", "/etc/nginx/2_www.gifxiv.com.key")
 
