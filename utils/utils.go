@@ -20,15 +20,30 @@ type Gifs struct {
 }
 
 const (
-	USERNAME  = "wangziqi"
-	PASSWORD  = "QWEasd123_"
-	NETWORK   = "tcp"
-	PORT      = "3306"
-	SERVER    = "49.233.71.202"
-	DATABASE  = "GIF_INFO"
-	CACHE_DIR = "cache/"
-	HAMMING_EDGE = 133
-	HAMMING_DIV = 79
+	USERNAME      = "wangziqi"
+	PASSWORD      = "QWEasd123_"
+	NETWORK       = "tcp"
+	PORT          = "3306"
+	// SERVER        = "49.233.71.202"
+	DATABASE      = "GIF_INFO_NEW"
+	CACHE_DIR     = "cache/"
+	HAMMING_EDGE  = 133
+	HAMMING_DIV   = 79
+	COOKIE_EXPIRE = 3600
+	COOKIE_DOMAIN = "www.gifxiv.com"
+	COOKIE_SALT   = "The_World"
+	// SSLHOST       = "49.233.71.202:8080"
+	STATUS 		  = "status"
+	SUCCEED		  = "succeed"
+	RESULT		  = "result"
+	FIRSTNAME = "FirstName"
+	LASTNAME = "LastName"
+	ZIPCODE = "ZipCode"
+	COUNTRY = "Country"
+	HEIGHT = "Height"
+	BIRTHDAY = "Birthday"
+	// COOKIE_DOMAIN = "183.173.58.166"
+	// COOKIE_DOMAIN = "gif-dio-stardustcrusaders.app.secoder.net"
 )
 
 type readjson struct {
@@ -39,6 +54,17 @@ type readjson struct {
 	cover_url string
 	recommend []int
 }
+
+type Like_based_sort struct {
+	Gif  Gifs
+	Like int
+}
+
+type LikeSlice []Like_based_sort
+
+func (s LikeSlice) Len() int           { return len(s) }
+func (s LikeSlice) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
+func (s LikeSlice) Less(i, j int) bool { return s[i].Like > s[j].Like }
 
 //用于读取实例gif库的info.json，中期开发将替换为完整Gif库的链接，返回值是一个struct Gifs类
 func JsonParse(path0 string) []Gifs {

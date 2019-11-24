@@ -98,6 +98,6 @@ func FastIndexInit(DB *sql.DB) {
 }
 
 func main() {
-	DB := db.ConnectDB()
+	DB := db.ConnectDB("../settings.ini")
 	FastIndexInit(DB)
 }
