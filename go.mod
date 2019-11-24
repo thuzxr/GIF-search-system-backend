@@ -36,6 +36,7 @@ go 1.13
 require (
 	github.com/aliyun/aliyun-oss-go-sdk v2.0.3+incompatible
 	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
+	github.com/clod-moon/goconf v0.0.0-20191014062510-03cddbcd7da9
 	github.com/dchest/captcha v0.0.0-20170622155422-6a29415a8364
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.4.0

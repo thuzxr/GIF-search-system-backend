@@ -24,7 +24,7 @@ const (
 	PASSWORD      = "QWEasd123_"
 	NETWORK       = "tcp"
 	PORT          = "3306"
-	SERVER        = "49.233.71.202"
+	// SERVER        = "49.233.71.202"
 	DATABASE      = "GIF_INFO_NEW"
 	CACHE_DIR     = "cache/"
 	HAMMING_EDGE  = 133
@@ -32,7 +32,16 @@ const (
 	COOKIE_EXPIRE = 3600
 	COOKIE_DOMAIN = "www.gifxiv.com"
 	COOKIE_SALT   = "The_World"
-	SSLHOST       = "49.233.71.202:8080"
+	// SSLHOST       = "49.233.71.202:8080"
+	STATUS 		  = "status"
+	SUCCEED		  = "succeed"
+	RESULT		  = "result"
+	FIRSTNAME = "FirstName"
+	LASTNAME = "LastName"
+	ZIPCODE = "ZipCode"
+	COUNTRY = "Country"
+	HEIGHT = "Height"
+	BIRTHDAY = "Birthday"
 	// COOKIE_DOMAIN = "183.173.58.166"
 	// COOKIE_DOMAIN = "gif-dio-stardustcrusaders.app.secoder.net"
 )

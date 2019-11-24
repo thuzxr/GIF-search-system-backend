@@ -25,13 +25,13 @@ func UserAuth() gin.HandlerFunc {
 			} else {
 				c.Abort()
 				c.JSON(401, gin.H{
-					"status": "Unauthorized",
+					utils.STATUS: "Unauthorized",
 				})
 			}
 		} else {
 			c.Abort()
 			c.JSON(401, gin.H{
-				"status": "Unauthorized",
+				utils.STATUS: "Unauthorized",
 			})
 		}
 	}
@@ -45,7 +45,7 @@ func UserAntiAuth() gin.HandlerFunc {
 			if status >= 1 {
 				c.Abort()
 				c.JSON(412, gin.H{
-					"status": "Has User Online",
+					utils.STATUS: "Has User Online",
 				})
 			} else {
 				c.Next()
@@ -60,7 +60,7 @@ func ClaimsParse(tokenString string) (*MyClaims, int) {
 	var claims *MyClaims
 	var status int
 	var ok bool
-	token, err := jwt.ParseWithClaims(tokenString, &MyClaims{}, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &MyClaims{}, func(_ *jwt.Token) (interface{}, error) {
 		return []byte(utils.COOKIE_SALT), nil
 	})
 	fmt.Println("token:", token)
@@ -109,7 +109,7 @@ func Getusername(c *gin.Context) string {
 	if cookie != nil {
 		tokenString := cookie.Value
 		var claims *MyClaims
-		token, err := jwt.ParseWithClaims(tokenString, &MyClaims{}, func(token *jwt.Token) (interface{}, error) {
+		token, err := jwt.ParseWithClaims(tokenString, &MyClaims{}, func(_ *jwt.Token) (interface{}, error) {
 			return []byte(utils.COOKIE_SALT), nil
 		})
 		if err == nil {

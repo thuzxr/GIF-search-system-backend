@@ -13,8 +13,8 @@ import(
 func TestVericode(t *testing.T){
 	r:=gin.Default()
 	r.GET("/", func(c *gin.Context){
-		Get_vericode(c)
-		Gen_vericode(c)
+		Getvericode(c)
+		Genvericode(c)
 	})
 
 	w := httptest.NewRecorder()

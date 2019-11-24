@@ -2,6 +2,8 @@ github.com/aliyun/aliyun-oss-go-sdk v2.0.3+incompatible h1:724q2AmQ3m1mrdD9kYqK5
 github.com/aliyun/aliyun-oss-go-sdk v2.0.3+incompatible/go.mod h1:T/Aws4fEfogEE9v+HPhhw+CntffsBHJ8nXQCwKr0/g8=
 github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f h1:ZNv7On9kyUzm7fvRZumSyy/IUiSC7AzL0I1jKKtwooA=
 github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f/go.mod h1:AuiFmCCPBSrqvVMvuqFuk0qogytodnVFVSN5CeJB8Gc=
+github.com/clod-moon/goconf v0.0.0-20191014062510-03cddbcd7da9 h1:2lhgHwr9UghBCm/ynLVJjHgh9Irzd10e9qLYrm1RvKs=
+github.com/clod-moon/goconf v0.0.0-20191014062510-03cddbcd7da9/go.mod h1:ZrenXbcdFgLwck5G3Ynm6UGfTPgrg21yNxpJKXHZO9c=
 github.com/codegangsta/negroni v1.0.0/go.mod h1:v0y3T5G7Y1UlFfyxFn/QLRU4a2EuNau2iZY63YTKWo0=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
