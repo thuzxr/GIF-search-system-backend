@@ -13,8 +13,8 @@ import (
 )
 
 func ConnectDB(path string) *sql.DB {
-	conf:=goini.InitConfig(path)
-	serverAddr:=conf.GetValue("database","server")
+	conf := goini.InitConfig(path)
+	serverAddr := conf.GetValue("database", "server")
 	fmt.Println(serverAddr)
 	dsn := fmt.Sprintf("%s:%s@%s(%s:%s)/%s", utils.USERNAME, utils.PASSWORD, utils.NETWORK, serverAddr, utils.PORT, utils.DATABASE)
 	DB, err := sql.Open("mysql", dsn)
@@ -44,7 +44,7 @@ func Init(DB *sql.DB) {
 			TYPE		INTEGER			DEFAULT 1
 			);`
 	_, err := DB.Exec(sql)
-	if ! ErrProc(err) {
+	if !ErrProc(err) {
 		return
 	}
 	fmt.Println("create table USER_MANAGE succeed")
@@ -64,7 +64,7 @@ func Init(DB *sql.DB) {
 		FOREIGN KEY(USER) REFERENCES USER_MANAGE(USER) ON DELETE CASCADE
 		);`
 	_, err = DB.Exec(sql)
-	if ! ErrProc(err){
+	if !ErrProc(err) {
 		return
 	}
 	fmt.Println("create table PROFILE succeed")
@@ -77,7 +77,7 @@ func Init(DB *sql.DB) {
 		PRIMARY KEY(USER, Follows)
 		);`
 	_, err = DB.Exec(sql)
-	if ! ErrProc(err){
+	if !ErrProc(err) {
 		return
 	}
 	fmt.Println("create table FOLLOW succeed")
@@ -89,7 +89,7 @@ func Init(DB *sql.DB) {
 		FOREIGN KEY(USER) REFERENCES PROFILE(USER) ON DELETE CASCADE
 		);`
 	_, err = DB.Exec(sql)
-	if ! ErrProc(err){
+	if !ErrProc(err) {
 		return
 	}
 	fmt.Println("create table FAVOR succeed")
@@ -103,7 +103,7 @@ func Init(DB *sql.DB) {
 		FOREIGN KEY(USER) REFERENCES PROFILE(USER) ON DELETE CASCADE
 	);`
 	_, err = DB.Exec(sql)
-	if ! ErrProc(err){
+	if !ErrProc(err) {
 		return
 	}
 	fmt.Println("create table GIF_INFO succeed")
@@ -117,7 +117,7 @@ func Init(DB *sql.DB) {
 		FOREIGN KEY(USER) REFERENCES PROFILE(USER) ON DELETE CASCADE
 	);`
 	_, err = DB.Exec(sql)
-	if ! ErrProc(err){
+	if !ErrProc(err) {
 		return
 	}
 	fmt.Println("create table GIF_TOVERIFY succeed")
@@ -132,7 +132,7 @@ func Init(DB *sql.DB) {
 		FOREIGN KEY(GifId) REFERENCES GIF_INFO(GifId) ON DELETE CASCADE
 		); `
 	_, err = DB.Exec(sql)
-	if ! ErrProc(err){
+	if !ErrProc(err) {
 		return
 	}
 	fmt.Println("create table COMMENTS succeed")
@@ -145,7 +145,7 @@ func Init(DB *sql.DB) {
 		FOREIGN KEY(GifId) REFERENCES GIF_INFO(GifId) ON DELETE CASCADE
 		); `
 	_, err = DB.Exec(sql)
-	if ! ErrProc(err){
+	if !ErrProc(err) {
 		return
 	}
 	fmt.Println("create table LIKES succeed")
@@ -210,7 +210,7 @@ func GetToVerifyGIF(DB *sql.DB) []QueryGif {
 	var user, gifId, tag, info, title string
 	for rows.Next() {
 		if serr := rows.Scan(&user, &gifId, &tag, &info, &title); serr != nil {
-			fmt.Printf("scan failed, err:%v\n", serr)
+			fmt.Printf(utils.ScanFailed, serr)
 		}
 		res = append(res, QueryGif{
 			GifId: gifId,
@@ -238,7 +238,7 @@ func VerifyGIF(DB *sql.DB, GifId string) {
 	var user, gifId, tag, info, title string
 	for rows.Next() {
 		if serr := rows.Scan(&user, &gifId, &tag, &info, &title); serr != nil {
-			fmt.Printf("scan failed, err:%v\n", serr)
+			fmt.Printf(utils.ScanFailed, serr)
 		}
 		InsertGIF(DB, user, gifId, tag, info, title)
 		_, err := DB.Exec(`DELETE FROM GIF_TOVERIFY WHERE GifId='` + GifId + `'`)
@@ -309,8 +309,8 @@ func UpdateLikes(likes map[string][]string, DB *sql.DB) {
 // 	}
 // }
 
-func ChangeProfile(user, Email, FirstName, LastName, Addr, ZipCode, City, Country, About, Height, Birthday string, DB *sql.DB) string {
-	_, err := DB.Exec(`UPDATE PROFILE SET Email='` + Email + `', FirstName='` + FirstName + `', LastName='` + LastName + `', Addr='` + Addr + `',ZipCode='` + ZipCode + `', City='` + City + `', Country='` + Country + `', About='` + About + `', Height='` + Height + `', Birthday='` + Birthday + `' WHERE USER='` + user + `'`)
+func ChangeProfile(user string, Profile utils.Profile, DB *sql.DB) string {
+	_, err := DB.Exec(`UPDATE PROFILE SET Email='` + Profile.Email + `', FirstName='` + Profile.FirstName + `', LastName='` + Profile.LastName + `', Addr='` + Profile.Addr + `',ZipCode='` + Profile.ZipCode + `', City='` + Profile.City + `', Country='` + Profile.Country + `', About='` + Profile.About + `', Height='` + Profile.Height + `', Birthday='` + Profile.Birthday + `' WHERE USER='` + user + `'`)
 	if err != nil {
 		return "更新失败"
 	} else {
@@ -488,7 +488,7 @@ func QueryGifs(user string, DB *sql.DB) []QueryGif {
 	for rows.Next() {
 		err := rows.Scan(&querygif.GifId, &querygif.TAG, &querygif.INFO, &querygif.TITLE)
 		if err != nil {
-			fmt.Printf("scan failed, err:%v\n", err)
+			fmt.Printf(utils.ScanFailed, err)
 		}
 		QGifs = append(QGifs, *querygif)
 	}

@@ -1,21 +1,22 @@
 package router
 
-import(
+import (
 	"github.com/gin-gonic/gin"
-	
-	"database/sql"
-	_ "github.com/go-sql-driver/mysql"
+
 	"backend/cookie"
-	"backend/utils"
 	"backend/database"
-	"strings"
-	"backend/ossUpload"
-	"backend/management/vericode"
-	"backend/management/register"
 	"backend/management/login"
+	"backend/management/register"
+	"backend/management/vericode"
+	"backend/ossUpload"
+	"backend/utils"
+	"database/sql"
+	"strings"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
-func ProfileRouterSet(r *gin.Engine, DB *sql.DB){
+func ProfileRouterSet(r *gin.Engine, DB *sql.DB) {
 	r.GET("/profile", func(c *gin.Context) {
 		SetHeader(c)
 
@@ -23,14 +24,14 @@ func ProfileRouterSet(r *gin.Engine, DB *sql.DB){
 		user := cookie.Getusername(c)
 		profile := database.QueryProfile(user, DB)
 		c.JSON(200, gin.H{
-			"Email":     profile[0],
+			"Email":         profile[0],
 			utils.FIRSTNAME: profile[1],
 			utils.LASTNAME:  profile[2],
-			"Addr":      profile[3],
+			"Addr":          profile[3],
 			utils.ZIPCODE:   profile[4],
-			"City":      profile[5],
+			"City":          profile[5],
 			utils.COUNTRY:   profile[6],
-			"About":     profile[7],
+			"About":         profile[7],
 			utils.HEIGHT:    profile[8],
 			utils.BIRTHDAY:  profile[9],
 		})
@@ -52,13 +53,15 @@ func ProfileRouterSet(r *gin.Engine, DB *sql.DB){
 		Height := c.DefaultPostForm(utils.HEIGHT, "")
 		Birthday := c.DefaultPostForm(utils.BIRTHDAY, "")
 
-		database.ChangeProfile(user, Email, FirstName, LastName, Addr, ZipCode, City, Country, About, Height, Birthday, DB)
+		profile := utils.Profile{Email: Email, FirstName: FirstName, LastName: LastName, Addr: Addr, ZipCode: ZipCode, City: City,
+			Country: Country, About: About, Height: Height, Birthday: Birthday}
+
+		database.ChangeProfile(user, profile, DB)
 		c.JSON(200, gin.H{
-			"status": true,
+			utils.STATUS: true,
 		})
 	})
 }
-
 
 func SetHeader(c *gin.Context) {
 	c.Header("Access-Control-Allow-Origin", "*")
@@ -67,7 +70,7 @@ func SetHeader(c *gin.Context) {
 	c.Header("Access-Control-Allow-Headers", "Action, Module, X-PINGOTHER, Content-Type, Content-Disposition")
 }
 
-func FavorRouterSet(r *gin.Engine, likes, likes_u2g map[string][]string){
+func FavorRouterSet(r *gin.Engine, likes, likes_u2g map[string][]string) {
 	r.POST("/insert_favor", func(c *gin.Context) {
 		SetHeader(c)
 
@@ -79,10 +82,14 @@ func FavorRouterSet(r *gin.Engine, likes, likes_u2g map[string][]string){
 		likes_u2g[user] = append(likes_u2g[user], gifid)
 
 		c.JSON(200, gin.H{
-			"status": "收藏成功",
+			utils.STATUS: "收藏成功",
 		})
 	})
 
+	FavorRouterSet2(r, likes, likes_u2g)
+}
+
+func FavorRouterSet2(r *gin.Engine, likes, likes_u2g map[string][]string){
 	r.POST("/delete_favor", func(c *gin.Context) {
 		SetHeader(c)
 
@@ -90,33 +97,40 @@ func FavorRouterSet(r *gin.Engine, likes, likes_u2g map[string][]string){
 		user := cookie.Getusername(c)
 		gifid_string := c.DefaultPostForm("GifId", "")
 		gifids := strings.Split(gifid_string, " ")
-		// favors := database.DeleteFavor(user, gifids, DB)
-		for _, gifid := range gifids {
-			for j, usr := range likes[gifid] {
-				if usr == user {
-					likes[gifid] = append(likes[gifid][:j], likes[gifid][j+1:]...)
-					break
-				}
-			}
-		}
+		makeLikes(user, gifids, likes)
 
-		for _, gifid := range gifids {
-			for i, checkgif := range likes_u2g[user] {
-				if gifid == checkgif {
-					likes_u2g[user] = append(likes_u2g[user][:i], likes_u2g[user][i+1:]...)
-					break
-				}
-			}
-		}
+		makeLikesu2g(user, gifids, likes_u2g)
 
 		c.JSON(200, gin.H{
-			"status": "删除成功",
+			utils.STATUS: "删除成功",
 		})
 	})
 }
 
-func VerifyRouterSet(r *gin.Engine, DB *sql.DB){
-	
+func makeLikes(user string,gifids []string, likes map[string][]string){
+	for _, gifid := range gifids {
+		for j, usr := range likes[gifid] {
+			if usr == user {
+				likes[gifid] = append(likes[gifid][:j], likes[gifid][j+1:]...)
+				break
+			}
+		}
+	}
+}
+
+func makeLikesu2g(user string,gifids []string, likes_u2g map[string][]string){
+	for _, gifid := range gifids {
+		for i, checkgif := range likes_u2g[user] {
+			if gifid == checkgif {
+				likes_u2g[user] = append(likes_u2g[user][:i], likes_u2g[user][i+1:]...)
+				break
+			}
+		}
+	}
+}
+
+func VerifyRouterSet(r *gin.Engine, DB *sql.DB) {
+
 	r.POST("/remove_verify", func(c *gin.Context) {
 		SetHeader(c)
 		name := c.DefaultPostForm("name", "")
@@ -133,7 +147,7 @@ func VerifyRouterSet(r *gin.Engine, DB *sql.DB){
 
 		res := database.GetToVerifyGIF(DB)
 		for i := range res {
-			res[i].OSSURL = ossUpload.OssSignLink_Verify(utils.Gifs{
+			res[i].OSSURL = ossUpload.OssSignLinkVerify(utils.Gifs{
 				Name: res[i].GifId,
 			}, 3600)
 		}
@@ -144,7 +158,7 @@ func VerifyRouterSet(r *gin.Engine, DB *sql.DB){
 	})
 }
 
-func OtherRouterSet(r *gin.Engine, DB *sql.DB){
+func OtherRouterSet(r *gin.Engine, DB *sql.DB) {
 	r.GET("/logout", func(c *gin.Context) {
 		SetHeader(c)
 		c.SetCookie("token", "", -1, "/", utils.COOKIE_DOMAIN, false, false)
@@ -168,8 +182,8 @@ func OtherRouterSet(r *gin.Engine, DB *sql.DB){
 	})
 }
 
-func CaptchaRouterSet(r *gin.Engine){
-	
+func CaptchaRouterSet(r *gin.Engine) {
+
 	r.GET("/refresh_veri", func(c *gin.Context) {
 		SetHeader(c)
 		vericode.Getvericode(c)
@@ -181,7 +195,7 @@ func CaptchaRouterSet(r *gin.Engine){
 	})
 }
 
-func ManageRouterSet(r *gin.Engine, DB *sql.DB, likes_u2g map[string][]string){
+func ManageRouterSet(r *gin.Engine, DB *sql.DB, likes_u2g map[string][]string) {
 	r.POST("/login", cookie.UserAntiAuth(), func(c *gin.Context) {
 		SetHeader(c)
 
@@ -198,17 +212,17 @@ func ManageRouterSet(r *gin.Engine, DB *sql.DB, likes_u2g map[string][]string){
 
 			c.JSON(200, gin.H{
 				utils.STATUS:    status,
-				"Email":     profile[0],
+				"Email":         profile[0],
 				utils.FIRSTNAME: profile[1],
 				utils.LASTNAME:  profile[2],
-				"Addr":      profile[3],
+				"Addr":          profile[3],
 				utils.ZIPCODE:   profile[4],
-				"City":      profile[5],
+				"City":          profile[5],
 				utils.COUNTRY:   profile[6],
-				"About":     profile[7],
+				"About":         profile[7],
 				utils.HEIGHT:    profile[8],
 				utils.BIRTHDAY:  profile[9],
-				"favor":     favors,
+				"favor":         favors,
 			})
 		} else {
 			c.JSON(406, gin.H{
@@ -238,7 +252,7 @@ func ManageRouterSet(r *gin.Engine, DB *sql.DB, likes_u2g map[string][]string){
 		}
 		c.JSON(200, gin.H{
 			utils.STATUS: status,
-			"claims": claims,
+			"claims":     claims,
 		})
 	})
 }

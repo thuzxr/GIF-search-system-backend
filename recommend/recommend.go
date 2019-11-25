@@ -60,9 +60,8 @@ func (s recommend_gifs) Len() int           { return len(s) }
 func (s recommend_gifs) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 func (s recommend_gifs) Less(i, j int) bool { return s[i].score > s[j].score }
 
-func UserCF(likes map[string][]string, likes_u2g map[string][]string) map[string][]string {
-	var mat map[string]map[string]float64
-	mat = make(map[string]map[string]float64)
+func UserCF1(likes, likes_u2g map[string][]string) map[string]map[string]float64{
+	mat := make(map[string]map[string]float64)
 	var score float64
 	for user1 := range likes_u2g {
 		score = 0
@@ -76,9 +75,11 @@ func UserCF(likes map[string][]string, likes_u2g map[string][]string) map[string
 			mat[user1][user2] = score
 		}
 	}
+	return mat
+}
 
-	var recommend_user map[string][]recommend_gif
-	recommend_user = make(map[string][]recommend_gif)
+func UserCF2(likes, likes_u2g map[string][]string, mat map[string]map[string]float64) map[string][]recommend_gif{
+	recommend_user := make(map[string][]recommend_gif)
 	for user := range likes_u2g {
 		recommend_user[user] = make([]recommend_gif, 0)
 		for gifid := range likes {
@@ -91,14 +92,11 @@ func UserCF(likes map[string][]string, likes_u2g map[string][]string) map[string
 			recommend_user[user] = append(recommend_user[user], userCF_gif)
 		}
 	}
+	return recommend_user
+}
 
-	// fmt.Println(recommend_user)
-	for user := range likes_u2g {
-		sort.Sort(recommend_gifs(recommend_user[user]))
-	}
-
-	var recommendation map[string][]string
-	recommendation = make(map[string][]string)
+func UserCF3(likes_u2g map[string][]string, recommend_user map[string][]recommend_gif) map[string][]string{
+	recommendation := make(map[string][]string)
 	for user := range likes_u2g {
 		recommendation[user] = make([]string, 0)
 		for _, gif := range recommend_user[user] {
@@ -109,6 +107,21 @@ func UserCF(likes map[string][]string, likes_u2g map[string][]string) map[string
 			recommendation[user] = recommendation[user][:10]
 		}
 	}
+	return recommendation
+}
+
+func UserCF(likes map[string][]string, likes_u2g map[string][]string) map[string][]string {
+	mat:=UserCF1(likes, likes_u2g)
+	recommend_user:=UserCF2(likes, likes_u2g, mat) 
+	
+
+	// fmt.Println(recommend_user)
+	for user := range likes_u2g {
+		sort.Sort(recommend_gifs(recommend_user[user]))
+	}
+
+	recommendation := UserCF3(likes_u2g, recommend_user)
+	
 
 	return recommendation
 }
