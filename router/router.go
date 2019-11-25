@@ -86,6 +86,10 @@ func FavorRouterSet(r *gin.Engine, likes, likes_u2g map[string][]string) {
 		})
 	})
 
+	FavorRouterSet2(r, likes, likes_u2g)
+}
+
+func FavorRouterSet2(r *gin.Engine, likes, likes_u2g map[string][]string){
 	r.POST("/delete_favor", func(c *gin.Context) {
 		SetHeader(c)
 
@@ -136,7 +140,7 @@ func VerifyRouterSet(r *gin.Engine, DB *sql.DB) {
 
 		res := database.GetToVerifyGIF(DB)
 		for i := range res {
-			res[i].OSSURL = ossUpload.OssSignLink_Verify(utils.Gifs{
+			res[i].OSSURL = ossUpload.OssSignLinkVerify(utils.Gifs{
 				Name: res[i].GifId,
 			}, 3600)
 		}
