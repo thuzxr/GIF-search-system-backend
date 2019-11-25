@@ -20,10 +20,10 @@ type Gifs struct {
 }
 
 const (
-	USERNAME      = "wangziqi"
-	PASSWORD      = "QWEasd123_"
-	NETWORK       = "tcp"
-	PORT          = "3306"
+	USERNAME = "wangziqi"
+	PASSWORD = "QWEasd123_"
+	NETWORK  = "tcp"
+	PORT     = "3306"
 	// SERVER        = "49.233.71.202"
 	DATABASE      = "GIF_INFO_NEW"
 	CACHE_DIR     = "cache/"
@@ -33,15 +33,16 @@ const (
 	COOKIE_DOMAIN = "www.gifxiv.com"
 	COOKIE_SALT   = "The_World"
 	// SSLHOST       = "49.233.71.202:8080"
-	STATUS 		  = "status"
-	SUCCEED		  = "succeed"
-	RESULT		  = "result"
-	FIRSTNAME = "FirstName"
-	LASTNAME = "LastName"
-	ZIPCODE = "ZipCode"
-	COUNTRY = "Country"
-	HEIGHT = "Height"
-	BIRTHDAY = "Birthday"
+	STATUS     = "status"
+	SUCCEED    = "succeed"
+	RESULT     = "result"
+	FIRSTNAME  = "FirstName"
+	LASTNAME   = "LastName"
+	ZIPCODE    = "ZipCode"
+	COUNTRY    = "Country"
+	HEIGHT     = "Height"
+	BIRTHDAY   = "Birthday"
+	ScanFailed = "scan failed, err:%v\n"
 	// COOKIE_DOMAIN = "183.173.58.166"
 	// COOKIE_DOMAIN = "gif-dio-stardustcrusaders.app.secoder.net"
 )
@@ -53,6 +54,19 @@ type readjson struct {
 	gif_url   string
 	cover_url string
 	recommend []int
+}
+
+type Profile struct {
+	Email     string
+	FirstName string
+	LastName  string
+	Addr      string
+	ZipCode   string
+	City      string
+	Country   string
+	About     string
+	Height    string
+	Birthday  string
 }
 
 type Like_based_sort struct {
